@@ -1,0 +1,1417 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <title>Стая · Идём в столовку</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        :root {
+            --bg: var(--tg-theme-bg-color, #fafafa);
+            --surface: var(--tg-theme-secondary-bg-color, #ffffff);
+            --surface-alt: rgba(0, 0, 0, 0.03);
+            --text: var(--tg-theme-text-color, #18181b);
+            --hint: var(--tg-theme-hint-color, #71717a);
+            --border: rgba(0, 0, 0, 0.07);
+            --border-soft: rgba(0, 0, 0, 0.04);
+            --accent: #6366f1;
+            --accent-soft: rgba(99, 102, 241, 0.10);
+            --accent-softer: rgba(99, 102, 241, 0.05);
+            --accent-text: #ffffff;
+            --danger: #ef4444;
+            --now-line: #ef4444;
+            --radius-lg: 16px;
+            --radius-md: 12px;
+            --radius-sm: 8px;
+
+            /* Timeline geometry */
+            --tl-hour: 80px;
+            --tl-padding-h: 12px;
+            --tl-block-h: 68px;
+            --tl-block-gap: 4px;
+            --tl-col-w: 48px;
+
+            /* iOS safe areas */
+            --safe-top: env(safe-area-inset-top, 0px);
+            --safe-bottom: env(safe-area-inset-bottom, 0px);
+            --safe-left: env(safe-area-inset-left, 0px);
+            --safe-right: env(safe-area-inset-right, 0px);
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --surface-alt: rgba(255, 255, 255, 0.04);
+                --border: rgba(255, 255, 255, 0.08);
+                --border-soft: rgba(255, 255, 255, 0.04);
+            }
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html, body { height: 100%; overflow-x: hidden; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Inter', system-ui, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            font-size: 15px;
+            line-height: 1.4;
+            -webkit-font-smoothing: antialiased;
+            padding-bottom: calc(100px + var(--safe-bottom));
+            padding-left: var(--safe-left);
+            padding-right: var(--safe-right);
+        }
+
+        /* ===== Header ===== */
+        .app-header {
+            padding: calc(16px + var(--safe-top)) 20px 8px;
+        }
+        .app-title {
+            font-size: 26px; font-weight: 800; letter-spacing: -0.02em;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .app-title .emoji { font-size: 22px; }
+        .app-subtitle { font-size: 13px; color: var(--hint); margin-top: 2px; }
+
+        /* ===== Tabs ===== */
+        .tabs {
+            display: flex; gap: 4px; padding: 4px;
+            margin: 16px 20px 0;
+            background-color: var(--surface-alt);
+            border-radius: var(--radius-md);
+        }
+        .tab {
+            flex: 1; padding: 11px 12px;
+            min-height: 40px;
+            background: transparent; border: none;
+            border-radius: var(--radius-sm);
+            font-size: 14px; font-weight: 600;
+            color: var(--hint); cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+        }
+        .tab.active {
+            background-color: var(--surface);
+            color: var(--text);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        /* ===== Day navigation ===== */
+        .day-nav {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 16px 20px 8px; gap: 8px;
+        }
+        .day-info { flex: 1; text-align: center; }
+        .day-label { font-size: 17px; font-weight: 700; letter-spacing: -0.01em; }
+        .day-hint {
+            font-size: 12px; color: var(--hint);
+            margin-top: 2px;
+            text-transform: uppercase; letter-spacing: 0.05em;
+        }
+        .nav-btn {
+            width: 44px; height: 44px;
+            border-radius: 50%;
+            background-color: var(--surface-alt);
+            border: none; color: var(--text);
+            font-size: 17px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.15s ease;
+            flex-shrink: 0;
+        }
+        .nav-btn:active {
+            transform: scale(0.92);
+            background-color: var(--accent-soft);
+        }
+        .today-btn {
+            display: inline-flex; align-items: center; gap: 4px;
+            margin: 0 20px 8px;
+            font-size: 12px; color: var(--accent);
+            font-weight: 600;
+            background: none; border: none;
+            cursor: pointer; padding: 4px 8px;
+            border-radius: 6px; font-family: inherit;
+        }
+        .today-btn:active { background-color: var(--accent-soft); }
+        .today-btn[hidden] { display: none; }
+
+        /* ===== Timeline ===== */
+        .timeline-wrap {
+            display: flex; padding: 8px 20px 20px;
+            position: relative;
+        }
+        .time-col { width: var(--tl-col-w); flex-shrink: 0; position: relative; }
+        .time-label {
+            position: absolute; left: 0;
+            transform: translateY(-50%);
+            font-size: 11px; font-weight: 600;
+            color: var(--hint);
+            font-variant-numeric: tabular-nums;
+            letter-spacing: 0.02em;
+        }
+        .grid-col {
+            flex: 1; position: relative;
+            border-left: 1px solid var(--border);
+            margin-left: 0;
+        }
+        .grid-line {
+            position: absolute; left: 0; right: 0;
+            height: 1px;
+            background-color: var(--border);
+            pointer-events: none;
+        }
+        .grid-line.half { background-color: var(--border-soft); }
+        .now-line {
+            position: absolute; left: -4px; right: 0;
+            height: 2px;
+            background-color: var(--now-line);
+            pointer-events: none; z-index: 5;
+        }
+        .now-line::before {
+            content: '';
+            position: absolute; left: -3px; top: -3px;
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            background-color: var(--now-line);
+        }
+
+        .tl-block {
+            position: absolute;
+            padding: 8px 10px;
+            border-radius: 10px;
+            background-color: var(--accent-soft);
+            cursor: pointer;
+            overflow: hidden;
+            transition: transform 0.12s ease, box-shadow 0.15s ease;
+            user-select: none;
+            display: flex; flex-direction: column;
+            gap: 3px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+        }
+        .tl-block::before {
+            content: '';
+            position: absolute; left: 0; top: 0; bottom: 0;
+            width: 3px;
+            background-color: var(--accent);
+            border-radius: 0 2px 2px 0;
+        }
+        .tl-block:active { transform: scale(0.98); }
+        .tl-block.me-here {
+            background-color: var(--accent);
+            color: var(--accent-text);
+        }
+        .tl-block.me-here::before { background-color: rgba(255,255,255,0.6); }
+
+        .tl-row {
+            display: flex; align-items: center;
+            gap: 6px;
+            min-width: 0;
+        }
+        .tl-block .tl-time {
+            font-size: 14px; font-weight: 700;
+            font-variant-numeric: tabular-nums;
+            color: var(--accent);
+            letter-spacing: -0.01em;
+            flex-shrink: 0;
+        }
+        .tl-block.me-here .tl-time { color: var(--accent-text); }
+
+        .tl-mensa {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--hint);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            min-width: 0;
+        }
+        .tl-block.me-here .tl-mensa {
+            color: rgba(255,255,255,0.85);
+        }
+
+        .tl-users {
+            display: flex; align-items: center;
+            margin-top: auto;
+        }
+        .tl-mini-avatar {
+            width: 20px; height: 20px;
+            border-radius: 50%;
+            display: inline-flex; align-items: center; justify-content: center;
+            font-size: 9px; font-weight: 700;
+            color: #fff;
+            margin-left: -6px;
+            border: 2px solid var(--bg);
+            background-size: cover; background-position: center;
+        }
+        .tl-mini-avatar:first-child { margin-left: 0; }
+        .tl-block.me-here .tl-mini-avatar { border-color: var(--accent); }
+        .tl-block .tl-count {
+            font-size: 11px; font-weight: 600;
+            color: var(--hint);
+            margin-left: 6px;
+            white-space: nowrap;
+        }
+        .tl-block.me-here .tl-count { color: rgba(255,255,255,0.85); }
+
+        /* ===== Empty state ===== */
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px 40px;
+            color: var(--hint);
+        }
+        .empty-state .icon { font-size: 40px; margin-bottom: 12px; opacity: 0.5; }
+        .empty-state .title {
+            font-size: 16px; font-weight: 600;
+            color: var(--text); margin-bottom: 4px;
+        }
+        .empty-state .desc { font-size: 13px; }
+
+        /* ===== FAB ===== */
+        .fab {
+            position: fixed;
+            bottom: calc(20px + var(--safe-bottom));
+            right: calc(20px + var(--safe-right));
+            width: 56px; height: 56px;
+            border-radius: 50%;
+            background-color: var(--accent);
+            color: var(--accent-text);
+            border: none;
+            box-shadow: 0 8px 24px rgba(99, 102, 241, 0.35);
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 28px; font-weight: 300;
+            transition: transform 0.15s ease;
+            z-index: 50;
+        }
+        .fab:active { transform: scale(0.92); }
+
+        /* ===== Week view ===== */
+        .week-list { padding: 8px 20px; }
+        .week-day {
+            background-color: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 14px 16px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+        .week-day:active { transform: scale(0.99); }
+        .week-day.today { border-color: var(--accent); }
+        .week-day-head {
+            display: flex; align-items: center; justify-content: space-between;
+            margin-bottom: 8px;
+        }
+        .week-day-date { display: flex; align-items: baseline; gap: 8px; }
+        .week-day-name { font-size: 15px; font-weight: 700; }
+        .week-day-date-num {
+            font-size: 12px; color: var(--hint);
+            text-transform: uppercase;
+        }
+        .week-day-count {
+            font-size: 11px; color: var(--hint);
+            background-color: var(--surface-alt);
+            padding: 3px 8px;
+            border-radius: 999px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        .week-day-count.active {
+            background-color: var(--accent-soft);
+            color: var(--accent);
+        }
+        .week-day-blocks {
+            display: flex; flex-wrap: wrap; gap: 4px;
+        }
+        .week-block-tag {
+            display: inline-flex; align-items: center; gap: 4px;
+            font-size: 11px; font-weight: 600;
+            padding: 3px 8px;
+            border-radius: 6px;
+            background-color: var(--surface-alt);
+            font-variant-numeric: tabular-nums;
+        }
+        .week-block-tag .mensa-mini {
+            font-size: 10px;
+            font-weight: 600;
+            color: var(--hint);
+            opacity: 0.85;
+        }
+        .week-block-tag.has-me {
+            background-color: var(--accent-soft);
+            color: var(--accent);
+        }
+        .week-block-tag.has-me .mensa-mini { color: var(--accent); opacity: 0.7; }
+
+        /* ===== Bottom sheet ===== */
+        .sheet-backdrop {
+            position: fixed; inset: 0;
+            background-color: rgba(0, 0, 0, 0.45);
+            z-index: 100;
+            opacity: 0; pointer-events: none;
+            transition: opacity 0.25s ease;
+        }
+        .sheet-backdrop.show { opacity: 1; pointer-events: auto; }
+        .sheet {
+            position: fixed;
+            left: 0; right: 0; bottom: 0;
+            background-color: var(--bg);
+            border-top-left-radius: 20px;
+            border-top-right-radius: 20px;
+            padding: 8px 20px calc(28px + var(--safe-bottom));
+            z-index: 101;
+            transform: translateY(110%);
+            transition: transform 0.3s cubic-bezier(0.2, 0.9, 0.3, 1);
+            max-height: 85vh;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        .sheet.show { transform: translateY(0); }
+        .sheet-handle {
+            width: 40px; height: 4px;
+            background-color: var(--hint);
+            opacity: 0.3;
+            border-radius: 2px;
+            margin: 0 auto 16px;
+        }
+        .sheet-title {
+            font-size: 18px; font-weight: 700;
+            margin-bottom: 4px;
+            letter-spacing: -0.01em;
+        }
+        .sheet-subtitle {
+            font-size: 13px; color: var(--hint);
+            margin-bottom: 16px;
+        }
+        .sheet-section-label {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--hint);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            margin: 16px 0 8px;
+        }
+        .sheet-action {
+            width: 100%;
+            padding: 15px;
+            min-height: 50px;
+            background-color: var(--accent);
+            color: var(--accent-text);
+            border: none;
+            border-radius: var(--radius-md);
+            font-size: 16px; font-weight: 700;
+            cursor: pointer;
+            font-family: inherit;
+            transition: opacity 0.15s ease;
+            margin-top: 12px;
+        }
+        .sheet-action:active { opacity: 0.7; }
+        .sheet-action[disabled] { opacity: 0.35; cursor: not-allowed; }
+        .sheet-action.secondary {
+            background-color: transparent;
+            color: var(--danger);
+            border: 1px solid var(--danger);
+        }
+
+        /* ===== Time chips ===== */
+        .time-scroller {
+            display: flex; flex-wrap: wrap;
+            gap: 6px;
+        }
+        .time-chip {
+            padding: 12px 12px;
+            min-height: 44px;
+            border-radius: 10px;
+            background-color: var(--surface);
+            border: 1px solid var(--border);
+            font-size: 15px; font-weight: 600;
+            font-variant-numeric: tabular-nums;
+            color: var(--text);
+            cursor: pointer;
+            transition: all 0.15s ease;
+            font-family: inherit;
+            flex: 0 0 calc(25% - 5px);
+            text-align: center;
+        }
+        .time-chip:active { transform: scale(0.96); }
+        .time-chip.active {
+            background-color: var(--accent);
+            color: var(--accent-text);
+            border-color: var(--accent);
+        }
+
+        /* ===== Custom time input ===== */
+        .custom-time-row {
+            display: flex; align-items: center; gap: 10px;
+            margin-top: 10px;
+            padding: 10px 12px;
+            border-radius: 10px;
+            background-color: var(--surface);
+            border: 1px solid var(--border);
+        }
+        .custom-time-row.active {
+            border-color: var(--accent);
+            background-color: var(--accent-softer);
+        }
+        .custom-time-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--hint);
+        }
+        .custom-time-row.active .custom-time-label { color: var(--accent); }
+        .custom-time-input {
+            flex: 1;
+            border: none;
+            background: transparent;
+            font-size: 16px;
+            font-weight: 700;
+            font-variant-numeric: tabular-nums;
+            color: var(--text);
+            font-family: inherit;
+            padding: 4px 0;
+            outline: none;
+            text-align: right;
+        }
+
+        /* ===== Mensa chips ===== */
+        .mensa-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+        }
+        .mensa-chip {
+            padding: 12px 14px;
+            min-height: 46px;
+            border-radius: 10px;
+            background-color: var(--surface);
+            border: 1px solid var(--border);
+            font-size: 14px; font-weight: 600;
+            color: var(--text);
+            cursor: pointer;
+            transition: all 0.15s ease;
+            font-family: inherit;
+            text-align: left;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .mensa-chip:active { transform: scale(0.97); }
+        .mensa-chip.active {
+            background-color: var(--accent);
+            color: var(--accent-text);
+            border-color: var(--accent);
+        }
+
+        /* ===== User chips in detail sheet ===== */
+        .user-chip {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 6px 12px 6px 6px;
+            border-radius: 999px;
+            cursor: pointer;
+            transition: transform 0.1s ease;
+            user-select: none;
+        }
+        .user-chip:active { transform: scale(0.95); }
+        .avatar {
+            width: 28px; height: 28px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 12px; font-weight: 700;
+            color: #fff;
+            flex-shrink: 0;
+            background-size: cover; background-position: center;
+        }
+        .user-name {
+            font-size: 14px; font-weight: 600;
+            max-width: 140px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .users-list-stack {
+            display: flex; flex-wrap: wrap; gap: 6px;
+            margin-bottom: 16px;
+        }
+        .detail-time {
+            font-size: 32px; font-weight: 800;
+            letter-spacing: -0.02em;
+            font-variant-numeric: tabular-nums;
+            margin-bottom: 4px;
+            color: var(--accent);
+        }
+        .detail-mensa-row {
+            display: flex; align-items: center; gap: 8px;
+            margin-bottom: 14px;
+            padding: 10px 12px;
+            border-radius: 10px;
+            background-color: var(--accent-softer);
+        }
+        .detail-mensa-pin {
+            font-size: 14px;
+        }
+        .detail-mensa-name {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        /* ===== Toast ===== */
+        .toast {
+            position: fixed;
+            bottom: 90px; left: 50%;
+            transform: translateX(-50%) translateY(20px);
+            background-color: var(--text);
+            color: var(--bg);
+            padding: 10px 18px;
+            border-radius: 999px;
+            font-size: 13px; font-weight: 500;
+            opacity: 0;
+            transition: all 0.25s ease;
+            pointer-events: none;
+            z-index: 200;
+            max-width: 80%;
+            text-align: center;
+        }
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <header class="app-header">
+        <h1 class="app-title"><span class="emoji">🍜</span> Стая</h1>
+        <div class="app-subtitle">Не обедай один</div>
+    </header>
+
+    <div class="tabs" role="tablist">
+        <button class="tab active" data-view="day">День</button>
+        <button class="tab" data-view="week">Неделя</button>
+    </div>
+
+    <div id="view-day">
+        <div class="day-nav">
+            <button class="nav-btn" id="prev-day">←</button>
+            <div class="day-info">
+                <div class="day-label" id="day-label">—</div>
+                <div class="day-hint" id="day-hint">—</div>
+            </div>
+            <button class="nav-btn" id="next-day">→</button>
+        </div>
+        <button class="today-btn" id="today-btn">↺ Вернуться к сегодня</button>
+        <div class="timeline-wrap" id="timeline-wrap"></div>
+    </div>
+
+    <div id="view-week" hidden>
+        <div class="day-nav">
+            <button class="nav-btn" id="prev-week">←</button>
+            <div class="day-info">
+                <div class="day-label" id="week-label">—</div>
+                <div class="day-hint" id="week-hint">—</div>
+            </div>
+            <button class="nav-btn" id="next-week">→</button>
+        </div>
+        <div class="week-list" id="week-list"></div>
+    </div>
+
+    <button class="fab" id="fab">+</button>
+
+    <!-- Sheet: create -->
+    <div class="sheet-backdrop" id="sheet-backdrop"></div>
+    <div class="sheet" id="sheet-create" hidden>
+        <div class="sheet-handle"></div>
+        <div class="sheet-title">Во сколько идёшь в столовку?</div>
+        <div class="sheet-subtitle" id="sheet-create-sub">Выбери время и столовую</div>
+
+        <div class="sheet-section-label">Время</div>
+        <div class="time-scroller" id="time-scroller"></div>
+        <div class="custom-time-row" id="custom-time-row">
+            <span class="custom-time-label">Точное время</span>
+            <input class="custom-time-input" id="custom-time-input" type="time" step="60">
+        </div>
+
+        <div class="sheet-section-label">Столовая</div>
+        <div class="mensa-grid" id="mensa-grid"></div>
+
+        <button class="sheet-action" id="sheet-confirm" disabled>Записаться</button>
+    </div>
+
+    <!-- Sheet: detail -->
+    <div class="sheet" id="sheet-detail" hidden>
+        <div class="sheet-handle"></div>
+        <div class="detail-time" id="detail-time">—</div>
+        <div class="sheet-subtitle" id="detail-subtitle">—</div>
+        <div class="detail-mensa-row" id="detail-mensa-row">
+            <span class="detail-mensa-pin">📍</span>
+            <span class="detail-mensa-name" id="detail-mensa-name">—</span>
+        </div>
+        <div class="users-list-stack" id="detail-users"></div>
+        <button class="sheet-action" id="detail-action">Присоединиться</button>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script type="module">
+    /* =====================================================================
+       FIREBASE — fill in firebaseConfig once you've created the project.
+       When apiKey contains "REPLACE_ME", the app runs in offline demo mode
+       (localStorage + mock data) so you can preview the UI locally.
+       ===================================================================== */
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js';
+    import {
+        getDatabase, ref, onValue, set, remove, update, serverTimestamp
+    } from 'https://www.gstatic.com/firebasejs/10.13.2/firebase-database.js';
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyAnH7EdC-msWGcLk1jLB115Yz2mNly3gxg",
+        authDomain: "mensa-crew.firebaseapp.com",
+        databaseURL: "https://mensa-crew-default-rtdb.europe-west1.firebasedatabase.app",
+        projectId: "mensa-crew",
+        storageBucket: "mensa-crew.firebasestorage.app",
+        messagingSenderId: "654574213596",
+        appId: "1:654574213596:web:a0b8d8d1933332a33bd719",
+        measurementId: "G-MFYT7RTZJD",
+    };
+    const FIREBASE_READY = !firebaseConfig.apiKey.includes('REPLACE_ME');
+    let fbDb = null;
+    if (FIREBASE_READY) {
+        try {
+            const app = initializeApp(firebaseConfig);
+            fbDb = getDatabase(app);
+        } catch (e) {
+            console.error('Firebase init failed:', e);
+        }
+    }
+
+    /* ===== Telegram setup ===== */
+    const tg = window.Telegram?.WebApp;
+    if (tg) {
+        tg.ready();
+        tg.expand();
+        tg.setHeaderColor?.('bg_color');
+        tg.setBackgroundColor?.('bg_color');
+        // Enable vertical swipe gesture closing on iOS only when at top of scroll
+        tg.disableVerticalSwipes?.();
+    }
+
+    /* ===== Native Telegram BackButton for sheets ===== */
+    let backButtonOwner = null; // 'create' | 'detail' | null
+    function attachBackButton(owner, onBack) {
+        backButtonOwner = owner;
+        if (!tg?.BackButton) return;
+        tg.BackButton.show();
+        tg.BackButton.onClick(onBack);
+    }
+    function detachBackButton() {
+        backButtonOwner = null;
+        if (!tg?.BackButton) return;
+        tg.BackButton.hide();
+        tg.BackButton.offClick();
+    }
+
+    /* ===== Current user ===== */
+    const tgUser = tg?.initDataUnsafe?.user;
+    const currentUser = tgUser ? {
+        id: String(tgUser.id),
+        name: `${tgUser.first_name || ''} ${tgUser.last_name || ''}`.trim() || 'Я',
+        username: tgUser.username || null,
+        photo_url: tgUser.photo_url || null,
+    } : { id: 'me_demo', name: 'Вы', username: null, photo_url: null };
+
+    /* ===== Room ID =====
+       - Group chat → chat.id (all members share the room)
+       - No chat (debug / private) → user id (private demo room) */
+    const tgChat = tg?.initDataUnsafe?.chat;
+    const roomId = tgChat?.id
+        ? `chat_${tgChat.id}`
+        : `private_${currentUser.id}`;
+
+    /* ===== Mensas (order matters: Studi & Phil first) ===== */
+    const MENSAS = [
+        { id: 'studi',    name: 'Mensa Studierendenhaus',   short: 'Studierendenhaus' },
+        { id: 'phil',     name: 'Mensa Philturm',           short: 'Philturm' },
+        { id: 'schluters',name: 'Schlüters (Pizza & More)', short: 'Schlüters' },
+        { id: 'botan',    name: 'Mensa Botanischer Garten', short: 'Botan. Garten' },
+        { id: 'bucerius', name: 'Mensa Bucerius Law School',short: 'Bucerius' },
+        { id: 'campus',   name: 'Mensa Campus',             short: 'Campus' },
+        { id: 'geo',      name: 'Mensa Geomatikum',         short: 'Geomatikum' },
+        { id: 'min',      name: 'Mensa MIN',                short: 'MIN' },
+        { id: 'pony',     name: 'Pony Bar',                 short: 'Pony Bar' },
+    ];
+    const MENSA_BY_ID = Object.fromEntries(MENSAS.map(m => [m.id, m]));
+
+    /* ===== Mock group members ===== */
+    const MOCK = {
+        'u1': { id: 'u1', name: 'Аня',   username: 'durov' },
+        'u2': { id: 'u2', name: 'Макс',  username: 'durov' },
+        'u3': { id: 'u3', name: 'Лера',  username: 'durov' },
+        'u4': { id: 'u4', name: 'Дима',  username: 'durov' },
+        'u5': { id: 'u5', name: 'Соня',  username: 'durov' },
+        'u6': { id: 'u6', name: 'Артём', username: 'durov' },
+    };
+
+    /* ===== Palette (no yellow) ===== */
+    const PALETTE = [
+        '#6d28d9', '#1d4ed8', '#047857', '#be185d',
+        '#4338ca', '#0e7490', '#be123c', '#334155',
+    ];
+    function colorFor(id) {
+        let h = 0;
+        for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) | 0;
+        return PALETTE[Math.abs(h) % PALETTE.length];
+    }
+
+    /* ===== Date utils ===== */
+    const isoDate = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    const addDays = (d, n) => { const r = new Date(d); r.setDate(r.getDate() + n); return r; };
+    function startOfWeek(d) {
+        const r = new Date(d); const day = r.getDay();
+        r.setDate(r.getDate() + (day === 0 ? -6 : 1 - day));
+        r.setHours(0,0,0,0); return r;
+    }
+    function getWeekNumber(d) {
+        const date = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+        const dayNum = date.getUTCDay() || 7;
+        date.setUTCDate(date.getUTCDate() + 4 - dayNum);
+        const yearStart = new Date(Date.UTC(date.getUTCFullYear(),0,1));
+        return Math.ceil((((date - yearStart) / 86400000) + 1) / 7);
+    }
+    const RU_DAYS_FULL = ['воскресенье','понедельник','вторник','среда','четверг','пятница','суббота'];
+    const RU_DAYS_SHORT = ['Вс','Пн','Вт','Ср','Чт','Пт','Сб'];
+    const RU_MONTHS_GEN = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
+    const RU_MONTHS_SHORT = ['янв','фев','мар','апр','мая','июн','июл','авг','сен','окт','ноя','дек'];
+
+    function formatDayLabel(d) {
+        const t = isoDate(new Date()), di = isoDate(d);
+        if (di === t) return 'Сегодня';
+        if (di === isoDate(addDays(new Date(), 1))) return 'Завтра';
+        if (di === isoDate(addDays(new Date(), -1))) return 'Вчера';
+        const n = RU_DAYS_FULL[d.getDay()]; return n.charAt(0).toUpperCase() + n.slice(1);
+    }
+    const formatDayHint = d => `${d.getDate()} ${RU_MONTHS_GEN[d.getMonth()]}`;
+
+    /* ===== Pluralization ===== */
+    function pluralRu(n, forms) {
+        // forms = [one, few, many]   e.g. ['человек','человека','человек']
+        const mod10 = n % 10, mod100 = n % 100;
+        if (mod10 === 1 && mod100 !== 11) return forms[0];
+        if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) return forms[1];
+        return forms[2];
+    }
+
+    /* ===== Time utils ===== */
+    const TL_START_MIN = 10 * 60;   // 10:00
+    const TL_END_MIN = 18 * 60;     // 18:00
+    const HOUR_PX = 80;
+    const BLOCK_VIS_H = 68;
+    function timeToMin(t) { const [h,m] = t.split(':').map(Number); return h*60 + m; }
+    function minToTime(m) { return `${String(Math.floor(m/60)).padStart(2,'0')}:${String(m%60).padStart(2,'0')}`; }
+    function minToPx(min) { return (min - TL_START_MIN) * HOUR_PX / 60; }
+    function timeToPx(t) { return minToPx(timeToMin(t)); }
+
+    /* 30-min preset chips between 10:00 and 17:30 */
+    const TIME_OPTIONS = (() => {
+        const out = [];
+        for (let m = TL_START_MIN; m < TL_END_MIN; m += 30) out.push(minToTime(m));
+        return out;
+    })();
+
+    /* ===== State =====
+       entries[date][userId] = { start: '11:30', mensa: 'studi', updatedAt: ... }
+       members[userId] = { name, username, photo_url, lastSeen } */
+    const STORAGE_KEY = 'staya_v1';
+
+    function demoSeed() {
+        const today = isoDate(new Date());
+        const tomorrow = isoDate(addDays(new Date(), 1));
+        return {
+            entries: {
+                [today]: {
+                    'u1': { start: '11:30', mensa: 'studi' },
+                    'u3': { start: '11:30', mensa: 'studi' },
+                    'u2': { start: '13:00', mensa: 'phil'  },
+                },
+                [tomorrow]: {
+                    'u4': { start: '12:00', mensa: 'studi' },
+                    'u5': { start: '12:00', mensa: 'studi' },
+                    'u6': { start: '12:30', mensa: 'phil' },
+                }
+            },
+            members: {}
+        };
+    }
+    function loadLocalState() {
+        try {
+            const s = localStorage.getItem(STORAGE_KEY);
+            if (s) {
+                const parsed = JSON.parse(s);
+                if (!parsed.members) parsed.members = {};
+                return parsed;
+            }
+        } catch (e) {}
+        return demoSeed();
+    }
+    function saveLocalState() {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+
+    let state = FIREBASE_READY ? { entries: {}, members: {} } : loadLocalState();
+
+    /* ===== Firebase wiring ===== */
+    function startFirebaseSync() {
+        if (!FIREBASE_READY || !fbDb) return;
+        // Subscribe: entries
+        onValue(ref(fbDb, `rooms/${roomId}/entries`), (snap) => {
+            state.entries = snap.val() || {};
+            render();
+        });
+        // Subscribe: members
+        onValue(ref(fbDb, `rooms/${roomId}/members`), (snap) => {
+            state.members = snap.val() || {};
+            render();
+        });
+        // Announce/refresh self profile
+        update(ref(fbDb, `rooms/${roomId}/members/${currentUser.id}`), {
+            id: currentUser.id,
+            name: currentUser.name,
+            username: currentUser.username || null,
+            photo_url: currentUser.photo_url || null,
+            lastSeen: serverTimestamp(),
+        }).catch(e => console.error('member update failed', e));
+    }
+
+    /* ===== UI state ===== */
+    let view = 'day';
+    let currentDate = new Date(); currentDate.setHours(0,0,0,0);
+    let weekStart = startOfWeek(new Date());
+    let selectedTime = null;
+    let selectedMensa = null;
+    let detailGroupKey = null; // `${mensa}|${start}`
+
+    /* ===== Helpers ===== */
+    function getDayGroups(dateIso) {
+        const entries = state.entries[dateIso] || {};
+        const grouped = {};
+        Object.entries(entries).forEach(([uid, e]) => {
+            // Backward compat: e might be a string from older state
+            const start = typeof e === 'string' ? e : e.start;
+            const mensa = typeof e === 'string' ? 'studi' : (e.mensa || 'studi');
+            const key = `${mensa}|${start}`;
+            if (!grouped[key]) grouped[key] = { start, mensa, users: [] };
+            grouped[key].users.push(uid);
+        });
+        return Object.values(grouped)
+            .sort((a, b) => timeToMin(a.start) - timeToMin(b.start));
+    }
+    function getUserInfo(uid) {
+        if (uid === currentUser.id) return { ...currentUser, isMe: true };
+        // Priority: live Firebase members → mock fallback
+        const m = state.members && state.members[uid];
+        if (m) {
+            return { id: uid, name: m.name || 'Гость', username: m.username || null, photo_url: m.photo_url || null };
+        }
+        return MOCK[uid] || { id: uid, name: 'Гость', username: null, photo_url: null };
+    }
+    function userInitials(u) { return (u.name || '?').trim().charAt(0).toUpperCase(); }
+    function findMyEntry(dateIso) {
+        const e = (state.entries[dateIso] || {})[currentUser.id];
+        if (!e) return null;
+        return typeof e === 'string' ? { start: e, mensa: 'studi' } : e;
+    }
+
+    function showToast(text) {
+        const t = document.getElementById('toast');
+        t.textContent = text;
+        t.classList.add('show');
+        clearTimeout(showToast._t);
+        showToast._t = setTimeout(() => t.classList.remove('show'), 2200);
+    }
+    const haptic = (t='light') => { try { tg?.HapticFeedback?.impactOccurred(t); } catch (e) {} };
+
+    /* ===== Actions ===== */
+    async function setMyEntry(dateIso, start, mensa) {
+        const payload = { start, mensa, updatedAt: FIREBASE_READY ? serverTimestamp() : Date.now() };
+        const mensaShort = MENSA_BY_ID[mensa]?.short || mensa;
+
+        if (FIREBASE_READY && fbDb) {
+            try {
+                await set(ref(fbDb, `rooms/${roomId}/entries/${dateIso}/${currentUser.id}`), payload);
+                haptic('medium');
+                showToast(`${start} · ${mensaShort}`);
+            } catch (e) {
+                console.error('setMyEntry failed', e);
+                showToast('Не удалось сохранить');
+            }
+            return; // Firebase listener will re-render
+        }
+
+        // Offline / demo
+        if (!state.entries[dateIso]) state.entries[dateIso] = {};
+        state.entries[dateIso][currentUser.id] = { start, mensa };
+        saveLocalState();
+        haptic('medium');
+        showToast(`${start} · ${mensaShort}`);
+        render();
+    }
+    async function removeMy(dateIso) {
+        if (FIREBASE_READY && fbDb) {
+            try {
+                await remove(ref(fbDb, `rooms/${roomId}/entries/${dateIso}/${currentUser.id}`));
+                haptic('medium');
+                showToast('Вы вышли');
+            } catch (e) {
+                console.error('removeMy failed', e);
+                showToast('Не удалось');
+            }
+            return;
+        }
+        const e = state.entries[dateIso] || {};
+        delete e[currentUser.id];
+        if (Object.keys(e).length === 0) delete state.entries[dateIso];
+        else state.entries[dateIso] = e;
+        saveLocalState();
+        haptic('medium');
+        showToast('Вы вышли');
+        render();
+    }
+    function openUserChat(user) {
+        if (user.isMe) { showToast('Это вы 🙂'); return; }
+        haptic('light');
+        if (user.username) {
+            if (tg) tg.openTelegramLink(`https://t.me/${user.username}`);
+            else window.open(`https://t.me/${user.username}`, '_blank');
+        } else if (tg) {
+            tg.openTelegramLink(`tg://user?id=${user.id}`);
+        } else showToast('У пользователя нет @username');
+    }
+
+    /* ===== Lane algorithm for visual overlaps ===== */
+    function computeLanes(groups) {
+        const items = groups.map(g => ({
+            ...g,
+            topPx: timeToPx(g.start),
+            bottomPx: timeToPx(g.start) + BLOCK_VIS_H + 4,
+            lane: 0
+        }));
+        items.sort((a,b) => a.topPx - b.topPx);
+        const laneBottoms = [];
+        items.forEach(it => {
+            let lane = 0;
+            while (lane < laneBottoms.length && laneBottoms[lane] > it.topPx) lane++;
+            it.lane = lane;
+            laneBottoms[lane] = it.bottomPx;
+        });
+        return { items, lanes: Math.max(1, laneBottoms.length) };
+    }
+
+    /* ===== Render: day timeline ===== */
+    function renderDayHeader() {
+        document.getElementById('day-label').textContent = formatDayLabel(currentDate);
+        document.getElementById('day-hint').textContent = formatDayHint(currentDate);
+        const isToday = isoDate(currentDate) === isoDate(new Date());
+        document.getElementById('today-btn').hidden = isToday;
+    }
+
+    function renderTimeline() {
+        const wrap = document.getElementById('timeline-wrap');
+        wrap.innerHTML = '';
+        const totalH = (TL_END_MIN - TL_START_MIN) * HOUR_PX / 60;
+
+        const timeCol = document.createElement('div');
+        timeCol.className = 'time-col';
+        timeCol.style.height = totalH + 'px';
+        for (let m = TL_START_MIN; m <= TL_END_MIN; m += 60) {
+            const lbl = document.createElement('div');
+            lbl.className = 'time-label';
+            lbl.style.top = minToPx(m) + 'px';
+            lbl.textContent = minToTime(m);
+            timeCol.appendChild(lbl);
+        }
+        wrap.appendChild(timeCol);
+
+        const grid = document.createElement('div');
+        grid.className = 'grid-col';
+        grid.style.height = totalH + 'px';
+
+        for (let m = TL_START_MIN; m <= TL_END_MIN; m += 30) {
+            const line = document.createElement('div');
+            line.className = 'grid-line' + (m % 60 !== 0 ? ' half' : '');
+            line.style.top = minToPx(m) + 'px';
+            grid.appendChild(line);
+        }
+
+        const now = new Date();
+        if (isoDate(currentDate) === isoDate(now)) {
+            const nowMin = now.getHours() * 60 + now.getMinutes();
+            if (nowMin >= TL_START_MIN && nowMin <= TL_END_MIN) {
+                const nl = document.createElement('div');
+                nl.className = 'now-line';
+                nl.style.top = minToPx(nowMin) + 'px';
+                grid.appendChild(nl);
+            }
+        }
+
+        const groups = getDayGroups(isoDate(currentDate));
+        if (groups.length === 0) {
+            const empty = document.createElement('div');
+            empty.className = 'empty-state';
+            empty.innerHTML = `
+                <div class="icon">🍽️</div>
+                <div class="title">Пока никого</div>
+                <div class="desc">Будь первым — нажми + и выбери время</div>
+            `;
+            empty.style.position = 'absolute';
+            empty.style.left = '0';
+            empty.style.right = '0';
+            empty.style.top = '50%';
+            empty.style.transform = 'translateY(-50%)';
+            grid.appendChild(empty);
+        } else {
+            const { items, lanes } = computeLanes(groups);
+            const laneWPct = 100 / lanes;
+
+            items.forEach(g => {
+                const myE = findMyEntry(isoDate(currentDate));
+                const iAmHere = myE && myE.start === g.start && myE.mensa === g.mensa;
+
+                const block = document.createElement('div');
+                block.className = 'tl-block' + (iAmHere ? ' me-here' : '');
+                block.style.top = g.topPx + 'px';
+                block.style.height = BLOCK_VIS_H + 'px';
+                block.style.left = `calc(${g.lane * laneWPct}% + 8px)`;
+                block.style.width = `calc(${laneWPct}% - ${g.lane === lanes - 1 ? 12 : 6}px)`;
+
+                // Row 1: time + mensa
+                const row1 = document.createElement('div');
+                row1.className = 'tl-row';
+                const timeEl = document.createElement('div');
+                timeEl.className = 'tl-time';
+                timeEl.textContent = g.start;
+                row1.appendChild(timeEl);
+                const mensaEl = document.createElement('div');
+                mensaEl.className = 'tl-mensa';
+                mensaEl.textContent = MENSA_BY_ID[g.mensa]?.short || '—';
+                row1.appendChild(mensaEl);
+                block.appendChild(row1);
+
+                // Row 2: users
+                const usersRow = document.createElement('div');
+                usersRow.className = 'tl-users';
+                const userInfos = g.users.map(getUserInfo).filter(Boolean);
+                const shown = userInfos.slice(0, 3);
+                shown.forEach(u => {
+                    const av = document.createElement('div');
+                    av.className = 'tl-mini-avatar';
+                    av.style.backgroundColor = u.isMe ? '#fff' : colorFor(u.id);
+                    av.style.color = u.isMe ? 'var(--accent)' : '#fff';
+                    if (u.photo_url) {
+                        av.style.backgroundImage = `url(${u.photo_url})`;
+                        av.textContent = '';
+                    } else {
+                        av.textContent = userInitials(u);
+                    }
+                    usersRow.appendChild(av);
+                });
+                const cnt = document.createElement('span');
+                cnt.className = 'tl-count';
+                const peopleWord = pluralRu(userInfos.length, ['человек','человека','человек']);
+                cnt.textContent = userInfos.length > 3
+                    ? `+${userInfos.length - 3} · ${userInfos.length} ${peopleWord}`
+                    : `${userInfos.length} ${peopleWord}`;
+                usersRow.appendChild(cnt);
+                block.appendChild(usersRow);
+
+                block.onclick = () => openDetailSheet(g.mensa, g.start);
+                grid.appendChild(block);
+            });
+        }
+
+        wrap.appendChild(grid);
+    }
+
+    function renderDayView() { renderDayHeader(); renderTimeline(); }
+
+    /* ===== Render: week view ===== */
+    function renderWeekHeader() {
+        const ws = weekStart, we = addDays(ws, 6);
+        document.getElementById('week-label').textContent = `KW ${getWeekNumber(ws)}`;
+        document.getElementById('week-hint').textContent =
+            `${ws.getDate()} ${RU_MONTHS_SHORT[ws.getMonth()]} – ${we.getDate()} ${RU_MONTHS_SHORT[we.getMonth()]}`;
+    }
+    function renderWeekView() {
+        renderWeekHeader();
+        const list = document.getElementById('week-list');
+        list.innerHTML = '';
+        const todayIso = isoDate(new Date());
+        for (let i = 0; i < 7; i++) {
+            const d = addDays(weekStart, i);
+            const di = isoDate(d);
+            const groups = getDayGroups(di);
+            const myE = findMyEntry(di);
+            const totalUsers = groups.reduce((s,g) => s + g.users.length, 0);
+
+            const card = document.createElement('div');
+            card.className = 'week-day' + (di === todayIso ? ' today' : '');
+
+            const head = document.createElement('div');
+            head.className = 'week-day-head';
+            const left = document.createElement('div');
+            left.className = 'week-day-date';
+            const name = document.createElement('div');
+            name.className = 'week-day-name';
+            name.textContent = RU_DAYS_SHORT[d.getDay()];
+            const dnum = document.createElement('div');
+            dnum.className = 'week-day-date-num';
+            dnum.textContent = `${d.getDate()} ${RU_MONTHS_SHORT[d.getMonth()]}`;
+            left.appendChild(name); left.appendChild(dnum);
+            head.appendChild(left);
+
+            const cnt = document.createElement('div');
+            cnt.className = 'week-day-count' + (myE ? ' active' : '');
+            if (groups.length === 0) {
+                cnt.textContent = 'пусто';
+            } else {
+                const peopleWord = pluralRu(totalUsers, ['человек','человека','человек']);
+                const groupWord = pluralRu(groups.length, ['группа','группы','групп']);
+                cnt.textContent = `${groups.length} ${groupWord} · ${totalUsers} ${peopleWord}`;
+            }
+            head.appendChild(cnt);
+            card.appendChild(head);
+
+            if (groups.length > 0) {
+                const tags = document.createElement('div');
+                tags.className = 'week-day-blocks';
+                groups.forEach(g => {
+                    const isMine = myE && myE.start === g.start && myE.mensa === g.mensa;
+                    const tag = document.createElement('div');
+                    tag.className = 'week-block-tag' + (isMine ? ' has-me' : '');
+                    const t = document.createElement('span');
+                    t.textContent = g.start;
+                    const m = document.createElement('span');
+                    m.className = 'mensa-mini';
+                    m.textContent = MENSA_BY_ID[g.mensa]?.short || '';
+                    tag.appendChild(t);
+                    tag.appendChild(m);
+                    tags.appendChild(tag);
+                });
+                card.appendChild(tags);
+            }
+
+            card.onclick = () => { currentDate = d; switchView('day'); };
+            list.appendChild(card);
+        }
+    }
+
+    /* ===== View switching ===== */
+    function render() { view === 'day' ? renderDayView() : renderWeekView(); }
+    function switchView(v) {
+        view = v;
+        document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.view === v));
+        document.getElementById('view-day').hidden = v !== 'day';
+        document.getElementById('view-week').hidden = v !== 'week';
+        render();
+    }
+
+    /* ===== Create sheet ===== */
+    function updateConfirmState() {
+        document.getElementById('sheet-confirm').disabled = !(selectedTime && selectedMensa);
+    }
+    function setSelectedTime(t, fromCustom = false) {
+        selectedTime = t;
+        document.querySelectorAll('#time-scroller .time-chip').forEach(c =>
+            c.classList.toggle('active', !fromCustom && c.dataset.time === t)
+        );
+        document.getElementById('custom-time-row').classList.toggle('active', fromCustom);
+        if (!fromCustom) {
+            document.getElementById('custom-time-input').value = '';
+        }
+        updateConfirmState();
+    }
+    function setSelectedMensa(id) {
+        selectedMensa = id;
+        document.querySelectorAll('#mensa-grid .mensa-chip').forEach(c =>
+            c.classList.toggle('active', c.dataset.mensa === id)
+        );
+        updateConfirmState();
+    }
+    function openCreateSheet() {
+        // Time chips
+        const scroller = document.getElementById('time-scroller');
+        scroller.innerHTML = '';
+        TIME_OPTIONS.forEach(t => {
+            const chip = document.createElement('button');
+            chip.type = 'button';
+            chip.className = 'time-chip';
+            chip.textContent = t;
+            chip.dataset.time = t;
+            chip.onclick = () => { setSelectedTime(t, false); haptic('light'); };
+            scroller.appendChild(chip);
+        });
+
+        // Mensa chips
+        const grid = document.getElementById('mensa-grid');
+        grid.innerHTML = '';
+        MENSAS.forEach(m => {
+            const chip = document.createElement('button');
+            chip.type = 'button';
+            chip.className = 'mensa-chip';
+            chip.textContent = m.short;
+            chip.dataset.mensa = m.id;
+            chip.onclick = () => { setSelectedMensa(m.id); haptic('light'); };
+            grid.appendChild(chip);
+        });
+
+        // Custom-time wiring
+        const customInput = document.getElementById('custom-time-input');
+        customInput.value = '';
+        customInput.oninput = (e) => {
+            const v = e.target.value;
+            if (!v) return;
+            setSelectedTime(v, true);
+            haptic('light');
+        };
+        customInput.onfocus = () => {
+            haptic('light');
+        };
+
+        // Pre-fill from existing entry if user already booked this day
+        const myE = findMyEntry(isoDate(currentDate));
+        if (myE) {
+            const isPreset = TIME_OPTIONS.includes(myE.start);
+            if (isPreset) setSelectedTime(myE.start, false);
+            else {
+                customInput.value = myE.start;
+                setSelectedTime(myE.start, true);
+            }
+            setSelectedMensa(myE.mensa);
+        } else {
+            // Sensible default time (next 30-min mark)
+            const now = new Date();
+            let mins = now.getHours() * 60 + now.getMinutes();
+            mins = Math.ceil(mins / 30) * 30;
+            if (mins < TL_START_MIN) mins = TL_START_MIN;
+            if (mins >= TL_END_MIN) mins = TL_END_MIN - 30;
+            const def = minToTime(mins);
+            if (TIME_OPTIONS.includes(def)) setSelectedTime(def, false);
+            else selectedTime = null;
+            selectedMensa = null;
+        }
+        updateConfirmState();
+
+        document.getElementById('sheet-create-sub').textContent =
+            isoDate(currentDate) === isoDate(new Date())
+                ? 'Сегодня · выбери время и куда идёшь'
+                : `${formatDayLabel(currentDate)}, ${formatDayHint(currentDate)}`;
+
+        document.getElementById('sheet-create').hidden = false;
+        document.getElementById('sheet-backdrop').classList.add('show');
+        requestAnimationFrame(() => document.getElementById('sheet-create').classList.add('show'));
+        attachBackButton('create', closeCreateSheet);
+    }
+    function closeCreateSheet() {
+        document.getElementById('sheet-create').classList.remove('show');
+        document.getElementById('sheet-backdrop').classList.remove('show');
+        setTimeout(() => document.getElementById('sheet-create').hidden = true, 280);
+        if (backButtonOwner === 'create') detachBackButton();
+    }
+
+    /* ===== Detail sheet ===== */
+    function openDetailSheet(mensa, start) {
+        detailGroupKey = `${mensa}|${start}`;
+        const dateIso = isoDate(currentDate);
+        const groups = getDayGroups(dateIso);
+        const g = groups.find(x => x.mensa === mensa && x.start === start);
+        if (!g) return;
+
+        document.getElementById('detail-time').textContent = start;
+        const peopleWord = pluralRu(g.users.length, ['человек','человека','человек']);
+        document.getElementById('detail-subtitle').textContent =
+            `${g.users.length} ${peopleWord} ${pluralRu(g.users.length, ['идёт','идут','идут'])} вместе`;
+        document.getElementById('detail-mensa-name').textContent =
+            MENSA_BY_ID[g.mensa]?.name || g.mensa;
+
+        const usersDiv = document.getElementById('detail-users');
+        usersDiv.innerHTML = '';
+        g.users.map(getUserInfo).filter(Boolean).forEach(u => {
+            const chip = document.createElement('div');
+            chip.className = 'user-chip';
+            chip.style.backgroundColor = u.isMe ? 'var(--accent)' : 'var(--surface-alt)';
+            if (u.isMe) chip.style.color = '#fff';
+            const av = document.createElement('div');
+            av.className = 'avatar';
+            if (u.photo_url) {
+                av.style.backgroundImage = `url(${u.photo_url})`;
+            } else {
+                av.style.backgroundColor = u.isMe ? '#fff' : colorFor(u.id);
+                av.style.color = u.isMe ? 'var(--accent)' : '#fff';
+                av.textContent = userInitials(u);
+            }
+            const name = document.createElement('span');
+            name.className = 'user-name';
+            name.textContent = u.isMe ? 'Вы' : u.name;
+            chip.appendChild(av); chip.appendChild(name);
+            chip.onclick = () => openUserChat(u);
+            usersDiv.appendChild(chip);
+        });
+
+        const myE = findMyEntry(dateIso);
+        const iAmHere = myE && myE.start === start && myE.mensa === mensa;
+        const btn = document.getElementById('detail-action');
+        btn.textContent = iAmHere ? 'Выйти' : 'Присоединиться';
+        btn.className = 'sheet-action' + (iAmHere ? ' secondary' : '');
+
+        document.getElementById('sheet-detail').hidden = false;
+        document.getElementById('sheet-backdrop').classList.add('show');
+        requestAnimationFrame(() => document.getElementById('sheet-detail').classList.add('show'));
+        attachBackButton('detail', closeDetailSheet);
+    }
+    function closeDetailSheet() {
+        document.getElementById('sheet-detail').classList.remove('show');
+        document.getElementById('sheet-backdrop').classList.remove('show');
+        setTimeout(() => document.getElementById('sheet-detail').hidden = true, 280);
+        if (backButtonOwner === 'detail') detachBackButton();
+    }
+
+    /* ===== Events ===== */
+    document.querySelectorAll('.tab').forEach(t => t.onclick = () => switchView(t.dataset.view));
+    document.getElementById('prev-day').onclick = () => { currentDate = addDays(currentDate, -1); render(); haptic('light'); };
+    document.getElementById('next-day').onclick = () => { currentDate = addDays(currentDate, +1); render(); haptic('light'); };
+    document.getElementById('today-btn').onclick = () => { currentDate = new Date(); currentDate.setHours(0,0,0,0); render(); haptic('light'); };
+    document.getElementById('prev-week').onclick = () => { weekStart = addDays(weekStart, -7); render(); haptic('light'); };
+    document.getElementById('next-week').onclick = () => { weekStart = addDays(weekStart, +7); render(); haptic('light'); };
+
+    document.getElementById('fab').onclick = () => { haptic('light'); openCreateSheet(); };
+    document.getElementById('sheet-backdrop').onclick = () => {
+        closeCreateSheet(); closeDetailSheet();
+    };
+    document.getElementById('sheet-confirm').onclick = () => {
+        if (selectedTime && selectedMensa) {
+            setMyEntry(isoDate(currentDate), selectedTime, selectedMensa);
+            closeCreateSheet();
+        }
+    };
+    document.getElementById('detail-action').onclick = () => {
+        const dateIso = isoDate(currentDate);
+        const myE = findMyEntry(dateIso);
+        const [mensa, start] = (detailGroupKey || '').split('|');
+        if (myE && myE.start === start && myE.mensa === mensa) {
+            removeMy(dateIso);
+        } else {
+            setMyEntry(dateIso, start, mensa);
+        }
+        closeDetailSheet();
+    };
+
+    render();
+
+    /* ===== Kick off Firebase live sync (no-op in demo mode) ===== */
+    startFirebaseSync();
+    </script>
+</body>
+</html>
