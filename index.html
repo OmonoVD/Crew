@@ -729,7 +729,7 @@
     const tgChat = tg?.initDataUnsafe?.chat;
     const roomId = tgChat?.id
         ? `chat_${tgChat.id}`
-        : `private_${currentUser.id}`;
+        : 'room_mensa';
 
     /* ===== Mensas (order matters: Studi & Phil first) ===== */
     const MENSAS = [
