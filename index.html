@@ -651,6 +651,7 @@
             <span class="detail-mensa-name" id="detail-mensa-name">—</span>
         </div>
         <div class="users-list-stack" id="detail-users"></div>
+        <button class="sheet-action" id="detail-edit" hidden>Изменить время</button>
         <button class="sheet-action" id="detail-action">Присоединиться</button>
     </div>
 
@@ -727,9 +728,12 @@
        - Group chat → chat.id (all members share the room)
        - No chat (debug / private) → user id (private demo room) */
     const tgChat = tg?.initDataUnsafe?.chat;
-    const roomId = tgChat?.id
-        ? `chat_${tgChat.id}`
-        : 'room_mensa';
+    const tgInit = tg?.initDataUnsafe || {};
+    const roomId =
+        tgInit.start_param   ? `room_${tgInit.start_param}`
+      : tgChat?.id           ? `chat_${tgChat.id}`
+      : tgInit.chat_instance ? `ci_${tgInit.chat_instance}`
+      : `private_${currentUser.id}`;
 
     /* ===== Mensas (order matters: Studi & Phil first) ===== */
     const MENSAS = [
@@ -1364,6 +1368,7 @@
         const btn = document.getElementById('detail-action');
         btn.textContent = iAmHere ? 'Выйти' : 'Присоединиться';
         btn.className = 'sheet-action' + (iAmHere ? ' secondary' : '');
+        document.getElementById('detail-edit').hidden = !iAmHere;
 
         document.getElementById('sheet-detail').hidden = false;
         document.getElementById('sheet-backdrop').classList.add('show');
@@ -1395,7 +1400,12 @@
             closeCreateSheet();
         }
     };
-    document.getElementById('detail-action').onclick = () => {
+        document.getElementById('detail-edit').onclick = () => {
+        haptic('light');
+        closeDetailSheet();
+        openCreateSheet();
+    };
+        document.getElementById('detail-action').onclick = () => {
         const dateIso = isoDate(currentDate);
         const myE = findMyEntry(dateIso);
         const [mensa, start] = (detailGroupKey || '').split('|');
