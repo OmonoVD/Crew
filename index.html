@@ -737,13 +737,8 @@
     /* ===== Room ID =====
        - Group chat → chat.id (all members share the room)
        - No chat (debug / private) → user id (private demo room) */
-    const tgChat = tg?.initDataUnsafe?.chat;
     const tgInit = tg?.initDataUnsafe || {};
-    const roomId =
-        tgInit.start_param   ? `room_${tgInit.start_param}`
-      : tgChat?.id           ? `chat_${tgChat.id}`
-      : tgInit.chat_instance ? `ci_${tgInit.chat_instance}`
-      : `private_${currentUser.id}`;
+    const roomId = tgInit.start_param ? `room_${tgInit.start_param}` : 'room_crew';
 
     /* ===== Mensas (order matters: Studi & Phil first) ===== */
     const MENSAS = [
