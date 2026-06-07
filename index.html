@@ -70,9 +70,18 @@
         }
 
         /* ===== Header ===== */
-        .app-header {
+       .app-header {
             padding: calc(16px + var(--safe-top)) 20px 8px;
+            display: flex; align-items: center; justify-content: space-between; gap: 12px;
         }
+        .bell-btn {
+            width: 40px; height: 40px; flex-shrink: 0;
+            border: none; background-color: var(--surface-alt); color: var(--text);
+            border-radius: 50%; font-size: 17px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            transition: transform 0.15s ease;
+        }
+        .bell-btn:active { transform: scale(0.9); }
         .app-title {
             font-size: 26px; font-weight: 800; letter-spacing: -0.02em;
             display: flex; align-items: center; gap: 8px;
@@ -587,6 +596,7 @@
 <body>
     <header class="app-header">
         <h1 class="app-title"><span class="emoji">🍜</span> Mensa Crew</h1>
+        <button class="bell-btn" id="bell-btn" title="Включить уведомления">🔔</button>
     </header>
 
     <div class="tabs" role="tablist">
@@ -937,24 +947,49 @@
     }
     const haptic = (t='light') => { try { tg?.HapticFeedback?.impactOccurred(t); } catch (e) {} };
 
+    /* ===== Notifications ===== */
+    const NOTIFY_URL = 'https://mensa-notify.omonovdd.workers.dev/'; // ← URL воркера
+    const NOTIFY_SECRET = 'crew-7h3x9q2';                                // ← тот же секрет
+    const esc = s => String(s).replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+    function notify(text) {
+        if (!FIREBASE_READY || !NOTIFY_URL.startsWith('http') || NOTIFY_URL.includes('твой-сабдомен')) return;
+        const recipients = Object.keys(state.members || {}).filter(id => id !== currentUser.id);
+        if (!recipients.length) return;
+        fetch(NOTIFY_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ secret: NOTIFY_SECRET, recipients, text }),
+        }).catch(() => {});
+    }
+        
     /* ===== Actions ===== */
-    async function setMyEntry(dateIso, start, mensa) {
+   async function setMyEntry(dateIso, start, mensa) {
         const payload = { start, mensa, updatedAt: FIREBASE_READY ? serverTimestamp() : Date.now() };
         const mensaShort = MENSA_BY_ID[mensa]?.short || mensa;
+        const oldE = findMyEntry(dateIso);
+        const dayTxt = `${currentDate.getDate()} ${RU_MONTHS_SHORT[currentDate.getMonth()]}`;
 
         if (FIREBASE_READY && fbDb) {
             try {
                 await set(ref(fbDb, `rooms/${roomId}/entries/${dateIso}/${currentUser.id}`), payload);
                 haptic('medium');
                 showToast(`${start} · ${mensaShort}`);
+                let verb = null;
+                if (oldE && (oldE.start !== start || oldE.mensa !== mensa)) {
+                    verb = `меняет время — ${oldE.start} → ${start}`;
+                } else if (!oldE) {
+                    const slot = getDayGroups(dateIso).find(g => g.start === start && g.mensa === mensa);
+                    const others = (slot?.users || []).filter(u => u !== currentUser.id);
+                    verb = others.length ? `присоединяется — ${start}` : `идёт — ${start}`;
+                }
+                if (verb) notify(`🍜 <i>${esc(currentUser.name)} ${verb} · ${esc(mensaShort)} (${dayTxt})</i>`);
             } catch (e) {
                 console.error('setMyEntry failed', e);
                 showToast('Не удалось сохранить');
             }
-            return; // Firebase listener will re-render
+            return;
         }
 
-        // Offline / demo
         if (!state.entries[dateIso]) state.entries[dateIso] = {};
         state.entries[dateIso][currentUser.id] = { start, mensa };
         saveLocalState();
@@ -962,12 +997,18 @@
         showToast(`${start} · ${mensaShort}`);
         render();
     }
-    async function removeMy(dateIso) {
+   async function removeMy(dateIso) {
+        const oldE = findMyEntry(dateIso);
+        const dayTxt = `${currentDate.getDate()} ${RU_MONTHS_SHORT[currentDate.getMonth()]}`;
         if (FIREBASE_READY && fbDb) {
             try {
                 await remove(ref(fbDb, `rooms/${roomId}/entries/${dateIso}/${currentUser.id}`));
                 haptic('medium');
                 showToast('Вы вышли');
+                if (oldE) {
+                    const ms = MENSA_BY_ID[oldE.mensa]?.short || oldE.mensa;
+                    notify(`🍜 <i>${esc(currentUser.name)} отменяет — ${oldE.start} · ${esc(ms)} (${dayTxt})</i>`);
+                }
             } catch (e) {
                 console.error('removeMy failed', e);
                 showToast('Не удалось');
@@ -1390,6 +1431,12 @@
     document.getElementById('prev-week').onclick = () => { weekStart = addDays(weekStart, -7); render(); haptic('light'); };
     document.getElementById('next-week').onclick = () => { weekStart = addDays(weekStart, +7); render(); haptic('light'); };
 
+    document.getElementById('bell-btn').onclick = () => {
+        haptic('light');
+        showToast('Нажми Start у бота — и готово');
+        const url = 'https://t.me/mensacrew_bot?start=on';
+        if (tg) tg.openTelegramLink(url); else window.open(url, '_blank');
+    };
     document.getElementById('fab').onclick = () => { haptic('light'); openCreateSheet(); };
     document.getElementById('sheet-backdrop').onclick = () => {
         closeCreateSheet(); closeDetailSheet();
