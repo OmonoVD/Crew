@@ -738,7 +738,8 @@
        - Group chat → chat.id (all members share the room)
        - No chat (debug / private) → user id (private demo room) */
     const tgInit = tg?.initDataUnsafe || {};
-    const roomId = tgInit.start_param ? `room_${tgInit.start_param}` : 'room_crew';
+    const [roomKey, navDate, navTime, navMensa] = (tgInit.start_param || '').split('__');
+    const roomId = roomKey ? `room_${roomKey}` : 'room_crew';
 
     /* ===== Mensas (order matters: Studi & Phil first) ===== */
     const MENSAS = [
@@ -878,6 +879,10 @@
         onValue(ref(fbDb, `rooms/${roomId}/entries`), (snap) => {
             state.entries = snap.val() || {};
             render();
+            if (pendingNav) {
+                const g = getDayGroups(isoDate(currentDate)).find(x => x.start === pendingNav.start && x.mensa === pendingNav.mensa);
+                if (g) { openDetailSheet(pendingNav.mensa, pendingNav.start); pendingNav = null; }
+            }
         });
         // Subscribe: members
         onValue(ref(fbDb, `rooms/${roomId}/members`), (snap) => {
@@ -946,14 +951,15 @@
     const NOTIFY_URL = 'https://mensa-notify.omonovdd.workers.dev/'; // ← URL воркера
     const NOTIFY_SECRET = 'crew-7h3x9q2';                                // ← тот же секрет
     const esc = s => String(s).replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
-    function notify(text) {
-        if (!FIREBASE_READY || !NOTIFY_URL.startsWith('http') || NOTIFY_URL.includes('твой-сабдомен')) return;
-        const recipients = Object.keys(state.members || {}).filter(id => id !== currentUser.id);
+    function notify(text, link) {
+        if (!FIREBASE_READY || !NOTIFY_URL.startsWith('http')) return;
+        const recipients = Object.keys(state.members || {})
+            .filter(id => id !== currentUser.id && state.members[id]?.notify !== false);
         if (!recipients.length) return;
         fetch(NOTIFY_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ secret: NOTIFY_SECRET, recipients, text }),
+            body: JSON.stringify({ secret: NOTIFY_SECRET, recipients, text, link: link || null }),
         }).catch(() => {});
     }
         
@@ -977,7 +983,9 @@
                     const others = (slot?.users || []).filter(u => u !== currentUser.id);
                     verb = others.length ? `присоединяется — ${start}` : `идёт — ${start}`;
                 }
-                if (verb) notify(`🍜 <i>${esc(currentUser.name)} ${verb} · ${esc(mensaShort)} (${dayTxt})</i>`);
+                const roomKeySafe = roomKey || 'crew';
+                const dl = `https://t.me/mensacrew_bot/Mensa_Crew?startapp=${roomKeySafe}__${dateIso.replace(/-/g,'')}__${start.replace(':','')}__${mensa}`;
+                if (verb) notify(`🍜 <i>${esc(currentUser.name)} ${verb} · ${esc(mensaShort)} (${dayTxt})</i>`, dl);
             } catch (e) {
                 console.error('setMyEntry failed', e);
                 showToast('Не удалось сохранить');
@@ -1248,7 +1256,7 @@
     }
 
     /* ===== View switching ===== */
-    function render() { view === 'day' ? renderDayView() : renderWeekView(); }
+    function render() { renderBell(); view === 'day' ? renderDayView() : renderWeekView(); }
     function switchView(v) {
         view = v;
         document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.view === v));
@@ -1426,11 +1434,25 @@
     document.getElementById('prev-week').onclick = () => { weekStart = addDays(weekStart, -7); render(); haptic('light'); };
     document.getElementById('next-week').onclick = () => { weekStart = addDays(weekStart, +7); render(); haptic('light'); };
 
+    function renderBell() {
+        const on = state.members?.[currentUser.id]?.notify !== false;
+        const b = document.getElementById('bell-btn');
+        if (b) { b.textContent = on ? '🔔' : '🔕'; b.title = on ? 'Уведомления включены' : 'Уведомления выключены'; }
+    }
     document.getElementById('bell-btn').onclick = () => {
         haptic('light');
-        showToast('Нажми Start у бота — и готово');
-        const url = 'https://t.me/mensacrew_bot?start=on';
-        if (tg) tg.openTelegramLink(url); else window.open(url, '_blank');
+        const on = state.members?.[currentUser.id]?.notify !== false;
+        const next = !on;
+        if (FIREBASE_READY && fbDb) {
+            update(ref(fbDb, `rooms/${roomId}/members/${currentUser.id}`), { notify: next }).catch(() => {});
+        }
+        showToast(next ? 'Уведомления включены 🔔' : 'Уведомления выключены 🔕');
+        if (next && !localStorage.getItem('bot_started')) {
+            localStorage.setItem('bot_started', '1');
+            const url = 'https://t.me/mensacrew_bot?start=on';
+            if (tg) tg.openTelegramLink(url); else window.open(url, '_blank');
+        }
+        renderBell();
     };
     document.getElementById('fab').onclick = () => { haptic('light'); openCreateSheet(); };
     document.getElementById('sheet-backdrop').onclick = () => {
@@ -1459,9 +1481,15 @@
         closeDetailSheet();
     };
 
+   let pendingNav = null;
+    if (navDate && navTime && navMensa) {
+        currentDate = new Date(+navDate.slice(0,4), +navDate.slice(4,6)-1, +navDate.slice(6,8));
+        currentDate.setHours(0,0,0,0);
+        weekStart = startOfWeek(currentDate);
+        pendingNav = { start: `${navTime.slice(0,2)}:${navTime.slice(2)}`, mensa: navMensa };
+    }
     render();
-
-    /* ===== Kick off Firebase live sync (no-op in demo mode) ===== */
+    /* ===== Kick off Firebase live sync ===== */
     startFirebaseSync();
     </script>
 </body>
