@@ -427,6 +427,11 @@
             color: var(--danger);
             border: 1px solid var(--danger);
         }
+        .credit {
+            text-align: center; margin-top: 16px;
+            font-size: 11px; color: var(--hint);
+            opacity: 0.7; cursor: pointer;
+        }
 
         /* ===== Time chips ===== */
         .time-scroller {
@@ -627,6 +632,7 @@
             <button class="nav-btn" id="next-week">→</button>
         </div>
         <div class="week-list" id="week-list"></div>
+        <div class="credit" id="credit">made by Diyorbek Omonov</div>
     </div>
 
     <button class="fab" id="fab">+</button>
@@ -743,15 +749,14 @@
 
     /* ===== Mensas (order matters: Studi & Phil first) ===== */
     const MENSAS = [
-        { id: 'studi',    name: 'Mensa Studierendenhaus',   short: 'Studierendenhaus' },
-        { id: 'phil',     name: 'Mensa Philturm',           short: 'Philturm' },
-        { id: 'schluters',name: 'Schlüters (Pizza & More)', short: 'Schlüters' },
-        { id: 'botan',    name: 'Mensa Botanischer Garten', short: 'Botan. Garten' },
-        { id: 'bucerius', name: 'Mensa Bucerius Law School',short: 'Bucerius' },
-        { id: 'campus',   name: 'Mensa Campus',             short: 'Campus' },
-        { id: 'geo',      name: 'Mensa Geomatikum',         short: 'Geomatikum' },
-        { id: 'min',      name: 'Mensa MIN',                short: 'MIN' },
-        { id: 'pony',     name: 'Pony Bar',                 short: 'Pony Bar' },
+        { id: 'studi',     name: 'Mensa Studierendenhaus',   short: 'Studierendenhaus' },
+        { id: 'phil',      name: 'Mensa Philturm',           short: 'Philturm' },
+        { id: 'schluters', name: 'Schlüters (Pizza & More)', short: 'Schlüters' },
+        { id: 'botan',     name: 'Blattwerk',                short: 'Blattwerk' },
+        { id: 'bucerius',  name: 'Mensa Berliner Tor',       short: 'Berliner Tor' },
+        { id: 'min',       name: 'Mensa MIN',                short: 'MIN' },
+        { id: 'kaff_spk',  name: 'Käffchen Sparkasse',       short: 'Käffchen Sparkasse' },
+        { id: 'kaff_blatt',name: 'Käffchen Blattwerk',       short: 'Käffchen Blattwerk' },
     ];
     const MENSA_BY_ID = Object.fromEntries(MENSAS.map(m => [m.id, m]));
 
@@ -962,7 +967,16 @@
             body: JSON.stringify({ secret: NOTIFY_SECRET, recipients, text, link: link || null }),
         }).catch(() => {});
     }
-        
+     function notifySelf(text) {
+        if (!FIREBASE_READY || !NOTIFY_URL.startsWith('http')) return;
+        if (state.members?.[currentUser.id]?.notify === false) return;
+        fetch(NOTIFY_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ secret: NOTIFY_SECRET, recipients: [currentUser.id], text }),
+        }).catch(() => {});
+    }
+   
     /* ===== Actions ===== */
    async function setMyEntry(dateIso, start, mensa) {
         const payload = { start, mensa, updatedAt: FIREBASE_READY ? serverTimestamp() : Date.now() };
@@ -985,7 +999,14 @@
                 }
                 const roomKeySafe = roomKey || 'crew';
                 const dl = `https://t.me/mensacrew_bot/Mensa_Crew?startapp=${roomKeySafe}__${dateIso.replace(/-/g,'')}__${start.replace(':','')}__${mensa}`;
-                if (verb) notify(`🍜 <i>${esc(currentUser.name)} ${verb} · ${esc(mensaShort)} (${dayTxt})</i>`, dl);
+                if (verb) {
+                    notify(`🍜 <i>${esc(currentUser.name)} ${verb} · ${esc(mensaShort)} (${dayTxt})</i>`, dl);
+                    const moved = oldE && (oldE.start !== start || oldE.mensa !== mensa);
+                    const selfTxt = moved
+                        ? `✏️ Вы перенесли — ${oldE.start} → ${start} · ${esc(mensaShort)} (${dayTxt})`
+                        : `✅ Вы записаны — ${start} · ${esc(mensaShort)} (${dayTxt})`;
+                    notifySelf(`<i>${selfTxt}</i>`);
+                }
             } catch (e) {
                 console.error('setMyEntry failed', e);
                 showToast('Не удалось сохранить');
@@ -1011,6 +1032,7 @@
                 if (oldE) {
                     const ms = MENSA_BY_ID[oldE.mensa]?.short || oldE.mensa;
                     notify(`🍜 <i>${esc(currentUser.name)} отменяет — ${oldE.start} · ${esc(ms)} (${dayTxt})</i>`);
+                    notifySelf(`<i>❌ Вы вышли — ${oldE.start} · ${esc(ms)} (${dayTxt})</i>`);
                 }
             } catch (e) {
                 console.error('removeMy failed', e);
@@ -1455,6 +1477,10 @@
         renderBell();
     };
     document.getElementById('fab').onclick = () => { haptic('light'); openCreateSheet(); };
+    document.getElementById('credit').onclick = () => {
+        const u = 'https://www.linkedin.com/in/diyorbek-omonov-0734b8264';
+        if (tg?.openLink) tg.openLink(u); else window.open(u, '_blank');
+    };
     document.getElementById('sheet-backdrop').onclick = () => {
         closeCreateSheet(); closeDetailSheet();
     };
