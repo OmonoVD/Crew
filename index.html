@@ -575,6 +575,43 @@
             color: var(--text);
         }
 
+        /* ===== Mode switcher ===== */
+        .app-title { cursor: pointer; }
+        .app-title .tri { font-size: 13px; color: var(--hint); margin-left: 2px; }
+        .mode-menu {
+            position: absolute; top: calc(58px + var(--safe-top)); left: 20px;
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: var(--radius-md); padding: 6px; z-index: 150;
+            box-shadow: 0 12px 30px rgba(0,0,0,0.18); min-width: 190px;
+        }
+        .mode-menu[hidden] { display: none; }
+        .mode-item {
+            display: flex; align-items: center; gap: 10px;
+            padding: 11px 12px; border-radius: var(--radius-sm); cursor: pointer;
+            font-size: 15px; font-weight: 700; color: var(--text);
+        }
+        .mode-item span { font-size: 18px; }
+        .mode-item:active { background: var(--surface-alt); }
+
+        /* ===== Bib mode accent ===== */
+        body.bib-mode { --accent: #2563eb; --accent-soft: rgba(37,99,235,0.12); --accent-softer: rgba(37,99,235,0.06); }
+
+        /* ===== Bib library cards ===== */
+        .bib-list { padding: 8px 20px 24px; }
+        .bib-card {
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: var(--radius-md); padding: 13px 14px; margin-bottom: 9px;
+            cursor: pointer; transition: transform 0.12s ease;
+        }
+        .bib-card:active { transform: scale(0.99); }
+        .bib-card.empty { border-style: dashed; }
+        .bib-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+        .bib-name { font-size: 15px; font-weight: 700; display: flex; align-items: center; gap: 7px; min-width: 0; }
+        .bib-count { font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 999px; white-space: nowrap; }
+        .bib-empty-txt { font-size: 12px; color: var(--hint); }
+        .bib-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+        .bib-pchip { font-size: 12px; font-weight: 600; background: var(--surface-alt); color: var(--text); padding: 4px 9px; border-radius: 8px; }
+
         /* ===== Toast ===== */
         .toast {
             position: fixed;
@@ -600,9 +637,13 @@
 </head>
 <body>
     <header class="app-header">
-        <h1 class="app-title"><span class="emoji">🍜</span> Mensa Crew</h1>
+        <h1 class="app-title" id="app-title"><span class="emoji" id="app-emoji">🍜</span> <span id="app-name">Mensa Crew</span> <span class="tri">▾</span></h1>
         <button class="bell-btn" id="bell-btn" title="Включить уведомления">🔔</button>
     </header>
+    <div class="mode-menu" id="mode-menu" hidden>
+        <div class="mode-item" data-mode="mensa"><span>🍜</span> Mensa Crew</div>
+        <div class="mode-item" data-mode="bib"><span>📚</span> Bib Crew</div>
+    </div>
 
     <div class="tabs" role="tablist">
         <button class="tab active" data-view="day">День</button>
@@ -633,6 +674,32 @@
         </div>
         <div class="week-list" id="week-list"></div>
         <div class="credit" id="credit">made by Diyorbek Omonov</div>
+    </div>
+
+    <div id="bib-day" hidden>
+        <div class="day-nav">
+            <button class="nav-btn" id="bib-prev-day">←</button>
+            <div class="day-info">
+                <div class="day-label" id="bib-day-label">—</div>
+                <div class="day-hint" id="bib-day-hint">—</div>
+            </div>
+            <button class="nav-btn" id="bib-next-day">→</button>
+        </div>
+        <button class="today-btn" id="bib-today-btn">↺ Вернуться к сегодня</button>
+        <div class="bib-list" id="bib-list"></div>
+    </div>
+
+    <div id="bib-week" hidden>
+        <div class="day-nav">
+            <button class="nav-btn" id="bib-prev-week">←</button>
+            <div class="day-info">
+                <div class="day-label" id="bib-week-label">—</div>
+                <div class="day-hint" id="bib-week-hint">—</div>
+            </div>
+            <button class="nav-btn" id="bib-next-week">→</button>
+        </div>
+        <div class="week-list" id="bib-week-list"></div>
+        <div class="credit" id="bib-credit">made by Diyorbek Omonov</div>
     </div>
 
     <button class="fab" id="fab">+</button>
@@ -669,6 +736,36 @@
         <div class="users-list-stack" id="detail-users"></div>
         <button class="sheet-action" id="detail-edit" hidden>Изменить время</button>
         <button class="sheet-action" id="detail-action">Присоединиться</button>
+    </div>
+
+    <!-- Sheet: bib create -->
+    <div class="sheet" id="sheet-bib-create" hidden>
+        <div class="sheet-handle"></div>
+        <div class="sheet-title">Куда идёшь заниматься?</div>
+        <div class="sheet-subtitle" id="bib-create-sub">Выбери библиотеку и время</div>
+        <div class="sheet-section-label">Библиотека</div>
+        <div class="mensa-grid" id="bib-lib-grid"></div>
+        <div class="sheet-section-label">Во сколько придёшь</div>
+        <div class="time-scroller" id="bib-time-scroller"></div>
+        <div class="custom-time-row" id="bib-custom-time-row">
+            <span class="custom-time-label">Точное время</span>
+            <input class="custom-time-input" id="bib-custom-time-input" type="time" step="60">
+        </div>
+        <div class="custom-time-row" id="bib-until-row">
+            <span class="custom-time-label">До скольки (по желанию)</span>
+            <input class="custom-time-input" id="bib-until-input" type="time" step="60">
+        </div>
+        <button class="sheet-action" id="bib-confirm" disabled>Я приду</button>
+    </div>
+
+    <!-- Sheet: bib detail -->
+    <div class="sheet" id="sheet-bib-detail" hidden>
+        <div class="sheet-handle"></div>
+        <div class="sheet-title" id="bib-detail-name">—</div>
+        <div class="sheet-subtitle" id="bib-detail-sub">—</div>
+        <div class="users-list-stack" id="bib-detail-users"></div>
+        <button class="sheet-action" id="bib-detail-edit" hidden>Изменить время</button>
+        <button class="sheet-action" id="bib-detail-action">Я приду сюда</button>
     </div>
 
     <div class="toast" id="toast"></div>
@@ -744,8 +841,13 @@
        - Group chat → chat.id (all members share the room)
        - No chat (debug / private) → user id (private demo room) */
     const tgInit = tg?.initDataUnsafe || {};
-    const [roomKey, navDate, navTime, navMensa] = (tgInit.start_param || '').split('__');
+    const spParts = (tgInit.start_param || '').split('__');
+    const roomKey = spParts[0];
     const roomId = roomKey ? `room_${roomKey}` : 'room_crew';
+    let navDate = null, navTime = null, navMensa = null;
+    let navBibDate = null, navBib = null, startMode = null;
+    if (spParts[1] === 'b') { startMode = 'bib'; navBibDate = spParts[2]; navBib = spParts[3]; }
+    else if (spParts[1]) { navDate = spParts[1]; navTime = spParts[2]; navMensa = spParts[3]; }
 
     /* ===== Mensas (order matters: Studi & Phil first) ===== */
     const MENSAS = [
@@ -876,6 +978,7 @@
     }
 
     let state = FIREBASE_READY ? { entries: {}, members: {} } : loadLocalState();
+    if (!state.bib) state.bib = {};
 
     /* ===== Firebase wiring ===== */
     function startFirebaseSync() {
@@ -894,6 +997,15 @@
             state.members = snap.val() || {};
             render();
         });
+        // Subscribe: bib
+        onValue(ref(fbDb, `rooms/${roomId}/bib`), (snap) => {
+            state.bib = snap.val() || {};
+            render();
+            if (pendingBibNav) {
+                const di = isoDate(currentDate);
+                if (bibPeople(di, pendingBibNav.bib).length) { openBibDetail(pendingBibNav.bib); pendingBibNav = null; }
+            }
+        });
         // Announce/refresh self profile
         update(ref(fbDb, `rooms/${roomId}/members/${currentUser.id}`), {
             id: currentUser.id,
@@ -906,6 +1018,7 @@
 
     /* ===== UI state ===== */
     let view = 'day';
+    let mode = startMode || localStorage.getItem('app_mode') || 'mensa';
     let currentDate = new Date(); currentDate.setHours(0,0,0,0);
     let weekStart = startOfWeek(new Date());
     let selectedTime = null;
@@ -1278,12 +1391,26 @@
     }
 
     /* ===== View switching ===== */
-    function render() { renderBell(); view === 'day' ? renderDayView() : renderWeekView(); }
+    function applyModeChrome() {
+        const isBib = mode === 'bib';
+        document.body.classList.toggle('bib-mode', isBib);
+        document.getElementById('app-emoji').textContent = isBib ? '📚' : '🍜';
+        document.getElementById('app-name').textContent = isBib ? 'Bib Crew' : 'Mensa Crew';
+    }
+    function applyVisibility() {
+        document.getElementById('view-day').hidden  = !(mode === 'mensa' && view === 'day');
+        document.getElementById('view-week').hidden = !(mode === 'mensa' && view === 'week');
+        document.getElementById('bib-day').hidden   = !(mode === 'bib'   && view === 'day');
+        document.getElementById('bib-week').hidden  = !(mode === 'bib'   && view === 'week');
+    }
+    function render() {
+        renderBell(); applyModeChrome(); applyVisibility();
+        if (mode === 'bib') { view === 'day' ? renderBibDay() : renderBibWeek(); }
+        else { view === 'day' ? renderDayView() : renderWeekView(); }
+    }
     function switchView(v) {
         view = v;
         document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.view === v));
-        document.getElementById('view-day').hidden = v !== 'day';
-        document.getElementById('view-week').hidden = v !== 'week';
         render();
     }
 
@@ -1448,6 +1575,317 @@
         if (backButtonOwner === 'detail') detachBackButton();
     }
 
+    /* ===== Bib Crew ===== */
+    const BIBS = [
+        { id:'wiwi',  name:'WiWi',       emoji:'📈', color:'#2563eb' },
+        { id:'stabi', name:'Stabi',      emoji:'📕', color:'#ef4444' },
+        { id:'recht', name:'Rechtshaus', emoji:'⚖️', color:'#16a34a' },
+        { id:'phil',  name:'Philturm',   emoji:'🏛️', color:'#f59e0b' },
+        { id:'min',   name:'MIN',        emoji:'🔬', color:'#8b5cf6' },
+    ];
+    const BIB_BY_ID = Object.fromEntries(BIBS.map(b => [b.id, b]));
+    function bibHexA(hex, a) { const n = parseInt(hex.slice(1),16); return `rgba(${(n>>16)&255},${(n>>8)&255},${n&255},${a})`; }
+    const BIB_TIME_OPTIONS = (() => { const out=[]; for (let h=8; h<=20; h++) out.push(h + ':00'); return out; })();
+    let bibSel = { bib:null, time:null, custom:false };
+    let bibDetailId = null;
+
+    function bibTmin(t){ if(!t) return 0; const p=String(t).split(':'); return (+p[0])*60 + (+(p[1]||0)); }
+    function bibTo24(t){ if(!t) return ''; const p=String(t).split(':'); return String(p[0]).padStart(2,'0') + ':' + (p[1]||'00'); }
+    function bibFindMine(dateIso) { return (state.bib[dateIso] || {})[currentUser.id] || null; }
+    function bibPeople(dateIso, bibId) {
+        const day = state.bib[dateIso] || {};
+        const arr = [];
+        Object.keys(day).forEach(uid => { const e = day[uid]; if (e && e.bib === bibId) arr.push({ uid, from: e.from, until: e.until || null }); });
+        return arr.sort((a,b) => bibTmin(a.from) - bibTmin(b.from));
+    }
+    function bibDayCount(dateIso) { return Object.keys(state.bib[dateIso] || {}).length; }
+
+    function renderBibDay() {
+        document.getElementById('bib-day-label').textContent = formatDayLabel(currentDate);
+        document.getElementById('bib-day-hint').textContent = formatDayHint(currentDate);
+        document.getElementById('bib-today-btn').hidden = isoDate(currentDate) === isoDate(new Date());
+        const di = isoDate(currentDate);
+        const list = document.getElementById('bib-list');
+        list.innerHTML = '';
+        const mine = bibFindMine(di);
+        BIBS.forEach(b => {
+            const ppl = bibPeople(di, b.id);
+            const mineHere = mine && mine.bib === b.id;
+            const card = document.createElement('div');
+            card.className = 'bib-card' + (ppl.length === 0 ? ' empty' : '');
+            if (ppl.length > 0) {
+                card.style.background = bibHexA(b.color, 0.12);
+                card.style.borderColor = bibHexA(b.color, mineHere ? 0.9 : 0.45);
+            }
+            const top = document.createElement('div');
+            top.className = 'bib-top';
+            const nm = document.createElement('div');
+            nm.className = 'bib-name';
+            nm.innerHTML = `<span>${b.emoji}</span> ${b.name}`;
+            top.appendChild(nm);
+            if (ppl.length > 0) {
+                const cnt = document.createElement('div');
+                cnt.className = 'bib-count';
+                cnt.style.color = b.color;
+                cnt.style.background = bibHexA(b.color, 0.18);
+                cnt.textContent = `${ppl.length} ${pluralRu(ppl.length, ['человек','человека','человек'])}`;
+                top.appendChild(cnt);
+            } else {
+                const e = document.createElement('div');
+                e.className = 'bib-empty-txt';
+                e.textContent = 'никого · будь первым';
+                top.appendChild(e);
+            }
+            card.appendChild(top);
+            if (ppl.length > 0) {
+                const chips = document.createElement('div');
+                chips.className = 'bib-chips';
+                ppl.forEach(p => {
+                    const u = getUserInfo(p.uid);
+                    const chip = document.createElement('span');
+                    chip.className = 'bib-pchip';
+                    if (u.isMe) { chip.style.background = b.color; chip.style.color = '#fff'; }
+                    chip.textContent = (u.isMe ? 'Вы' : (u.name || 'Гость')) + ' · ' + p.from + (p.until ? (' → ' + p.until) : '');
+                    chips.appendChild(chip);
+                });
+                card.appendChild(chips);
+            }
+            card.onclick = () => openBibDetail(b.id);
+            list.appendChild(card);
+        });
+    }
+
+    function renderBibWeek() {
+        const ws = weekStart, we = addDays(ws, 6);
+        document.getElementById('bib-week-label').textContent = `KW ${getWeekNumber(ws)}`;
+        document.getElementById('bib-week-hint').textContent =
+            `${ws.getDate()} ${RU_MONTHS_SHORT[ws.getMonth()]} – ${we.getDate()} ${RU_MONTHS_SHORT[we.getMonth()]}`;
+        const list = document.getElementById('bib-week-list');
+        list.innerHTML = '';
+        const todayIso = isoDate(new Date());
+        for (let i = 0; i < 7; i++) {
+            const d = addDays(weekStart, i);
+            const di = isoDate(d);
+            const total = bibDayCount(di);
+            const mine = bibFindMine(di);
+            const card = document.createElement('div');
+            card.className = 'week-day' + (di === todayIso ? ' today' : '');
+            const head = document.createElement('div');
+            head.className = 'week-day-head';
+            const left = document.createElement('div');
+            left.className = 'week-day-date';
+            const name = document.createElement('div');
+            name.className = 'week-day-name';
+            name.textContent = RU_DAYS_SHORT[d.getDay()];
+            const dnum = document.createElement('div');
+            dnum.className = 'week-day-date-num';
+            dnum.textContent = `${d.getDate()} ${RU_MONTHS_SHORT[d.getMonth()]}`;
+            left.appendChild(name); left.appendChild(dnum);
+            head.appendChild(left);
+            const cnt = document.createElement('div');
+            cnt.className = 'week-day-count' + (mine ? ' active' : '');
+            cnt.textContent = total ? `${total} ${pluralRu(total, ['человек','человека','человек'])}` : 'пусто';
+            head.appendChild(cnt);
+            card.appendChild(head);
+            if (total > 0) {
+                const tags = document.createElement('div');
+                tags.className = 'week-day-blocks';
+                BIBS.forEach(b => {
+                    const n = bibPeople(di, b.id).length;
+                    if (n > 0) {
+                        const tag = document.createElement('div');
+                        tag.className = 'week-block-tag';
+                        tag.style.background = bibHexA(b.color, 0.16);
+                        tag.style.color = b.color;
+                        tag.textContent = `${b.emoji} ${n}`;
+                        tags.appendChild(tag);
+                    }
+                });
+                card.appendChild(tags);
+            }
+            card.onclick = () => { currentDate = d; switchView('day'); };
+            list.appendChild(card);
+        }
+    }
+
+    function bibUpdateConfirm() {
+        const cb = document.getElementById('bib-confirm');
+        cb.disabled = !(bibSel.bib && bibSel.time);
+        cb.style.background = bibSel.bib ? BIB_BY_ID[bibSel.bib].color : 'var(--accent)';
+    }
+    function bibSetTime(t, fromCustom) {
+        bibSel.time = t; bibSel.custom = !!fromCustom;
+        document.querySelectorAll('#bib-time-scroller .time-chip').forEach(c =>
+            c.classList.toggle('active', !fromCustom && c.dataset.time === t));
+        document.getElementById('bib-custom-time-row').classList.toggle('active', !!fromCustom);
+        if (!fromCustom) document.getElementById('bib-custom-time-input').value = '';
+        bibUpdateConfirm();
+    }
+    function bibSetLib(id) {
+        bibSel.bib = id;
+        document.querySelectorAll('#bib-lib-grid .mensa-chip').forEach(c => {
+            const on = c.dataset.bib === id;
+            const col = BIB_BY_ID[c.dataset.bib].color;
+            c.classList.toggle('active', on);
+            c.style.background = on ? col : '';
+            c.style.borderColor = on ? col : '';
+            c.style.color = on ? '#fff' : '';
+        });
+        bibUpdateConfirm();
+    }
+    function openBibCreate(preset) {
+        const di = isoDate(currentDate);
+        const mine = bibFindMine(di);
+        bibSel = { bib:null, time:null, custom:false };
+        const grid = document.getElementById('bib-lib-grid');
+        grid.innerHTML = '';
+        BIBS.forEach(b => {
+            const chip = document.createElement('button');
+            chip.type = 'button'; chip.className = 'mensa-chip';
+            chip.innerHTML = `${b.emoji} ${b.name}`;
+            chip.dataset.bib = b.id;
+            chip.onclick = () => { bibSetLib(b.id); haptic('light'); };
+            grid.appendChild(chip);
+        });
+        const sc = document.getElementById('bib-time-scroller');
+        sc.innerHTML = '';
+        BIB_TIME_OPTIONS.forEach(t => {
+            const chip = document.createElement('button');
+            chip.type = 'button'; chip.className = 'time-chip';
+            chip.textContent = t; chip.dataset.time = t;
+            chip.onclick = () => { bibSetTime(t, false); haptic('light'); };
+            sc.appendChild(chip);
+        });
+        const ci = document.getElementById('bib-custom-time-input');
+        ci.value = '';
+        ci.oninput = (e) => { if (e.target.value) { bibSetTime(e.target.value, true); haptic('light'); } };
+        const ui = document.getElementById('bib-until-input');
+        ui.value = (mine && mine.until) ? bibTo24(mine.until) : '';
+        if (mine) {
+            bibSetLib(mine.bib);
+            if (BIB_TIME_OPTIONS.includes(mine.from)) bibSetTime(mine.from, false);
+            else { ci.value = bibTo24(mine.from); bibSetTime(mine.from, true); }
+        } else if (preset) {
+            bibSetLib(preset);
+        }
+        document.getElementById('bib-create-sub').textContent = `${formatDayLabel(currentDate)}, ${formatDayHint(currentDate)}`;
+        bibUpdateConfirm();
+        document.getElementById('sheet-bib-create').hidden = false;
+        document.getElementById('sheet-backdrop').classList.add('show');
+        requestAnimationFrame(() => document.getElementById('sheet-bib-create').classList.add('show'));
+        attachBackButton('bibcreate', closeBibCreate);
+    }
+    function closeBibCreate() {
+        document.getElementById('sheet-bib-create').classList.remove('show');
+        document.getElementById('sheet-backdrop').classList.remove('show');
+        setTimeout(() => document.getElementById('sheet-bib-create').hidden = true, 280);
+        if (backButtonOwner === 'bibcreate') detachBackButton();
+    }
+    async function bibConfirm() {
+        if (!(bibSel.bib && bibSel.time)) return;
+        const di = isoDate(currentDate);
+        const ui = document.getElementById('bib-until-input');
+        const until = (ui && ui.value) ? ui.value : null;
+        await setMyBib(di, bibSel.bib, bibSel.time, until);
+        closeBibCreate();
+    }
+    async function setMyBib(dateIso, bib, from, until) {
+        const lib = BIB_BY_ID[bib];
+        const oldE = bibFindMine(dateIso);
+        const dayTxt = `${currentDate.getDate()} ${RU_MONTHS_SHORT[currentDate.getMonth()]}`;
+        const untilTxt = until ? ` до ${until}` : '';
+        if (FIREBASE_READY && fbDb) {
+            try {
+                await set(ref(fbDb, `rooms/${roomId}/bib/${dateIso}/${currentUser.id}`), { bib, from, until: until || null, updatedAt: serverTimestamp() });
+                haptic('medium');
+                showToast(`${lib.name} · ${from}`);
+                let verb = null;
+                if (oldE && (oldE.bib !== bib || oldE.from !== from || (oldE.until || null) !== (until || null))) verb = `меняет — ${lib.name} с ${from}${untilTxt}`;
+                else if (!oldE) verb = `идёт в ${lib.name} с ${from}${untilTxt}`;
+                const roomKeySafe = roomKey || 'crew';
+                const dl = `https://t.me/mensacrew_bot/Mensa_Crew?startapp=${roomKeySafe}__b__${dateIso.replace(/-/g,'')}__${bib}__${from.replace(':','')}`;
+                if (verb) {
+                    notify(`📚 <i>${esc(currentUser.name)} ${verb} (${dayTxt})</i>`, dl);
+                    notifySelf(`<i>✅ Вы в ${esc(lib.name)} с ${from}${untilTxt} (${dayTxt})</i>`);
+                }
+            } catch (e) { console.error('setMyBib failed', e); showToast('Не удалось сохранить'); }
+            return;
+        }
+        if (!state.bib[dateIso]) state.bib[dateIso] = {};
+        state.bib[dateIso][currentUser.id] = { bib, from, until: until || null };
+        saveLocalState(); haptic('medium'); showToast(`${lib.name} · ${from}`); render();
+    }
+    async function removeMyBib(dateIso) {
+        const oldE = bibFindMine(dateIso);
+        const dayTxt = `${currentDate.getDate()} ${RU_MONTHS_SHORT[currentDate.getMonth()]}`;
+        if (FIREBASE_READY && fbDb) {
+            try {
+                await remove(ref(fbDb, `rooms/${roomId}/bib/${dateIso}/${currentUser.id}`));
+                haptic('medium'); showToast('Вы ушли');
+                if (oldE) {
+                    const lib = BIB_BY_ID[oldE.bib];
+                    const nm = lib ? lib.name : oldE.bib;
+                    notify(`📚 <i>${esc(currentUser.name)} уходит из ${esc(nm)} (${dayTxt})</i>`);
+                    notifySelf(`<i>❌ Вы ушли из ${esc(nm)} (${dayTxt})</i>`);
+                }
+            } catch (e) { console.error('removeMyBib failed', e); showToast('Не удалось'); }
+            return;
+        }
+        const day = state.bib[dateIso] || {};
+        delete day[currentUser.id];
+        if (Object.keys(day).length === 0) delete state.bib[dateIso]; else state.bib[dateIso] = day;
+        saveLocalState(); haptic('medium'); showToast('Вы ушли'); render();
+    }
+    function openBibDetail(bibId) {
+        bibDetailId = bibId;
+        const lib = BIB_BY_ID[bibId];
+        const di = isoDate(currentDate);
+        const ppl = bibPeople(di, bibId);
+        document.getElementById('bib-detail-name').innerHTML = `${lib.emoji} ${lib.name}`;
+        document.getElementById('bib-detail-sub').textContent = ppl.length
+            ? `${ppl.length} ${pluralRu(ppl.length, ['человек','человека','человек'])} сегодня`
+            : 'Пока никого — будь первым';
+        const usersDiv = document.getElementById('bib-detail-users');
+        usersDiv.innerHTML = '';
+        ppl.forEach(p => {
+            const u = getUserInfo(p.uid);
+            const chip = document.createElement('div');
+            chip.className = 'user-chip';
+            chip.style.backgroundColor = u.isMe ? lib.color : 'var(--surface-alt)';
+            if (u.isMe) chip.style.color = '#fff';
+            const av = document.createElement('div');
+            av.className = 'avatar';
+            if (u.photo_url) { av.style.backgroundImage = `url(${u.photo_url})`; }
+            else { av.style.backgroundColor = u.isMe ? '#fff' : colorFor(u.id || p.uid); av.style.color = u.isMe ? lib.color : '#fff'; av.textContent = userInitials(u); }
+            const name = document.createElement('span');
+            name.className = 'user-name';
+            name.textContent = (u.isMe ? 'Вы' : (u.name || 'Гость')) + ' · ' + p.from + (p.until ? (' → ' + p.until) : '');
+            chip.appendChild(av); chip.appendChild(name);
+            chip.onclick = () => openUserChat(u);
+            usersDiv.appendChild(chip);
+        });
+        const mine = bibFindMine(di);
+        const iAmHere = mine && mine.bib === bibId;
+        const btn = document.getElementById('bib-detail-action');
+        btn.textContent = iAmHere ? 'Я ухожу отсюда' : 'Я приду сюда';
+        btn.className = 'sheet-action' + (iAmHere ? ' secondary' : '');
+        btn.style.background = iAmHere ? '' : lib.color;
+        const editBtn = document.getElementById('bib-detail-edit');
+        editBtn.hidden = !iAmHere;
+        if (iAmHere) editBtn.style.background = lib.color;
+        document.getElementById('sheet-bib-detail').hidden = false;
+        document.getElementById('sheet-backdrop').classList.add('show');
+        requestAnimationFrame(() => document.getElementById('sheet-bib-detail').classList.add('show'));
+        attachBackButton('bibdetail', closeBibDetail);
+    }
+    function closeBibDetail() {
+        document.getElementById('sheet-bib-detail').classList.remove('show');
+        document.getElementById('sheet-backdrop').classList.remove('show');
+        setTimeout(() => document.getElementById('sheet-bib-detail').hidden = true, 280);
+        if (backButtonOwner === 'bibdetail') detachBackButton();
+    }
+    function closeAllSheets() { closeCreateSheet(); closeDetailSheet(); closeBibCreate(); closeBibDetail(); }
+
     /* ===== Events ===== */
     document.querySelectorAll('.tab').forEach(t => t.onclick = () => switchView(t.dataset.view));
     document.getElementById('prev-day').onclick = () => { currentDate = addDays(currentDate, -1); render(); haptic('light'); };
@@ -1476,14 +1914,12 @@
         }
         renderBell();
     };
-    document.getElementById('fab').onclick = () => { haptic('light'); openCreateSheet(); };
+    document.getElementById('fab').onclick = () => { haptic('light'); if (mode === 'bib') openBibCreate(); else openCreateSheet(); };
     document.getElementById('credit').onclick = () => {
         const u = 'https://www.linkedin.com/in/diyorbek-omonov-0734b8264';
         if (tg?.openLink) tg.openLink(u); else window.open(u, '_blank');
     };
-    document.getElementById('sheet-backdrop').onclick = () => {
-        closeCreateSheet(); closeDetailSheet();
-    };
+    document.getElementById('sheet-backdrop').onclick = () => { closeAllSheets(); };
     document.getElementById('sheet-confirm').onclick = () => {
         if (selectedTime && selectedMensa) {
             setMyEntry(isoDate(currentDate), selectedTime, selectedMensa);
@@ -1507,12 +1943,56 @@
         closeDetailSheet();
     };
 
+    /* ===== Bib & mode events ===== */
+    document.getElementById('app-title').onclick = (e) => {
+        e.stopPropagation();
+        const mm = document.getElementById('mode-menu');
+        mm.hidden = !mm.hidden;
+    };
+    document.querySelectorAll('.mode-item').forEach(it => it.onclick = () => {
+        mode = it.dataset.mode;
+        try { localStorage.setItem('app_mode', mode); } catch (e) {}
+        document.getElementById('mode-menu').hidden = true;
+        closeAllSheets();
+        view = 'day';
+        document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.view === 'day'));
+        render();
+        haptic('light');
+    });
+    document.addEventListener('click', () => {
+        const mm = document.getElementById('mode-menu');
+        if (mm && !mm.hidden) mm.hidden = true;
+    });
+    document.getElementById('bib-prev-day').onclick = () => { currentDate = addDays(currentDate, -1); render(); haptic('light'); };
+    document.getElementById('bib-next-day').onclick = () => { currentDate = addDays(currentDate, +1); render(); haptic('light'); };
+    document.getElementById('bib-today-btn').onclick = () => { currentDate = new Date(); currentDate.setHours(0,0,0,0); render(); haptic('light'); };
+    document.getElementById('bib-prev-week').onclick = () => { weekStart = addDays(weekStart, -7); render(); haptic('light'); };
+    document.getElementById('bib-next-week').onclick = () => { weekStart = addDays(weekStart, +7); render(); haptic('light'); };
+    document.getElementById('bib-credit').onclick = () => { const u = 'https://www.linkedin.com/in/diyorbek-omonov-0734b8264'; if (tg?.openLink) tg.openLink(u); else window.open(u, '_blank'); };
+    document.getElementById('bib-confirm').onclick = () => { if (bibSel.bib && bibSel.time) bibConfirm(); };
+    document.getElementById('bib-detail-edit').onclick = () => { haptic('light'); const id = bibDetailId; closeBibDetail(); openBibCreate(id); };
+    document.getElementById('bib-detail-action').onclick = () => {
+        const di = isoDate(currentDate);
+        const mine = bibFindMine(di);
+        const id = bibDetailId;
+        if (mine && mine.bib === id) { removeMyBib(di); closeBibDetail(); }
+        else { closeBibDetail(); openBibCreate(id); }
+    };
+
    let pendingNav = null;
     if (navDate && navTime && navMensa) {
         currentDate = new Date(+navDate.slice(0,4), +navDate.slice(4,6)-1, +navDate.slice(6,8));
         currentDate.setHours(0,0,0,0);
         weekStart = startOfWeek(currentDate);
         pendingNav = { start: `${navTime.slice(0,2)}:${navTime.slice(2)}`, mensa: navMensa };
+    }
+    let pendingBibNav = null;
+    if (navBibDate && navBib) {
+        currentDate = new Date(+navBibDate.slice(0,4), +navBibDate.slice(4,6)-1, +navBibDate.slice(6,8));
+        currentDate.setHours(0,0,0,0);
+        weekStart = startOfWeek(currentDate);
+        pendingBibNav = { bib: navBib };
+        view = 'day';
     }
     render();
     /* ===== Kick off Firebase live sync ===== */
