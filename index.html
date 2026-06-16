@@ -640,6 +640,7 @@
         .aud-person.dim { opacity: 0.45; }
         .aud-person.sel { background: var(--accent-soft); border-color: var(--accent); }
         .aud-person .aud-name { flex: 1; font-size: 15px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .aud-place { font-size: 12px; font-weight: 600; color: var(--hint); white-space: nowrap; flex-shrink: 0; max-width: 42%; overflow: hidden; text-overflow: ellipsis; }
         .aud-check { width: 20px; flex-shrink: 0; color: var(--accent); font-weight: 800; text-align: center; }
 
         /* ===== Toast ===== */
@@ -892,8 +893,8 @@
     const roomKey = spParts[0];
     const roomId = roomKey ? `room_${roomKey}` : 'room_crew';
     let navDate = null, navTime = null, navMensa = null;
-    let navBibDate = null, navBib = null, startMode = null;
-    if (spParts[1] === 'b') { startMode = 'bib'; navBibDate = spParts[2]; navBib = spParts[3]; }
+    let navBibDate = null, navBib = null, navBibFrom = null, startMode = null;
+    if (spParts[1] === 'b') { startMode = 'bib'; navBibDate = spParts[2]; navBib = spParts[3]; navBibFrom = spParts[4] || null; }
     else if (spParts[1]) { navDate = spParts[1]; navTime = spParts[2]; navMensa = spParts[3]; }
 
     /* ===== Mensas (order matters: Studi & Phil first) ===== */
@@ -1874,6 +1875,12 @@
         ui.value = '';
         const libToSelect = preset || (mine ? mine.bib : null);
         if (libToSelect) bibSetLib(libToSelect);
+        if (preset && navBibFrom && preset === navBib) {
+            const t = (+navBibFrom.slice(0,-2)) + ':' + navBibFrom.slice(-2);
+            if (BIB_TIME_OPTIONS.includes(t)) bibSetTime(t, false);
+            else { ci.value = bibTo24(t); bibSetTime(t, true); }
+            navBibFrom = null;
+        }
         document.getElementById('bib-create-sub').textContent = `${formatDayLabel(currentDate)}, ${formatDayHint(currentDate)}`;
         bibUpdateConfirm();
         document.getElementById('sheet-bib-create').hidden = false;
@@ -2028,6 +2035,21 @@
         requestAnimationFrame(() => document.getElementById('sheet-audience').classList.add('show'));
         attachBackButton('audience', closeAudience);
     }
+
+    function audPlace(uid) {
+        const di = isoDate(currentDate);
+        if (mode === 'bib') {
+            const e = (state.bib[di] || {})[uid];
+            if (!e || !canSee(uid, e)) return null;
+            const lib = BIB_BY_ID[e.bib];
+            return lib ? (lib.emoji + ' ' + lib.name) : null;
+        } else {
+            const e = (state.entries[di] || {})[uid];
+            if (!e || !canSee(uid, e)) return null;
+            const m = MENSA_BY_ID[e.mensa];
+            return m ? m.short : null;
+        }
+    }
     function renderAudPeople(filter) {
         const wrap = document.getElementById('aud-people');
         if (!wrap) return;
@@ -2042,15 +2064,18 @@
         if (!ids.length) { wrap.innerHTML = '<div class="bib-empty-txt" style="padding:10px">Пока никого в круге</div>'; return; }
         ids.forEach(id => {
             const u = getUserInfo(id);
+            const place = audPlace(id);
             const row = document.createElement('div');
-            row.className = 'aud-person' + (isActiveToday(id) ? '' : ' dim') + (audSel[id] ? ' sel' : '');
+            row.className = 'aud-person' + ((place || audSel[id]) ? '' : ' dim') + (audSel[id] ? ' sel' : '');
             const av = document.createElement('div');
             av.className = 'avatar';
             if (u.photo_url) { av.style.backgroundImage = `url(${u.photo_url})`; }
             else { av.style.backgroundColor = colorFor(id); av.textContent = userInitials(u); }
             const nm = document.createElement('div'); nm.className = 'aud-name'; nm.textContent = u.name || 'Гость';
+            row.appendChild(av); row.appendChild(nm);
+            if (place) { const pl = document.createElement('div'); pl.className = 'aud-place'; pl.textContent = place; row.appendChild(pl); }
             const ck = document.createElement('div'); ck.className = 'aud-check'; ck.textContent = audSel[id] ? '✓' : '';
-            row.appendChild(av); row.appendChild(nm); row.appendChild(ck);
+            row.appendChild(ck);
             row.onclick = () => {
                 if (audSel[id]) delete audSel[id]; else audSel[id] = true;
                 haptic('light');
