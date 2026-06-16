@@ -615,6 +615,33 @@
         .bib-name { font-size: 16px; }
         #bib-lib-grid .mensa-chip { min-height: 54px; font-size: 15px; padding: 14px 14px; }
 
+        /* ===== Audience picker ===== */
+        .aud-modes { display: flex; gap: 6px; margin: 6px 0 4px; }
+        .aud-mode {
+            flex: 1; padding: 11px 8px; border-radius: 10px;
+            background: var(--surface); border: 1px solid var(--border);
+            color: var(--text); font-size: 14px; font-weight: 600;
+            font-family: inherit; cursor: pointer;
+        }
+        .aud-mode.active { background: var(--accent); color: var(--accent-text); border-color: var(--accent); }
+        .aud-search {
+            width: 100%; margin: 12px 0 8px; padding: 11px 14px;
+            border-radius: 10px; border: 1px solid var(--border);
+            background: var(--surface); color: var(--text);
+            font-size: 15px; font-family: inherit; outline: none;
+        }
+        .aud-people { display: flex; flex-direction: column; gap: 4px; max-height: 44vh; overflow-y: auto; }
+        .aud-person {
+            display: flex; align-items: center; gap: 10px;
+            padding: 8px 10px; border-radius: 10px; cursor: pointer;
+            border: 1px solid transparent;
+        }
+        .aud-person:active { background: var(--surface-alt); }
+        .aud-person.dim { opacity: 0.45; }
+        .aud-person.sel { background: var(--accent-soft); border-color: var(--accent); }
+        .aud-person .aud-name { flex: 1; font-size: 15px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .aud-check { width: 20px; flex-shrink: 0; color: var(--accent); font-weight: 800; text-align: center; }
+
         /* ===== Toast ===== */
         .toast {
             position: fixed;
@@ -769,6 +796,23 @@
         <div class="users-list-stack" id="bib-detail-users"></div>
         <button class="sheet-action" id="bib-detail-edit" hidden>Изменить время</button>
         <button class="sheet-action" id="bib-detail-action">Я приду сюда</button>
+    </div>
+
+    <!-- Sheet: audience -->
+    <div class="sheet" id="sheet-audience" hidden>
+        <div class="sheet-handle"></div>
+        <div class="sheet-title">Кому показать?</div>
+        <div class="sheet-subtitle" id="aud-sub">Запись увидят все в твоём круге</div>
+        <div class="aud-modes" id="aud-modes">
+            <button class="aud-mode active" data-amode="all" type="button">Всем</button>
+            <button class="aud-mode" data-amode="only" type="button">Только…</button>
+            <button class="aud-mode" data-amode="except" type="button">Кроме…</button>
+        </div>
+        <div id="aud-people-wrap" hidden>
+            <input class="aud-search" id="aud-search" type="text" placeholder="Поиск людей…">
+            <div class="aud-people" id="aud-people"></div>
+        </div>
+        <button class="sheet-action" id="aud-confirm">Готово</button>
     </div>
 
     <div class="toast" id="toast"></div>
@@ -1033,7 +1077,7 @@
         const entries = state.entries[dateIso] || {};
         const grouped = {};
         Object.entries(entries).forEach(([uid, e]) => {
-            // Backward compat: e might be a string from older state
+            if (typeof e === 'object' && !canSee(uid, e)) return;
             const start = typeof e === 'string' ? e : e.start;
             const mensa = typeof e === 'string' ? 'studi' : (e.mensa || 'studi');
             const key = `${mensa}|${start}`;
@@ -1043,12 +1087,27 @@
         return Object.values(grouped)
             .sort((a, b) => timeToMin(a.start) - timeToMin(b.start));
     }
+    let entryProfiles = {};
+    function indexEntryProfiles() {
+        entryProfiles = {};
+        const scan = (coll) => Object.values(coll || {}).forEach(day => {
+            if (!day) return;
+            Object.keys(day).forEach(uid => {
+                const e = day[uid];
+                if (e && typeof e === 'object' && e.name && !entryProfiles[uid]) {
+                    entryProfiles[uid] = { name: e.name, username: e.username || null, photo_url: e.photo_url || null };
+                }
+            });
+        });
+        scan(state.entries); scan(state.bib);
+    }
     function getUserInfo(uid) {
         if (uid === currentUser.id) return { ...currentUser, isMe: true };
-        // Priority: live Firebase members → mock fallback
-        const m = state.members && state.members[uid];
-        if (m) {
-            return { id: uid, name: m.name || 'Гость', username: m.username || null, photo_url: m.photo_url || null };
+        const m = (state.members && state.members[uid]) || null;
+        const ep = entryProfiles[uid] || null;
+        const name = (m && m.name) || (ep && ep.name) || null;
+        if (name) {
+            return { id: uid, name, username: (m && m.username) || (ep && ep.username) || null, photo_url: (m && m.photo_url) || (ep && ep.photo_url) || null };
         }
         return MOCK[uid] || { id: uid, name: 'Гость', username: null, photo_url: null };
     }
@@ -1068,14 +1127,63 @@
     }
     const haptic = (t='light') => { try { tg?.HapticFeedback?.impactOccurred(t); } catch (e) {} };
 
+    /* ===== Visibility (audience) ===== */
+    function audIds(a) { if (!a || !a.ids) return []; return Array.isArray(a.ids) ? a.ids : Object.values(a.ids); }
+    function canSee(uid, e) {
+        if (uid === currentUser.id) return true;
+        const a = e && e.audience;
+        if (!a || a.mode === 'all') return true;
+        const ids = audIds(a);
+        if (a.mode === 'only')   return ids.indexOf(currentUser.id) !== -1;
+        if (a.mode === 'except') return ids.indexOf(currentUser.id) === -1;
+        return true;
+    }
+    function isActiveToday(uid) {
+        const di = isoDate(currentDate);
+        const coll = (mode === 'bib') ? state.bib : state.entries;
+        return !!((coll[di] || {})[uid]);
+    }
+    function relevanceOrder() {
+        const co = {};
+        const bump = (uid) => { if (uid && uid !== currentUser.id) co[uid] = (co[uid] || 0) + 1; };
+        Object.values(state.entries || {}).forEach(day => {
+            if (!day || !day[currentUser.id]) return;
+            const mine = day[currentUser.id];
+            const mk = mine.start + '|' + mine.mensa;
+            Object.keys(day).forEach(uid => {
+                const e = day[uid];
+                if (uid !== currentUser.id && e && (e.start + '|' + e.mensa) === mk) bump(uid);
+            });
+        });
+        Object.values(state.bib || {}).forEach(day => {
+            if (!day || !day[currentUser.id]) return;
+            const myb = day[currentUser.id].bib;
+            Object.keys(day).forEach(uid => {
+                const e = day[uid];
+                if (uid !== currentUser.id && e && e.bib === myb) bump(uid);
+            });
+        });
+        const members = Object.keys(state.members || {}).filter(id => id !== currentUser.id);
+        Object.keys(entryProfiles).forEach(id => { if (id !== currentUser.id && members.indexOf(id) === -1) members.push(id); });
+        const lastSeen = (id) => (state.members && state.members[id] && state.members[id].lastSeen) || 0;
+        members.sort((a, b) => {
+            const d = (co[b] || 0) - (co[a] || 0);
+            if (d) return d;
+            return lastSeen(b) - lastSeen(a);
+        });
+        return members;
+    }
+
     /* ===== Notifications ===== */
     const NOTIFY_URL = 'https://mensa-notify.omonovdd.workers.dev/'; // ← URL воркера
     const NOTIFY_SECRET = 'crew-7h3x9q2';                                // ← тот же секрет
     const esc = s => String(s).replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
-    function notify(text, link) {
+    function notify(text, link, audience) {
         if (!FIREBASE_READY || !NOTIFY_URL.startsWith('http')) return;
-        const recipients = Object.keys(state.members || {})
+        let recipients = Object.keys(state.members || {})
             .filter(id => id !== currentUser.id && state.members[id]?.notify !== false);
+        if (audience && audience.mode === 'only') { const s = audIds(audience); recipients = recipients.filter(id => s.indexOf(id) !== -1); }
+        else if (audience && audience.mode === 'except') { const s = audIds(audience); recipients = recipients.filter(id => s.indexOf(id) === -1); }
         if (!recipients.length) return;
         fetch(NOTIFY_URL, {
             method: 'POST',
@@ -1094,8 +1202,8 @@
     }
    
     /* ===== Actions ===== */
-   async function setMyEntry(dateIso, start, mensa) {
-        const payload = { start, mensa, updatedAt: FIREBASE_READY ? serverTimestamp() : Date.now() };
+   async function setMyEntry(dateIso, start, mensa, audience) {
+        const payload = { start, mensa, name: currentUser.name, username: currentUser.username || null, photo_url: currentUser.photo_url || null, audience: audience || { mode: 'all', ids: [] }, updatedAt: FIREBASE_READY ? serverTimestamp() : Date.now() };
         const mensaShort = MENSA_BY_ID[mensa]?.short || mensa;
         const oldE = findMyEntry(dateIso);
         const dayTxt = `${currentDate.getDate()} ${RU_MONTHS_SHORT[currentDate.getMonth()]}`;
@@ -1116,7 +1224,7 @@
                 const roomKeySafe = roomKey || 'crew';
                 const dl = `https://t.me/mensacrew_bot/Mensa_Crew?startapp=${roomKeySafe}__${dateIso.replace(/-/g,'')}__${start.replace(':','')}__${mensa}`;
                 if (verb) {
-                    notify(`🍜 <i>${esc(currentUser.name)} ${verb} · ${esc(mensaShort)} (${dayTxt})</i>`, dl);
+                    notify(`🍜 <i>${esc(currentUser.name)} ${verb} · ${esc(mensaShort)} (${dayTxt})</i>`, dl, audience);
                     const moved = oldE && (oldE.start !== start || oldE.mensa !== mensa);
                     const selfTxt = moved
                         ? `✏️ Вы перенесли — ${oldE.start} → ${start} · ${esc(mensaShort)} (${dayTxt})`
@@ -1131,7 +1239,7 @@
         }
 
         if (!state.entries[dateIso]) state.entries[dateIso] = {};
-        state.entries[dateIso][currentUser.id] = { start, mensa };
+        state.entries[dateIso][currentUser.id] = { start, mensa, audience: audience || { mode: 'all', ids: [] } };
         saveLocalState();
         haptic('medium');
         showToast(`${start} · ${mensaShort}`);
@@ -1407,7 +1515,7 @@
         document.getElementById('bib-week').hidden  = !(mode === 'bib'   && view === 'week');
     }
     function render() {
-        renderBell(); applyModeChrome(); applyVisibility();
+        indexEntryProfiles(); renderBell(); applyModeChrome(); applyVisibility();
         if (mode === 'bib') { view === 'day' ? renderBibDay() : renderBibWeek(); }
         else { view === 'day' ? renderDayView() : renderWeekView(); }
     }
@@ -1598,10 +1706,10 @@
     function bibPeople(dateIso, bibId) {
         const day = state.bib[dateIso] || {};
         const arr = [];
-        Object.keys(day).forEach(uid => { const e = day[uid]; if (e && e.bib === bibId) arr.push({ uid, from: e.from, until: e.until || null }); });
+        Object.keys(day).forEach(uid => { const e = day[uid]; if (e && e.bib === bibId && canSee(uid, e)) arr.push({ uid, from: e.from, until: e.until || null }); });
         return arr.sort((a,b) => bibTmin(a.from) - bibTmin(b.from));
     }
-    function bibDayCount(dateIso) { return Object.keys(state.bib[dateIso] || {}).length; }
+    function bibDayCount(dateIso) { const day = state.bib[dateIso] || {}; return Object.keys(day).filter(uid => canSee(uid, day[uid])).length; }
 
     function renderBibDay() {
         document.getElementById('bib-day-label').textContent = formatDayLabel(currentDate);
@@ -1763,13 +1871,9 @@
         ci.value = '';
         ci.oninput = (e) => { if (e.target.value) { bibSetTime(e.target.value, true); haptic('light'); } };
         const ui = document.getElementById('bib-until-input');
-        ui.value = (mine && mine.until) ? bibTo24(mine.until) : '';
+        ui.value = '';
         const libToSelect = preset || (mine ? mine.bib : null);
         if (libToSelect) bibSetLib(libToSelect);
-        if (mine) {
-            if (BIB_TIME_OPTIONS.includes(mine.from)) bibSetTime(mine.from, false);
-            else { ci.value = bibTo24(mine.from); bibSetTime(mine.from, true); }
-        }
         document.getElementById('bib-create-sub').textContent = `${formatDayLabel(currentDate)}, ${formatDayHint(currentDate)}`;
         bibUpdateConfirm();
         document.getElementById('sheet-bib-create').hidden = false;
@@ -1783,22 +1887,23 @@
         setTimeout(() => document.getElementById('sheet-bib-create').hidden = true, 280);
         if (backButtonOwner === 'bibcreate') detachBackButton();
     }
-    async function bibConfirm() {
+    function bibConfirm() {
         if (!(bibSel.bib && bibSel.time)) return;
         const di = isoDate(currentDate);
         const ui = document.getElementById('bib-until-input');
         const until = (ui && ui.value) ? ui.value : null;
-        await setMyBib(di, bibSel.bib, bibSel.time, until);
+        const b = bibSel.bib, f = bibSel.time;
         closeBibCreate();
+        requestAudience({ type: 'bib', dateIso: di, bib: b, from: f, until: until });
     }
-    async function setMyBib(dateIso, bib, from, until) {
+    async function setMyBib(dateIso, bib, from, until, audience) {
         const lib = BIB_BY_ID[bib];
         const oldE = bibFindMine(dateIso);
         const dayTxt = `${currentDate.getDate()} ${RU_MONTHS_SHORT[currentDate.getMonth()]}`;
         const untilTxt = until ? ` до ${until}` : '';
         if (FIREBASE_READY && fbDb) {
             try {
-                await set(ref(fbDb, `rooms/${roomId}/bib/${dateIso}/${currentUser.id}`), { bib, from, until: until || null, updatedAt: serverTimestamp() });
+                await set(ref(fbDb, `rooms/${roomId}/bib/${dateIso}/${currentUser.id}`), { bib, from, until: until || null, name: currentUser.name, username: currentUser.username || null, photo_url: currentUser.photo_url || null, audience: audience || { mode: 'all', ids: [] }, updatedAt: serverTimestamp() });
                 haptic('medium');
                 showToast(`${lib.name} · ${from}`);
                 let verb = null;
@@ -1807,14 +1912,14 @@
                 const roomKeySafe = roomKey || 'crew';
                 const dl = `https://t.me/mensacrew_bot/Mensa_Crew?startapp=${roomKeySafe}__b__${dateIso.replace(/-/g,'')}__${bib}__${from.replace(':','')}`;
                 if (verb) {
-                    notify(`📚 <i>${esc(currentUser.name)} ${verb} (${dayTxt})</i>`, dl);
+                    notify(`📚 <i>${esc(currentUser.name)} ${verb} (${dayTxt})</i>`, dl, audience);
                     notifySelf(`<i>✅ Вы в ${esc(lib.name)} с ${from}${untilTxt} (${dayTxt})</i>`);
                 }
             } catch (e) { console.error('setMyBib failed', e); showToast('Не удалось сохранить'); }
             return;
         }
         if (!state.bib[dateIso]) state.bib[dateIso] = {};
-        state.bib[dateIso][currentUser.id] = { bib, from, until: until || null };
+        state.bib[dateIso][currentUser.id] = { bib, from, until: until || null, audience: audience || { mode: 'all', ids: [] } };
         saveLocalState(); haptic('medium'); showToast(`${lib.name} · ${from}`); render();
     }
     async function removeMyBib(dateIso) {
@@ -1886,7 +1991,85 @@
         setTimeout(() => document.getElementById('sheet-bib-detail').hidden = true, 280);
         if (backButtonOwner === 'bibdetail') detachBackButton();
     }
-    function closeAllSheets() { closeCreateSheet(); closeDetailSheet(); closeBibCreate(); closeBibDetail(); }
+    function closeAudience() {
+        document.getElementById('sheet-audience').classList.remove('show');
+        document.getElementById('sheet-backdrop').classList.remove('show');
+        setTimeout(() => document.getElementById('sheet-audience').hidden = true, 280);
+        if (backButtonOwner === 'audience') detachBackButton();
+    }
+    function closeAllSheets() { closeCreateSheet(); closeDetailSheet(); closeBibCreate(); closeBibDetail(); closeAudience(); }
+
+    /* ===== Audience picker ===== */
+    let pendingBooking = null;
+    let audMode = 'all';
+    let audSel = {};
+    function loadLastAudience() {
+        try {
+            const a = JSON.parse(localStorage.getItem('last_audience') || 'null');
+            if (a && a.mode) { audMode = a.mode; audSel = {}; (a.ids || []).forEach(id => { audSel[id] = true; }); return; }
+        } catch (e) {}
+        audMode = 'all'; audSel = {};
+    }
+    function audActiveLabel() {
+        if (audMode === 'only') return 'Увидят только выбранные';
+        if (audMode === 'except') return 'Увидят все, кроме выбранных';
+        return 'Запись увидят все в твоём круге';
+    }
+    function requestAudience(pending) {
+        pendingBooking = pending;
+        loadLastAudience();
+        document.querySelectorAll('#aud-modes .aud-mode').forEach(b => b.classList.toggle('active', b.dataset.amode === audMode));
+        document.getElementById('aud-people-wrap').hidden = (audMode === 'all');
+        document.getElementById('aud-sub').textContent = audActiveLabel();
+        const s = document.getElementById('aud-search'); if (s) s.value = '';
+        renderAudPeople('');
+        document.getElementById('sheet-audience').hidden = false;
+        document.getElementById('sheet-backdrop').classList.add('show');
+        requestAnimationFrame(() => document.getElementById('sheet-audience').classList.add('show'));
+        attachBackButton('audience', closeAudience);
+    }
+    function renderAudPeople(filter) {
+        const wrap = document.getElementById('aud-people');
+        if (!wrap) return;
+        wrap.innerHTML = '';
+        const f = (filter || '').trim().toLowerCase();
+        let ids = relevanceOrder();
+        if (f) ids = ids.filter(id => (getUserInfo(id).name || '').toLowerCase().indexOf(f) !== -1);
+        else ids = ids.slice(0, 6);
+        Object.keys(audSel).forEach(id => {
+            if (audSel[id] && ids.indexOf(id) === -1 && (!f || (getUserInfo(id).name || '').toLowerCase().indexOf(f) !== -1)) ids.unshift(id);
+        });
+        if (!ids.length) { wrap.innerHTML = '<div class="bib-empty-txt" style="padding:10px">Пока никого в круге</div>'; return; }
+        ids.forEach(id => {
+            const u = getUserInfo(id);
+            const row = document.createElement('div');
+            row.className = 'aud-person' + (isActiveToday(id) ? '' : ' dim') + (audSel[id] ? ' sel' : '');
+            const av = document.createElement('div');
+            av.className = 'avatar';
+            if (u.photo_url) { av.style.backgroundImage = `url(${u.photo_url})`; }
+            else { av.style.backgroundColor = colorFor(id); av.textContent = userInitials(u); }
+            const nm = document.createElement('div'); nm.className = 'aud-name'; nm.textContent = u.name || 'Гость';
+            const ck = document.createElement('div'); ck.className = 'aud-check'; ck.textContent = audSel[id] ? '✓' : '';
+            row.appendChild(av); row.appendChild(nm); row.appendChild(ck);
+            row.onclick = () => {
+                if (audSel[id]) delete audSel[id]; else audSel[id] = true;
+                haptic('light');
+                renderAudPeople(document.getElementById('aud-search').value);
+            };
+            wrap.appendChild(row);
+        });
+    }
+    function confirmAudience() {
+        const ids = Object.keys(audSel).filter(id => audSel[id]);
+        const audience = (audMode === 'all') ? { mode: 'all', ids: [] } : { mode: audMode, ids };
+        try { localStorage.setItem('last_audience', JSON.stringify(audience)); } catch (e) {}
+        const p = pendingBooking; pendingBooking = null;
+        closeAudience();
+        if (!p) return;
+        if (p.type === 'mensa') setMyEntry(p.dateIso, p.start, p.mensa, audience);
+        else if (p.type === 'bib') setMyBib(p.dateIso, p.bib, p.from, p.until, audience);
+    }
+
 
     /* ===== Events ===== */
     document.querySelectorAll('.tab').forEach(t => t.onclick = () => switchView(t.dataset.view));
@@ -1924,8 +2107,9 @@
     document.getElementById('sheet-backdrop').onclick = () => { closeAllSheets(); };
     document.getElementById('sheet-confirm').onclick = () => {
         if (selectedTime && selectedMensa) {
-            setMyEntry(isoDate(currentDate), selectedTime, selectedMensa);
+            const d = isoDate(currentDate), s = selectedTime, m = selectedMensa;
             closeCreateSheet();
+            requestAudience({ type: 'mensa', dateIso: d, start: s, mensa: m });
         }
     };
         document.getElementById('detail-edit').onclick = () => {
@@ -1939,10 +2123,11 @@
         const [mensa, start] = (detailGroupKey || '').split('|');
         if (myE && myE.start === start && myE.mensa === mensa) {
             removeMy(dateIso);
+            closeDetailSheet();
         } else {
-            setMyEntry(dateIso, start, mensa);
+            closeDetailSheet();
+            requestAudience({ type: 'mensa', dateIso, start, mensa });
         }
-        closeDetailSheet();
     };
 
     /* ===== Bib & mode events ===== */
@@ -1980,6 +2165,16 @@
         if (mine && mine.bib === id) { removeMyBib(di); closeBibDetail(); }
         else { closeBibDetail(); openBibCreate(id); }
     };
+    document.querySelectorAll('#aud-modes .aud-mode').forEach(b => b.onclick = () => {
+        audMode = b.dataset.amode;
+        document.querySelectorAll('#aud-modes .aud-mode').forEach(x => x.classList.toggle('active', x === b));
+        document.getElementById('aud-people-wrap').hidden = (audMode === 'all');
+        document.getElementById('aud-sub').textContent = audActiveLabel();
+        renderAudPeople(document.getElementById('aud-search').value);
+        haptic('light');
+    });
+    document.getElementById('aud-search').oninput = (e) => renderAudPeople(e.target.value);
+    document.getElementById('aud-confirm').onclick = () => confirmAudience();
 
    let pendingNav = null;
     if (navDate && navTime && navMensa) {
