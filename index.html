@@ -1596,6 +1596,8 @@
         };
         const untilInput = document.getElementById('mensa-until-input');
         untilInput.value = '';
+        document.getElementById('mensa-until-row').classList.remove('active');
+        untilInput.oninput = (ev) => { document.getElementById('mensa-until-row').classList.toggle('active', !!ev.target.value); };
         [['custom-time-row','custom-time-input'],['mensa-until-row','mensa-until-input']].forEach(([rowId, inId]) => {
             const r = document.getElementById(rowId), inp = document.getElementById(inId);
             if (r && inp) r.onclick = (ev) => { if (ev.target.tagName !== 'INPUT') { inp.focus(); try { inp.showPicker(); } catch (e) {} } };
@@ -1612,6 +1614,7 @@
             }
             setSelectedMensa(myE.mensa);
             untilInput.value = myE.until || '';
+            document.getElementById('mensa-until-row').classList.toggle('active', !!myE.until);
         } else {
             // Sensible default time (next 30-min mark)
             const now = new Date();
@@ -1888,6 +1891,8 @@
         ci.oninput = (e) => { if (e.target.value) { bibSetTime(e.target.value, true); haptic('light'); } };
         const ui = document.getElementById('bib-until-input');
         ui.value = '';
+        document.getElementById('bib-until-row').classList.remove('active');
+        ui.oninput = (ev) => { document.getElementById('bib-until-row').classList.toggle('active', !!ev.target.value); };
         [['bib-custom-time-row','bib-custom-time-input'],['bib-until-row','bib-until-input']].forEach(([rowId, inId]) => {
             const r = document.getElementById(rowId), inp = document.getElementById(inId);
             if (r && inp) r.onclick = (ev) => { if (ev.target.tagName !== 'INPUT') { inp.focus(); try { inp.showPicker(); } catch (e) {} } };
@@ -2082,10 +2087,6 @@
             const checked = (audMode === 'all') || !!audSel[id];
             const row = document.createElement('div');
             row.className = 'aud-person' + (checked ? ' sel' : '');
-            if (info) {
-                row.style.borderColor = info.color;
-                if (!checked) row.style.background = bibHexA(info.color, 0.10);
-            }
             const av = document.createElement('div');
             av.className = 'avatar';
             if (u.photo_url) { av.style.backgroundImage = `url(${u.photo_url})`; }
