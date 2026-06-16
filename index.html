@@ -2065,7 +2065,7 @@
             const e = (state.entries[di] || {})[uid];
             if (!e || !canSee(uid, e)) return null;
             const m = MENSA_BY_ID[e.mensa];
-            return m ? { text: m.short, color: 'var(--accent)' } : null;
+            return m ? { text: m.short, color: '#6366f1' } : null;
         }
     }
     function renderAudPeople(filter) {
@@ -2082,27 +2082,19 @@
             const checked = (audMode === 'all') || !!audSel[id];
             const row = document.createElement('div');
             row.className = 'aud-person' + (checked ? ' sel' : '');
+            if (info) {
+                row.style.borderColor = info.color;
+                if (!checked) row.style.background = bibHexA(info.color, 0.10);
+            }
             const av = document.createElement('div');
             av.className = 'avatar';
-            if (checked) {
-                av.style.backgroundImage = 'none';
-                av.style.backgroundColor = 'var(--accent)';
-                av.style.color = '#fff';
-                av.style.boxShadow = 'none';
-                av.textContent = '✓';
-            } else if (u.photo_url) {
-                av.style.backgroundImage = `url(${u.photo_url})`;
-                av.textContent = '';
-                av.style.boxShadow = info ? ('0 0 0 2px ' + info.color) : 'none';
-            } else {
-                av.style.backgroundColor = colorFor(id);
-                av.style.color = '#fff';
-                av.textContent = userInitials(u);
-                av.style.boxShadow = info ? ('0 0 0 2px ' + info.color) : 'none';
-            }
+            if (u.photo_url) { av.style.backgroundImage = `url(${u.photo_url})`; }
+            else { av.style.backgroundColor = colorFor(id); av.textContent = userInitials(u); }
             const nm = document.createElement('div'); nm.className = 'aud-name'; nm.textContent = u.name || 'Гость';
             row.appendChild(av); row.appendChild(nm);
             if (info) { const pl = document.createElement('div'); pl.className = 'aud-place'; pl.textContent = info.text; pl.style.color = info.color; row.appendChild(pl); }
+            const ck = document.createElement('div'); ck.className = 'aud-check'; ck.textContent = checked ? '✓' : '';
+            row.appendChild(ck);
             row.onclick = () => {
                 haptic('light');
                 if (audMode === 'all') {
