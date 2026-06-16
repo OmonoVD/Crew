@@ -2026,7 +2026,7 @@
         pendingBooking = pending;
         loadLastAudience();
         document.querySelectorAll('#aud-modes .aud-mode').forEach(b => b.classList.toggle('active', b.dataset.amode === audMode));
-        document.getElementById('aud-people-wrap').hidden = false;
+        document.getElementById('aud-people-wrap').hidden = (audMode === 'all');
         document.getElementById('aud-sub').textContent = audActiveLabel();
         const s = document.getElementById('aud-search'); if (s) s.value = '';
         renderAudPeople('');
@@ -2065,9 +2065,8 @@
         ids.forEach(id => {
             const u = getUserInfo(id);
             const place = audPlace(id);
-            const checked = (audMode === 'all') || !!audSel[id];
             const row = document.createElement('div');
-            row.className = 'aud-person' + ((place || checked) ? '' : ' dim') + (checked ? ' sel' : '');
+            row.className = 'aud-person' + ((place || audSel[id]) ? '' : ' dim') + (audSel[id] ? ' sel' : '');
             const av = document.createElement('div');
             av.className = 'avatar';
             if (u.photo_url) { av.style.backgroundImage = `url(${u.photo_url})`; }
@@ -2075,19 +2074,11 @@
             const nm = document.createElement('div'); nm.className = 'aud-name'; nm.textContent = u.name || 'Гость';
             row.appendChild(av); row.appendChild(nm);
             if (place) { const pl = document.createElement('div'); pl.className = 'aud-place'; pl.textContent = place; row.appendChild(pl); }
-            const ck = document.createElement('div'); ck.className = 'aud-check'; ck.textContent = checked ? '✓' : '';
+            const ck = document.createElement('div'); ck.className = 'aud-check'; ck.textContent = audSel[id] ? '✓' : '';
             row.appendChild(ck);
             row.onclick = () => {
+                if (audSel[id]) delete audSel[id]; else audSel[id] = true;
                 haptic('light');
-                if (audMode === 'all') {
-                    audMode = 'only';
-                    audSel = {};
-                    relevanceOrder().forEach(x => { if (x !== id) audSel[x] = true; });
-                    document.querySelectorAll('#aud-modes .aud-mode').forEach(b => b.classList.toggle('active', b.dataset.amode === 'only'));
-                    document.getElementById('aud-sub').textContent = audActiveLabel();
-                } else {
-                    if (audSel[id]) delete audSel[id]; else audSel[id] = true;
-                }
                 renderAudPeople(document.getElementById('aud-search').value);
             };
             wrap.appendChild(row);
@@ -2201,9 +2192,8 @@
     };
     document.querySelectorAll('#aud-modes .aud-mode').forEach(b => b.onclick = () => {
         audMode = b.dataset.amode;
-        if (audMode === 'all') audSel = {};
         document.querySelectorAll('#aud-modes .aud-mode').forEach(x => x.classList.toggle('active', x === b));
-        document.getElementById('aud-people-wrap').hidden = false;
+        document.getElementById('aud-people-wrap').hidden = (audMode === 'all');
         document.getElementById('aud-sub').textContent = audActiveLabel();
         renderAudPeople(document.getElementById('aud-search').value);
         haptic('light');
