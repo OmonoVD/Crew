@@ -493,6 +493,9 @@
             text-align: right;
         }
 
+        .custom-time-row { cursor: pointer; }
+        #bib-custom-time-row, #bib-until-row { min-height: 56px; padding: 14px 14px; }
+
         /* ===== Mensa chips ===== */
         .mensa-grid {
             display: grid;
@@ -577,7 +580,7 @@
 
         /* ===== Mode switcher ===== */
         .app-title { cursor: pointer; }
-        .app-title .tri { font-size: 13px; color: var(--hint); margin-left: 2px; }
+        .app-title .tri { font-size: 13px; color: var(--accent); background: var(--accent-soft); border-radius: 6px; padding: 2px 6px; margin-left: 6px; }
         .mode-menu {
             position: absolute; top: calc(58px + var(--safe-top)); left: 20px;
             background: var(--surface); border: 1px solid var(--border);
@@ -747,6 +750,10 @@
         <div class="custom-time-row" id="custom-time-row">
             <span class="custom-time-label">Точное время</span>
             <input class="custom-time-input" id="custom-time-input" type="time" step="60">
+        </div>
+        <div class="custom-time-row" id="mensa-until-row">
+            <span class="custom-time-label">До скольки (по желанию)</span>
+            <input class="custom-time-input" id="mensa-until-input" type="time" step="60">
         </div>
 
         <div class="sheet-section-label">Столовая</div>
@@ -1203,8 +1210,8 @@
     }
    
     /* ===== Actions ===== */
-   async function setMyEntry(dateIso, start, mensa, audience) {
-        const payload = { start, mensa, name: currentUser.name, username: currentUser.username || null, photo_url: currentUser.photo_url || null, audience: audience || { mode: 'all', ids: [] }, updatedAt: FIREBASE_READY ? serverTimestamp() : Date.now() };
+   async function setMyEntry(dateIso, start, mensa, audience, until) {
+        const payload = { start, mensa, until: until || null, name: currentUser.name, username: currentUser.username || null, photo_url: currentUser.photo_url || null, audience: audience || { mode: 'all', ids: [] }, updatedAt: FIREBASE_READY ? serverTimestamp() : Date.now() };
         const mensaShort = MENSA_BY_ID[mensa]?.short || mensa;
         const oldE = findMyEntry(dateIso);
         const dayTxt = `${currentDate.getDate()} ${RU_MONTHS_SHORT[currentDate.getMonth()]}`;
@@ -1240,7 +1247,7 @@
         }
 
         if (!state.entries[dateIso]) state.entries[dateIso] = {};
-        state.entries[dateIso][currentUser.id] = { start, mensa, audience: audience || { mode: 'all', ids: [] } };
+        state.entries[dateIso][currentUser.id] = { start, mensa, until: until || null, audience: audience || { mode: 'all', ids: [] } };
         saveLocalState();
         haptic('medium');
         showToast(`${start} · ${mensaShort}`);
@@ -1587,6 +1594,12 @@
         customInput.onfocus = () => {
             haptic('light');
         };
+        const untilInput = document.getElementById('mensa-until-input');
+        untilInput.value = '';
+        [['custom-time-row','custom-time-input'],['mensa-until-row','mensa-until-input']].forEach(([rowId, inId]) => {
+            const r = document.getElementById(rowId), inp = document.getElementById(inId);
+            if (r && inp) r.onclick = (ev) => { if (ev.target.tagName !== 'INPUT') { inp.focus(); try { inp.showPicker(); } catch (e) {} } };
+        });
 
         // Pre-fill from existing entry if user already booked this day
         const myE = findMyEntry(isoDate(currentDate));
@@ -1598,6 +1611,7 @@
                 setSelectedTime(myE.start, true);
             }
             setSelectedMensa(myE.mensa);
+            untilInput.value = myE.until || '';
         } else {
             // Sensible default time (next 30-min mark)
             const now = new Date();
@@ -1662,7 +1676,8 @@
             }
             const name = document.createElement('span');
             name.className = 'user-name';
-            name.textContent = u.isMe ? 'Вы' : u.name;
+            const _uUntil = ((state.entries[dateIso] || {})[u.id] || {}).until;
+            name.textContent = (u.isMe ? 'Вы' : u.name) + (_uUntil ? (' · до ' + _uUntil) : '');
             chip.appendChild(av); chip.appendChild(name);
             chip.onclick = () => openUserChat(u);
             usersDiv.appendChild(chip);
@@ -1873,6 +1888,10 @@
         ci.oninput = (e) => { if (e.target.value) { bibSetTime(e.target.value, true); haptic('light'); } };
         const ui = document.getElementById('bib-until-input');
         ui.value = '';
+        [['bib-custom-time-row','bib-custom-time-input'],['bib-until-row','bib-until-input']].forEach(([rowId, inId]) => {
+            const r = document.getElementById(rowId), inp = document.getElementById(inId);
+            if (r && inp) r.onclick = (ev) => { if (ev.target.tagName !== 'INPUT') { inp.focus(); try { inp.showPicker(); } catch (e) {} } };
+        });
         const libToSelect = preset || (mine ? mine.bib : null);
         if (libToSelect) bibSetLib(libToSelect);
         if (preset && navBibFrom && preset === navBib) {
@@ -2024,9 +2043,9 @@
     }
     function requestAudience(pending) {
         pendingBooking = pending;
-        loadLastAudience();
-        document.querySelectorAll('#aud-modes .aud-mode').forEach(b => b.classList.toggle('active', b.dataset.amode === audMode));
-        document.getElementById('aud-people-wrap').hidden = (audMode === 'all');
+        audMode = 'all'; audSel = {};
+        document.querySelectorAll('#aud-modes .aud-mode').forEach(b => b.classList.toggle('active', b.dataset.amode === 'all'));
+        document.getElementById('aud-people-wrap').hidden = false;
         document.getElementById('aud-sub').textContent = audActiveLabel();
         const s = document.getElementById('aud-search'); if (s) s.value = '';
         renderAudPeople('');
@@ -2035,19 +2054,18 @@
         requestAnimationFrame(() => document.getElementById('sheet-audience').classList.add('show'));
         attachBackButton('audience', closeAudience);
     }
-
     function audPlace(uid) {
         const di = isoDate(currentDate);
         if (mode === 'bib') {
             const e = (state.bib[di] || {})[uid];
             if (!e || !canSee(uid, e)) return null;
             const lib = BIB_BY_ID[e.bib];
-            return lib ? (lib.emoji + ' ' + lib.name) : null;
+            return lib ? { text: lib.emoji + ' ' + lib.name, color: lib.color } : null;
         } else {
             const e = (state.entries[di] || {})[uid];
             if (!e || !canSee(uid, e)) return null;
             const m = MENSA_BY_ID[e.mensa];
-            return m ? m.short : null;
+            return m ? { text: m.short, color: 'var(--accent)' } : null;
         }
     }
     function renderAudPeople(filter) {
@@ -2057,28 +2075,45 @@
         const f = (filter || '').trim().toLowerCase();
         let ids = relevanceOrder();
         if (f) ids = ids.filter(id => (getUserInfo(id).name || '').toLowerCase().indexOf(f) !== -1);
-        else ids = ids.slice(0, 6);
-        Object.keys(audSel).forEach(id => {
-            if (audSel[id] && ids.indexOf(id) === -1 && (!f || (getUserInfo(id).name || '').toLowerCase().indexOf(f) !== -1)) ids.unshift(id);
-        });
         if (!ids.length) { wrap.innerHTML = '<div class="bib-empty-txt" style="padding:10px">Пока никого в круге</div>'; return; }
         ids.forEach(id => {
             const u = getUserInfo(id);
-            const place = audPlace(id);
+            const info = audPlace(id);
+            const checked = (audMode === 'all') || !!audSel[id];
             const row = document.createElement('div');
-            row.className = 'aud-person' + ((place || audSel[id]) ? '' : ' dim') + (audSel[id] ? ' sel' : '');
+            row.className = 'aud-person' + (checked ? ' sel' : '');
             const av = document.createElement('div');
             av.className = 'avatar';
-            if (u.photo_url) { av.style.backgroundImage = `url(${u.photo_url})`; }
-            else { av.style.backgroundColor = colorFor(id); av.textContent = userInitials(u); }
+            if (checked) {
+                av.style.backgroundImage = 'none';
+                av.style.backgroundColor = 'var(--accent)';
+                av.style.color = '#fff';
+                av.style.boxShadow = 'none';
+                av.textContent = '✓';
+            } else if (u.photo_url) {
+                av.style.backgroundImage = `url(${u.photo_url})`;
+                av.textContent = '';
+                av.style.boxShadow = info ? ('0 0 0 2px ' + info.color) : 'none';
+            } else {
+                av.style.backgroundColor = colorFor(id);
+                av.style.color = '#fff';
+                av.textContent = userInitials(u);
+                av.style.boxShadow = info ? ('0 0 0 2px ' + info.color) : 'none';
+            }
             const nm = document.createElement('div'); nm.className = 'aud-name'; nm.textContent = u.name || 'Гость';
             row.appendChild(av); row.appendChild(nm);
-            if (place) { const pl = document.createElement('div'); pl.className = 'aud-place'; pl.textContent = place; row.appendChild(pl); }
-            const ck = document.createElement('div'); ck.className = 'aud-check'; ck.textContent = audSel[id] ? '✓' : '';
-            row.appendChild(ck);
+            if (info) { const pl = document.createElement('div'); pl.className = 'aud-place'; pl.textContent = info.text; pl.style.color = info.color; row.appendChild(pl); }
             row.onclick = () => {
-                if (audSel[id]) delete audSel[id]; else audSel[id] = true;
                 haptic('light');
+                if (audMode === 'all') {
+                    audMode = 'only';
+                    audSel = {};
+                    relevanceOrder().forEach(x => { if (x !== id) audSel[x] = true; });
+                    document.querySelectorAll('#aud-modes .aud-mode').forEach(b => b.classList.toggle('active', b.dataset.amode === 'only'));
+                    document.getElementById('aud-sub').textContent = audActiveLabel();
+                } else {
+                    if (audSel[id]) delete audSel[id]; else audSel[id] = true;
+                }
                 renderAudPeople(document.getElementById('aud-search').value);
             };
             wrap.appendChild(row);
@@ -2091,7 +2126,7 @@
         const p = pendingBooking; pendingBooking = null;
         closeAudience();
         if (!p) return;
-        if (p.type === 'mensa') setMyEntry(p.dateIso, p.start, p.mensa, audience);
+        if (p.type === 'mensa') setMyEntry(p.dateIso, p.start, p.mensa, audience, p.until || null);
         else if (p.type === 'bib') setMyBib(p.dateIso, p.bib, p.from, p.until, audience);
     }
 
@@ -2133,8 +2168,10 @@
     document.getElementById('sheet-confirm').onclick = () => {
         if (selectedTime && selectedMensa) {
             const d = isoDate(currentDate), s = selectedTime, m = selectedMensa;
+            const _ui = document.getElementById('mensa-until-input');
+            const _until = (_ui && _ui.value) ? _ui.value : null;
             closeCreateSheet();
-            requestAudience({ type: 'mensa', dateIso: d, start: s, mensa: m });
+            requestAudience({ type: 'mensa', dateIso: d, start: s, mensa: m, until: _until });
         }
     };
         document.getElementById('detail-edit').onclick = () => {
@@ -2151,7 +2188,7 @@
             closeDetailSheet();
         } else {
             closeDetailSheet();
-            requestAudience({ type: 'mensa', dateIso, start, mensa });
+            requestAudience({ type: 'mensa', dateIso, start, mensa, until: null });
         }
     };
 
@@ -2192,8 +2229,9 @@
     };
     document.querySelectorAll('#aud-modes .aud-mode').forEach(b => b.onclick = () => {
         audMode = b.dataset.amode;
+        audSel = {};
         document.querySelectorAll('#aud-modes .aud-mode').forEach(x => x.classList.toggle('active', x === b));
-        document.getElementById('aud-people-wrap').hidden = (audMode === 'all');
+        document.getElementById('aud-people-wrap').hidden = false;
         document.getElementById('aud-sub').textContent = audActiveLabel();
         renderAudPeople(document.getElementById('aud-search').value);
         haptic('light');
