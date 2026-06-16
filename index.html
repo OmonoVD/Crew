@@ -611,6 +611,9 @@
         .bib-empty-txt { font-size: 12px; color: var(--hint); }
         .bib-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
         .bib-pchip { font-size: 12px; font-weight: 600; background: var(--surface-alt); color: var(--text); padding: 4px 9px; border-radius: 8px; }
+        .bib-card { padding: 15px 15px; }
+        .bib-name { font-size: 16px; }
+        #bib-lib-grid .mensa-chip { min-height: 54px; font-size: 15px; padding: 14px 14px; }
 
         /* ===== Toast ===== */
         .toast {
@@ -1761,12 +1764,11 @@
         ci.oninput = (e) => { if (e.target.value) { bibSetTime(e.target.value, true); haptic('light'); } };
         const ui = document.getElementById('bib-until-input');
         ui.value = (mine && mine.until) ? bibTo24(mine.until) : '';
+        const libToSelect = preset || (mine ? mine.bib : null);
+        if (libToSelect) bibSetLib(libToSelect);
         if (mine) {
-            bibSetLib(mine.bib);
             if (BIB_TIME_OPTIONS.includes(mine.from)) bibSetTime(mine.from, false);
             else { ci.value = bibTo24(mine.from); bibSetTime(mine.from, true); }
-        } else if (preset) {
-            bibSetLib(preset);
         }
         document.getElementById('bib-create-sub').textContent = `${formatDayLabel(currentDate)}, ${formatDayHint(currentDate)}`;
         bibUpdateConfirm();
