@@ -1258,7 +1258,7 @@
         showToast(`${start} · ${mensaShort}`);
         render();
     }
-   async function removeMy(dateIso) {
+   async function removeMy(dateIso, audience) {
         const oldE = findMyEntry(dateIso);
         const dayTxt = `${currentDate.getDate()} ${RU_MONTHS_SHORT[currentDate.getMonth()]}`;
         if (FIREBASE_READY && fbDb) {
@@ -1268,7 +1268,7 @@
                 showToast('Вы вышли');
                 if (oldE) {
                     const ms = MENSA_BY_ID[oldE.mensa]?.short || oldE.mensa;
-                    notify(`🍜 <i>${nameLink()} отменяет — ${oldE.start} · ${esc(ms)} (${dayTxt})</i>`);
+                    notify(`🍜 <i>${nameLink()} отменяет — ${oldE.start} · ${esc(ms)} (${dayTxt})</i>`, null, audience);
                     notifySelf(`<i>❌ Вы вышли — ${oldE.start} · ${esc(ms)} (${dayTxt})</i>`);
                 }
             } catch (e) {
@@ -1958,7 +1958,7 @@
         state.bib[dateIso][currentUser.id] = { bib, from, until: until || null, audience: audience || { mode: 'all', ids: [] } };
         saveLocalState(); haptic('medium'); showToast(`${lib.name} · ${from}`); render();
     }
-    async function removeMyBib(dateIso) {
+    async function removeMyBib(dateIso, audience) {
         const oldE = bibFindMine(dateIso);
         const dayTxt = `${currentDate.getDate()} ${RU_MONTHS_SHORT[currentDate.getMonth()]}`;
         if (FIREBASE_READY && fbDb) {
@@ -1968,7 +1968,7 @@
                 if (oldE) {
                     const lib = BIB_BY_ID[oldE.bib];
                     const nm = lib ? lib.name : oldE.bib;
-                    notify(`📚 <i>${nameLink()} уходит из ${esc(nm)} (${dayTxt})</i>`);
+                    notify(`📚 <i>${nameLink()} уходит из ${esc(nm)} (${dayTxt})</i>`, null, audience);
                     notifySelf(`<i>❌ Вы ушли из ${esc(nm)} (${dayTxt})</i>`);
                 }
             } catch (e) { console.error('removeMyBib failed', e); showToast('Не удалось'); }
@@ -2053,8 +2053,11 @@
     }
     function requestAudience(pending) {
         pendingBooking = pending;
-        audMode = 'all'; audSel = {};
-        document.querySelectorAll('#aud-modes .aud-mode').forEach(b => b.classList.toggle('active', b.dataset.amode === 'all'));
+        if (pending && pending.presetMode) {
+            audMode = pending.presetMode; audSel = {};
+            (pending.presetIds || []).forEach(id => { audSel[id] = true; });
+        } else { audMode = 'all'; audSel = {}; }
+        document.querySelectorAll('#aud-modes .aud-mode').forEach(b => b.classList.toggle('active', b.dataset.amode === audMode));
         document.getElementById('aud-people-wrap').hidden = false;
         document.getElementById('aud-sub').textContent = audActiveLabel();
         const s = document.getElementById('aud-search'); if (s) s.value = '';
@@ -2126,6 +2129,8 @@
         if (!p) return;
         if (p.type === 'mensa') setMyEntry(p.dateIso, p.start, p.mensa, audience, p.until || null);
         else if (p.type === 'bib') setMyBib(p.dateIso, p.bib, p.from, p.until, audience);
+        else if (p.type === 'leave-mensa') removeMy(p.dateIso, audience);
+        else if (p.type === 'leave-bib') removeMyBib(p.dateIso, audience);
     }
 
 
@@ -2182,8 +2187,10 @@
         const myE = findMyEntry(dateIso);
         const [mensa, start] = (detailGroupKey || '').split('|');
         if (myE && myE.start === start && myE.mensa === mensa) {
-            removeMy(dateIso);
+            const _g = getDayGroups(dateIso).find(x => x.mensa === mensa && x.start === start);
+            const _slot = (_g ? _g.users : []).filter(u => u !== currentUser.id);
             closeDetailSheet();
+            requestAudience({ type: 'leave-mensa', dateIso, presetMode: 'only', presetIds: _slot });
         } else {
             closeDetailSheet();
             requestAudience({ type: 'mensa', dateIso, start, mensa, until: null });
@@ -2222,8 +2229,11 @@
         const di = isoDate(currentDate);
         const mine = bibFindMine(di);
         const id = bibDetailId;
-        if (mine && mine.bib === id) { removeMyBib(di); closeBibDetail(); }
-        else { closeBibDetail(); openBibCreate(id); }
+        if (mine && mine.bib === id) {
+            const _slot = bibPeople(di, id).map(p => p.uid).filter(u => u !== currentUser.id);
+            closeBibDetail();
+            requestAudience({ type: 'leave-bib', dateIso: di, presetMode: 'only', presetIds: _slot });
+        } else { closeBibDetail(); openBibCreate(id); }
     };
     document.querySelectorAll('#aud-modes .aud-mode').forEach(b => b.onclick = () => {
         audMode = b.dataset.amode;
