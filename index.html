@@ -1187,7 +1187,6 @@
     const NOTIFY_URL = 'https://mensa-notify.omonovdd.workers.dev/'; // ← URL воркера
     const NOTIFY_SECRET = 'crew-7h3x9q2';                                // ← тот же секрет
     const AUTH_URL = NOTIFY_URL.replace(/\/+$/, '') + '/auth';
-    const AUTH_URL = NOTIFY_URL.replace(/\/+$/, '') + '/auth';
     async function ensureAuth() {
         if (!FIREBASE_READY || !fbAuth || !tg?.initData) return;
         try {
