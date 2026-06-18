@@ -835,7 +835,7 @@
     import {
         getDatabase, ref, onValue, set, remove, update, serverTimestamp
     } from 'https://www.gstatic.com/firebasejs/10.13.2/firebase-database.js';
-
+    import { getAuth, signInWithCustomToken } from 'https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js';
     const firebaseConfig = {
         apiKey: "AIzaSyAnH7EdC-msWGcLk1jLB115Yz2mNly3gxg",
         authDomain: "mensa-crew.firebaseapp.com",
@@ -847,11 +847,12 @@
         measurementId: "G-MFYT7RTZJD",
     };
     const FIREBASE_READY = !firebaseConfig.apiKey.includes('REPLACE_ME');
-    let fbDb = null;
+    let fbDb = null, fbAuth = null;
     if (FIREBASE_READY) {
         try {
             const app = initializeApp(firebaseConfig);
             fbDb = getDatabase(app);
+            fbAuth = getAuth(app);
         } catch (e) {
             console.error('Firebase init failed:', e);
         }
@@ -1185,6 +1186,19 @@
     /* ===== Notifications ===== */
     const NOTIFY_URL = 'https://mensa-notify.omonovdd.workers.dev/'; // ← URL воркера
     const NOTIFY_SECRET = 'crew-7h3x9q2';                                // ← тот же секрет
+    const AUTH_URL = NOTIFY_URL.replace(/\/+$/, '') + '/auth';
+    async function ensureAuth() {
+        if (!FIREBASE_READY || !fbAuth || !tg?.initData) return;
+        try {
+            const r = await fetch(AUTH_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ initData: tg.initData }),
+            });
+            const d = await r.json();
+            if (d && d.token) await signInWithCustomToken(fbAuth, d.token);
+        } catch (e) { console.error('auth failed', e); }
+    }
     const esc = s => String(s).replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
     function nameLink() {
         const safe = esc(currentUser.name);
@@ -2264,7 +2278,7 @@
     }
     render();
     /* ===== Kick off Firebase live sync ===== */
-    startFirebaseSync();
+    ensureAuth().finally(() => startFirebaseSync());
     </script>
 </body>
 </html>
