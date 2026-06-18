@@ -1190,13 +1190,17 @@
     async function ensureAuth() {
         let msg = '';
         try {
-            if (!FIREBASE_READY || !fbAuth || !tg?.initData) {
-                msg = 'no attempt: fbReady=' + FIREBASE_READY + ' fbAuth=' + !!fbAuth + ' initData=' + !!(tg && tg.initData);
-            } else {
+            if (!tg?.initData) { msg = 'no initData (open via bot)'; }
+            else {
                 const r = await fetch(AUTH_URL, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ initData: tg.initData }) });
                 const d = await r.json().catch(() => ({}));
-                msg = 'status=' + r.status + ' token=' + (d.token?'yes':'no') + ' err=' + (d.error||'');
-                if (d.token) { await signInWithCustomToken(fbAuth, d.token); msg += ' | signed in OK'; }
+                if (!d.token) { msg = 'no token: status=' + r.status + ' err=' + (d.error||''); }
+                else {
+                    const p = JSON.parse(atob(d.token.split('.')[1].replace(/-/g,'+').replace(/_/g,'/')));
+                    msg = 'iss=' + !!p.iss + ' sub=' + !!p.sub + ' audOK=' + String(p.aud||'').includes('identitytoolkit') + ' uid=' + (p.uid||'-');
+                    try { await signInWithCustomToken(fbAuth, d.token); msg += ' | signed in OK'; }
+                    catch (e2) { msg += ' | err=' + (e2.code || e2); }
+                }
             }
         } catch (e) { msg = 'exception: ' + e; }
         (tg && tg.showAlert) ? tg.showAlert(msg) : alert(msg);
