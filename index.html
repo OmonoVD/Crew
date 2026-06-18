@@ -1201,7 +1201,7 @@
         fetch(NOTIFY_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ secret: NOTIFY_SECRET, recipients, text, link: link || null }),
+            body: JSON.stringify({ secret: NOTIFY_SECRET, initData: tg?.initData || '', recipients, text, link: link || null }),
         }).catch(() => {});
     }
      function notifySelf(text) {
@@ -1210,7 +1210,7 @@
         fetch(NOTIFY_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ secret: NOTIFY_SECRET, recipients: [currentUser.id], text }),
+            body: JSON.stringify({ secret: NOTIFY_SECRET, initData: tg?.initData || '', recipients: [currentUser.id], text }),
         }).catch(() => {});
     }
    
