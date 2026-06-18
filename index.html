@@ -1187,17 +1187,20 @@
     const NOTIFY_URL = 'https://mensa-notify.omonovdd.workers.dev/'; // ← URL воркера
     const NOTIFY_SECRET = 'crew-7h3x9q2';                                // ← тот же секрет
     const AUTH_URL = NOTIFY_URL.replace(/\/+$/, '') + '/auth';
+    const AUTH_URL = NOTIFY_URL.replace(/\/+$/, '') + '/auth';
     async function ensureAuth() {
-        if (!FIREBASE_READY || !fbAuth || !tg?.initData) return;
+        let msg = '';
         try {
-            const r = await fetch(AUTH_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ initData: tg.initData }),
-            });
-            const d = await r.json();
-            if (d && d.token) await signInWithCustomToken(fbAuth, d.token);
-        } catch (e) { console.error('auth failed', e); }
+            if (!FIREBASE_READY || !fbAuth || !tg?.initData) {
+                msg = 'no attempt: fbReady=' + FIREBASE_READY + ' fbAuth=' + !!fbAuth + ' initData=' + !!(tg && tg.initData);
+            } else {
+                const r = await fetch(AUTH_URL, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ initData: tg.initData }) });
+                const d = await r.json().catch(() => ({}));
+                msg = 'status=' + r.status + ' token=' + (d.token?'yes':'no') + ' err=' + (d.error||'');
+                if (d.token) { await signInWithCustomToken(fbAuth, d.token); msg += ' | signed in OK'; }
+            }
+        } catch (e) { msg = 'exception: ' + e; }
+        (tg && tg.showAlert) ? tg.showAlert(msg) : alert(msg);
     }
     const esc = s => String(s).replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
     function nameLink() {
