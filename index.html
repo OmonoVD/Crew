@@ -409,6 +409,11 @@
             color: var(--danger);
             border: 1px solid var(--danger);
         }
+        .sheet-action.past-off {
+            background-color: var(--surface-alt);
+            color: var(--hint);
+            pointer-events: none;
+        }
         .credit {
             text-align: center; margin-top: 16px;
             font-size: 11px; color: var(--hint);
@@ -502,6 +507,18 @@
             color: var(--accent-text);
             border-color: var(--accent);
         }
+        .place-group-head {
+            width: 100%; margin-top: 8px;
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 12px 14px; min-height: 46px;
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: 10px; cursor: pointer; font-family: inherit;
+            font-size: 14px; font-weight: 700; color: var(--text);
+        }
+        .place-group-head:active { transform: scale(0.99); }
+        .place-group-head .pg-chev { color: var(--hint); transition: transform 0.2s ease; }
+        .place-group-head.open .pg-chev { transform: rotate(180deg); }
+        .pg-body { margin-top: 6px; }
         /* ===== User chips in detail sheet ===== */
         .user-chip {
             display: inline-flex; align-items: center; gap: 8px;
@@ -741,8 +758,8 @@
             <span class="custom-time-label">До скольки (по желанию)</span>
             <input class="custom-time-input" id="mensa-until-input" type="time" step="60">
         </div>
-        <div class="sheet-section-label">Столовая</div>
-        <div class="mensa-grid" id="mensa-grid"></div>
+        <div class="sheet-section-label">Куда идёшь</div>
+        <div id="mensa-grid"></div>
         <button class="sheet-action" id="sheet-confirm" disabled>Записаться</button>
     </div>
     <!-- Sheet: detail -->
@@ -915,7 +932,47 @@
         { id: 'kaff_spk',  name: 'Käffchen Sparkasse',       short: 'Käffchen Sparkasse' },
         { id: 'kaff_blatt',name: 'Käffchen Blattwerk',       short: 'Käffchen Blattwerk' },
     ];
-    const MENSA_BY_ID = Object.fromEntries(MENSAS.map(m => [m.id, m]));
+    const MENSAS_MORE = [
+        { id: 'botanik',   name: 'Mensa Botanischer Garten',  short: 'Botan. Garten' },
+        { id: 'bls',       name: 'Mensa Bucerius Law School', short: 'Bucerius (BLS)' },
+        { id: 'finkenau',  name: 'Mensa Finkenau',            short: 'Finkenau' },
+        { id: 'harburg',   name: 'Mensa Harburg',             short: 'Harburg' },
+        { id: 'hcu',       name: 'Mensa HCU',                 short: 'HCU' },
+        { id: 'bergedorf', name: 'Mensa Bergedorf',           short: 'Bergedorf' },
+        { id: 'pizzabar',  name: 'PizzaBar Harburg',          short: 'PizzaBar' },
+    ];
+    const CAFES = [
+        { id: 'cafe_campus',      name: 'CampusCafé',            short: 'CampusCafé' },
+        { id: 'cafe_carl',        name: 'Café Carl',             short: 'Café Carl' },
+        { id: 'cafe_blattwerk',   name: 'Café Blattwerk',        short: 'Café Blattwerk' },
+        { id: 'cafe_campusblick', name: 'Café CampusBlick',      short: 'CampusBlick' },
+        { id: 'cafe_dellarte',    name: "Café dell'Arte",        short: "dell'Arte" },
+        { id: 'cafe_grindel',     name: 'Café Grindel',          short: 'Grindel' },
+        { id: 'cafe_alex',        name: 'Café Alexanderstraße',  short: 'Alexanderstr.' },
+        { id: 'cafe_berltor',     name: 'Café Berliner Tor',     short: 'Café Berl. Tor' },
+        { id: 'cafe_blueberry',   name: 'Café Blueberry',        short: 'Blueberry' },
+        { id: 'cafe_bucerius',    name: 'Café Bucerius',         short: 'Café Bucerius' },
+        { id: 'cafe_cfel',        name: 'Café CFEL',             short: 'CFEL' },
+        { id: 'cafe_finkenau',    name: 'Café Finkenau',         short: 'Café Finkenau' },
+        { id: 'cafe_hcu',         name: 'Café HCU',              short: 'Café HCU' },
+        { id: 'cafe_insgruene',   name: 'Café insgrüne Harburg', short: 'insgrüne' },
+        { id: 'cafe_jungius',     name: 'Café Jungiusstraße',    short: 'Jungiusstr.' },
+        { id: 'cafe_min',         name: 'Café MIN',              short: 'Café MIN' },
+        { id: 'cafe_mittelweg',   name: 'Café am Mittelweg',     short: 'Mittelweg' },
+        { id: 'cafe_studaff',     name: 'Café Student Affairs',  short: 'Student Affairs' },
+        { id: 'cafe_zessp',       name: 'Café ZessP',            short: 'ZessP' },
+    ];
+    const PAUSE_PLACES = [
+        { id: 'pause_coffee', name: 'Кофе-пауза', short: '☕ Кофе' },
+        { id: 'pause_smoke',  name: 'Перекур',    short: '🚬 Курилка' },
+    ];
+    const PLACE_GROUPS = [
+        { label: 'Столовая',     open: true,  items: MENSAS },
+        { label: 'Ещё столовые', open: false, items: MENSAS_MORE },
+        { label: 'Кафешки',      open: false, items: CAFES },
+        { label: 'Пауза',        open: false, items: PAUSE_PLACES },
+    ];
+    const MENSA_BY_ID = Object.fromEntries([...MENSAS, ...MENSAS_MORE, ...CAFES, ...PAUSE_PLACES].map(m => [m.id, m]));
     /* ===== Mock group members ===== */
     const MOCK = {
         'u1': { id: 'u1', name: 'Аня',   username: 'durov' },
@@ -1112,6 +1169,7 @@
         if (!e) return null;
         return typeof e === 'string' ? { start: e, mensa: 'studi' } : e;
     }
+    function isPastDate() { return isoDate(currentDate) < isoDate(new Date()); }
     function showToast(text) {
         const t = document.getElementById('toast');
         t.textContent = text;
@@ -1527,10 +1585,45 @@
     }
     function setSelectedMensa(id) {
         selectedMensa = id;
-        document.querySelectorAll('#mensa-grid .mensa-chip').forEach(c =>
-            c.classList.toggle('active', c.dataset.mensa === id)
-        );
+        document.querySelectorAll('#mensa-grid .mensa-chip').forEach(c => {
+            const on = c.dataset.mensa === id;
+            c.classList.toggle('active', on);
+            if (on) { const body = c.closest('.pg-body'); if (body && body.hidden) { body.hidden = false; const h = body.previousElementSibling; if (h) h.classList.add('open'); } }
+        });
         updateConfirmState();
+    }
+    function makePlaceChip(m) {
+        const chip = document.createElement('button');
+        chip.type = 'button';
+        chip.className = 'mensa-chip';
+        chip.textContent = m.short;
+        chip.dataset.mensa = m.id;
+        chip.onclick = () => { setSelectedMensa(m.id); haptic('light'); };
+        return chip;
+    }
+    function renderPlaceGrid() {
+        const host = document.getElementById('mensa-grid');
+        host.innerHTML = '';
+        PLACE_GROUPS.forEach((grp, gi) => {
+            if (gi === 0) {
+                const body = document.createElement('div');
+                body.className = 'mensa-grid';
+                grp.items.forEach(m => body.appendChild(makePlaceChip(m)));
+                host.appendChild(body);
+            } else {
+                const head = document.createElement('button');
+                head.type = 'button';
+                head.className = 'place-group-head' + (grp.open ? ' open' : '');
+                head.innerHTML = '<span>' + grp.label + '</span><span class="pg-chev">▾</span>';
+                const body = document.createElement('div');
+                body.className = 'mensa-grid pg-body';
+                body.hidden = !grp.open;
+                grp.items.forEach(m => body.appendChild(makePlaceChip(m)));
+                head.onclick = () => { body.hidden = !body.hidden; head.classList.toggle('open', !body.hidden); haptic('light'); };
+                host.appendChild(head);
+                host.appendChild(body);
+            }
+        });
     }
     function openCreateSheet() {
         // Time chips
@@ -1545,18 +1638,8 @@
             chip.onclick = () => { setSelectedTime(t, false); haptic('light'); };
             scroller.appendChild(chip);
         });
-        // Mensa chips
-        const grid = document.getElementById('mensa-grid');
-        grid.innerHTML = '';
-        MENSAS.forEach(m => {
-            const chip = document.createElement('button');
-            chip.type = 'button';
-            chip.className = 'mensa-chip';
-            chip.textContent = m.short;
-            chip.dataset.mensa = m.id;
-            chip.onclick = () => { setSelectedMensa(m.id); haptic('light'); };
-            grid.appendChild(chip);
-        });
+        // Place chips, grouped & collapsible
+        renderPlaceGrid();
         // Custom-time wiring
         const customInput = document.getElementById('custom-time-input');
         customInput.value = '';
@@ -1657,8 +1740,13 @@
         const myE = findMyEntry(dateIso);
         const iAmHere = myE && myE.start === start && myE.mensa === mensa;
         const btn = document.getElementById('detail-action');
-        btn.textContent = iAmHere ? 'Выйти' : 'Присоединиться';
-        btn.className = 'sheet-action' + (iAmHere ? ' secondary' : '');
+        if (!iAmHere && isPastDate()) {
+            btn.textContent = 'День уже прошёл';
+            btn.className = 'sheet-action past-off';
+        } else {
+            btn.textContent = iAmHere ? 'Выйти' : 'Присоединиться';
+            btn.className = 'sheet-action' + (iAmHere ? ' secondary' : '');
+        }
         document.getElementById('detail-edit').hidden = !iAmHere;
         document.getElementById('sheet-detail').hidden = false;
         document.getElementById('sheet-backdrop').classList.add('show');
@@ -1823,12 +1911,21 @@
             c.style.borderColor = on ? col : '';
             c.style.color = on ? '#fff' : '';
         });
+        const libCol = BIB_BY_ID[id].color;
+        const sheet = document.getElementById('sheet-bib-create');
+        sheet.style.setProperty('--accent', libCol);
+        sheet.style.setProperty('--accent-soft', bibHexA(libCol, 0.14));
+        sheet.style.setProperty('--accent-softer', bibHexA(libCol, 0.07));
         bibUpdateConfirm();
     }
     function openBibCreate(preset) {
         const di = isoDate(currentDate);
         const mine = bibFindMine(di);
         bibSel = { bib:null, time:null, custom:false };
+        const _bs = document.getElementById('sheet-bib-create');
+        _bs.style.removeProperty('--accent');
+        _bs.style.removeProperty('--accent-soft');
+        _bs.style.removeProperty('--accent-softer');
         const grid = document.getElementById('bib-lib-grid');
         grid.innerHTML = '';
         BIBS.forEach(b => {
@@ -1967,9 +2064,15 @@
         const mine = bibFindMine(di);
         const iAmHere = mine && mine.bib === bibId;
         const btn = document.getElementById('bib-detail-action');
-        btn.textContent = iAmHere ? 'Я ухожу отсюда' : 'Я приду сюда';
-        btn.className = 'sheet-action' + (iAmHere ? ' secondary' : '');
-        btn.style.background = iAmHere ? '' : lib.color;
+        if (!iAmHere && isPastDate()) {
+            btn.textContent = 'День уже прошёл';
+            btn.className = 'sheet-action past-off';
+            btn.style.background = '';
+        } else {
+            btn.textContent = iAmHere ? 'Я ухожу отсюда' : 'Я приду сюда';
+            btn.className = 'sheet-action' + (iAmHere ? ' secondary' : '');
+            btn.style.background = iAmHere ? '' : lib.color;
+        }
         const editBtn = document.getElementById('bib-detail-edit');
         editBtn.hidden = !iAmHere;
         if (iAmHere) editBtn.style.background = lib.color;
@@ -2251,7 +2354,7 @@
         }
         renderBell();
     };
-    document.getElementById('fab').onclick = () => { haptic('light'); if (mode === 'bib') openBibCreate(); else openCreateSheet(); };
+    document.getElementById('fab').onclick = () => { haptic('light'); if (isPastDate()) { showToast('Нельзя записаться задним числом'); return; } if (mode === 'bib') openBibCreate(); else openCreateSheet(); };
     document.getElementById('credit').onclick = () => {
         const u = 'https://www.linkedin.com/in/diyorbek-omonov-0734b8264';
         if (tg?.openLink) tg.openLink(u); else window.open(u, '_blank');
