@@ -546,10 +546,9 @@
         }
         .user-name {
             font-size: 14px; font-weight: 600;
-            max-width: 140px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            max-width: 240px;
+            white-space: normal;
+            overflow-wrap: anywhere;
         }
         .users-list-stack {
             display: flex; flex-wrap: wrap; gap: 6px;
@@ -645,6 +644,17 @@
         .aud-person .aud-name { flex: 1; font-size: 15px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .aud-place { font-size: 12px; font-weight: 600; color: var(--hint); white-space: nowrap; flex-shrink: 0; max-width: 42%; overflow: hidden; text-overflow: ellipsis; }
         .aud-check { width: 20px; flex-shrink: 0; color: var(--accent); font-weight: 800; text-align: center; }
+        .aud-groups { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0 2px; }
+        .aud-gchip { display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px 6px 6px; border-radius: 999px; background: var(--surface); color: var(--text); font-size: 13px; font-weight: 700; cursor: pointer; border: 1px solid var(--border); }
+        .aud-gchip:active { transform: scale(0.96); }
+        .aud-gchip.active { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+        .aud-gchip.add { padding: 8px 12px; color: var(--hint); border: 1px dashed var(--border); }
+        .aud-gavs { display: inline-flex; }
+        .aud-gav { width: 22px; height: 22px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 700; color: #fff; margin-left: -7px; border: 2px solid var(--bg); background-size: cover; background-position: center; }
+        .aud-gav:first-child { margin-left: 0; }
+        .aud-gmanage { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin: 8px 0 2px; font-size: 13px; color: var(--hint); }
+        .aud-gbtn { padding: 6px 12px; border-radius: 999px; border: 1px solid var(--border); background: var(--surface); color: var(--accent); font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit; }
+        .aud-gbtn.danger { color: var(--danger); }
 
         /* ===== Toast ===== */
         .toast {
@@ -816,6 +826,15 @@
             <button class="aud-mode" data-amode="only" type="button">Только…</button>
             <button class="aud-mode" data-amode="except" type="button">Кроме…</button>
         </div>
+        <div class="aud-groups" id="aud-groups"></div>
+        <div class="aud-gmanage" id="aud-groupmanage" hidden></div>
+        <div id="aud-groupsave" hidden>
+            <input class="aud-search" id="aud-group-name" type="text" placeholder="Название группы…" maxlength="24" style="margin:8px 0 0;">
+            <div style="display:flex; gap:6px; margin-top:6px;">
+                <button class="aud-mode" id="aud-group-cancel" type="button">Отмена</button>
+                <button class="aud-mode active" id="aud-group-confirm" type="button">Сохранить</button>
+            </div>
+        </div>
         <div id="aud-people-wrap" hidden>
             <input class="aud-search" id="aud-search" type="text" placeholder="Поиск людей…">
             <div class="aud-people" id="aud-people"></div>
@@ -903,7 +922,7 @@
     let navDate = null, navTime = null, navMensa = null;
     let navBibDate = null, navBib = null, navBibFrom = null, startMode = null;
     if (spParts[1] === 'b') { startMode = 'bib'; navBibDate = spParts[2]; navBib = spParts[3]; navBibFrom = spParts[4] || null; }
-    else if (spParts[1]) { navDate = spParts[1]; navTime = spParts[2]; navMensa = spParts[3]; }
+    else if (spParts[1]) { startMode = 'mensa'; navDate = spParts[1]; navTime = spParts[2]; navMensa = spParts[3]; }
 
     /* ===== Mensas (order matters: Studi & Phil first) ===== */
     const MENSAS = [
@@ -2053,6 +2072,7 @@
     let pendingBooking = null;
     let audMode = 'all';
     let audSel = {};
+    let activeGroupId = null;
     function loadLastAudience() {
         try {
             const a = JSON.parse(localStorage.getItem('last_audience') || 'null');
@@ -2065,6 +2085,93 @@
         if (audMode === 'except') return 'Увидят все, кроме выбранных';
         return 'Запись увидят все в твоём круге';
     }
+    /* ===== Audience groups (private, saved on this device) ===== */
+    const POOLS_KEY = 'aud_pools';
+    function loadPools() { try { return JSON.parse(localStorage.getItem(POOLS_KEY) || '[]'); } catch (e) { return []; } }
+    function savePools(p) { try { localStorage.setItem(POOLS_KEY, JSON.stringify(p)); } catch (e) {} }
+    function applyPool(pool) {
+        const circle = relevanceOrder();
+        audMode = 'only'; audSel = {};
+        (pool.ids || []).forEach(id => { if (circle.indexOf(id) !== -1) audSel[id] = true; });
+        activeGroupId = pool.id;
+        document.querySelectorAll('#aud-modes .aud-mode').forEach(b => b.classList.toggle('active', b.dataset.amode === 'only'));
+        document.getElementById('aud-sub').textContent = audActiveLabel();
+        renderAudGroups();
+        renderAudPeople(document.getElementById('aud-search').value);
+    }
+    function poolAvatars(pool, host) {
+        (pool.ids || []).slice(0, 3).forEach(id => {
+            const u = getUserInfo(id);
+            const a = document.createElement('div');
+            a.className = 'aud-gav';
+            if (u.photo_url) { a.style.backgroundImage = `url(${u.photo_url})`; }
+            else { a.style.backgroundColor = colorFor(id); a.textContent = userInitials(u); }
+            host.appendChild(a);
+        });
+    }
+    function renderAudGroups() {
+        const wrap = document.getElementById('aud-groups');
+        if (!wrap) return;
+        wrap.innerHTML = '';
+        loadPools().forEach(pool => {
+            const chip = document.createElement('div');
+            chip.className = 'aud-gchip' + (pool.id === activeGroupId ? ' active' : '');
+            if ((pool.ids || []).length) { const avs = document.createElement('div'); avs.className = 'aud-gavs'; poolAvatars(pool, avs); chip.appendChild(avs); }
+            const lbl = document.createElement('span'); lbl.textContent = pool.name; chip.appendChild(lbl);
+            chip.onclick = () => { haptic('light'); applyPool(pool); };
+            wrap.appendChild(chip);
+        });
+        const add = document.createElement('div');
+        add.className = 'aud-gchip add'; add.textContent = '＋ Группа';
+        add.onclick = () => { haptic('light'); openGroupSave(); };
+        wrap.appendChild(add);
+        renderGroupManage();
+    }
+    function renderGroupManage() {
+        const bar = document.getElementById('aud-groupmanage');
+        if (!bar) return;
+        const pool = loadPools().find(p => p.id === activeGroupId);
+        if (!pool) { bar.hidden = true; bar.innerHTML = ''; return; }
+        bar.hidden = false; bar.innerHTML = '';
+        const lab = document.createElement('span'); lab.textContent = 'Группа «' + pool.name + '»'; bar.appendChild(lab);
+        const upd = document.createElement('button'); upd.type = 'button'; upd.className = 'aud-gbtn'; upd.textContent = 'Обновить';
+        upd.onclick = () => { haptic('light'); updatePool(pool.id); }; bar.appendChild(upd);
+        const del = document.createElement('button'); del.type = 'button'; del.className = 'aud-gbtn danger'; del.textContent = 'Удалить';
+        del.onclick = () => {
+            const go = () => { savePools(loadPools().filter(p => p.id !== pool.id)); activeGroupId = null; renderAudGroups(); };
+            if (tg?.showConfirm) tg.showConfirm('Удалить группу «' + pool.name + '»?', (ok) => { if (ok) go(); });
+            else if (confirm('Удалить группу «' + pool.name + '»?')) go();
+        };
+        bar.appendChild(del);
+    }
+    function updatePool(id) {
+        const sel = Object.keys(audSel).filter(x => audSel[x]);
+        if (!sel.length) { showToast('Никто не выбран'); return; }
+        const pools = loadPools();
+        const p = pools.find(x => x.id === id);
+        if (!p) return;
+        p.ids = sel; savePools(pools); renderAudGroups();
+        showToast('Группа «' + p.name + '» обновлена');
+    }
+    function openGroupSave() {
+        const sel = Object.keys(audSel).filter(id => audSel[id]);
+        if (audMode !== 'only' || !sel.length) { showToast('Выбери людей в режиме «Только»'); return; }
+        document.getElementById('aud-groupsave').hidden = false;
+        const inp = document.getElementById('aud-group-name'); inp.value = ''; inp.focus();
+    }
+    function closeGroupSave() { const b = document.getElementById('aud-groupsave'); if (b) b.hidden = true; }
+    function confirmGroupSave() {
+        const inp = document.getElementById('aud-group-name');
+        const name = (inp.value || '').trim();
+        const sel = Object.keys(audSel).filter(id => audSel[id]);
+        if (!name) { showToast('Введи название'); return; }
+        if (!sel.length) { showToast('Никто не выбран'); return; }
+        const pools = loadPools();
+        const np = { id: 'p' + Date.now(), name: name.slice(0, 24), ids: sel };
+        pools.push(np); savePools(pools);
+        activeGroupId = np.id; closeGroupSave(); renderAudGroups();
+        showToast('Группа «' + name + '» сохранена');
+    }
     function requestAudience(pending) {
         pendingBooking = pending;
         if (pending && pending.presetMode) {
@@ -2074,7 +2181,10 @@
         document.querySelectorAll('#aud-modes .aud-mode').forEach(b => b.classList.toggle('active', b.dataset.amode === audMode));
         document.getElementById('aud-people-wrap').hidden = false;
         document.getElementById('aud-sub').textContent = audActiveLabel();
-        const s = document.getElementById('aud-search'); if (s) s.value = '';
+       const s = document.getElementById('aud-search'); if (s) s.value = '';
+        activeGroupId = null;
+        closeGroupSave();
+        renderAudGroups();
         renderAudPeople('');
         document.getElementById('sheet-audience').hidden = false;
         document.getElementById('sheet-backdrop').classList.add('show');
@@ -2252,6 +2362,8 @@
     document.querySelectorAll('#aud-modes .aud-mode').forEach(b => b.onclick = () => {
         audMode = b.dataset.amode;
         audSel = {};
+        activeGroupId = null;
+        renderAudGroups();
         document.querySelectorAll('#aud-modes .aud-mode').forEach(x => x.classList.toggle('active', x === b));
         document.getElementById('aud-people-wrap').hidden = false;
         document.getElementById('aud-sub').textContent = audActiveLabel();
@@ -2259,7 +2371,8 @@
         haptic('light');
     });
     document.getElementById('aud-search').oninput = (e) => renderAudPeople(e.target.value);
-    document.getElementById('aud-confirm').onclick = () => confirmAudience();
+    document.getElementById('aud-group-confirm').onclick = () => confirmGroupSave();
+    document.getElementById('aud-group-cancel').onclick = () => closeGroupSave();
 
    let pendingNav = null;
     if (navDate && navTime && navMensa) {
