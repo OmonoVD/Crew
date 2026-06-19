@@ -508,17 +508,18 @@
             border-color: var(--accent);
         }
         .place-group-head {
-            width: 100%; margin-top: 8px;
-            display: flex; align-items: center; justify-content: space-between;
-            padding: 12px 14px; min-height: 46px;
+            display: flex; width: fit-content;
+            align-items: center; gap: 7px;
+            margin-top: 12px; padding: 8px 14px;
             background: var(--surface); border: 1px solid var(--border);
-            border-radius: 10px; cursor: pointer; font-family: inherit;
-            font-size: 14px; font-weight: 700; color: var(--text);
+            border-radius: 999px; cursor: pointer; font-family: inherit;
+            font-size: 13px; font-weight: 700; color: var(--text);
         }
-        .place-group-head:active { transform: scale(0.99); }
-        .place-group-head .pg-chev { color: var(--hint); transition: transform 0.2s ease; }
+        .place-group-head:active { transform: scale(0.97); }
+        .place-group-head .pg-chev { color: var(--hint); font-size: 12px; transition: transform 0.2s ease; }
         .place-group-head.open .pg-chev { transform: rotate(180deg); }
-        .pg-body { margin-top: 6px; }
+        .pg-body { margin-top: 8px; }
+        .pg-body[hidden] { display: none; }
         /* ===== User chips in detail sheet ===== */
         .user-chip {
             display: inline-flex; align-items: center; gap: 8px;
@@ -929,8 +930,10 @@
         { id: 'botan',     name: 'Blattwerk',                short: 'Blattwerk' },
         { id: 'bucerius',  name: 'Mensa Berliner Tor',       short: 'Berliner Tor' },
         { id: 'min',       name: 'Mensa MIN',                short: 'MIN' },
-        { id: 'kaff_spk',  name: 'Käffchen Sparkasse',       short: 'Käffchen Sparkasse' },
-        { id: 'kaff_blatt',name: 'Käffchen Blattwerk',       short: 'Käffchen Blattwerk' },
+    ];
+    const LEGACY_PLACES = [
+        { id: 'kaff_spk',  name: 'Käffchen Sparkasse', short: 'Käffchen Sparkasse' },
+        { id: 'kaff_blatt',name: 'Käffchen Blattwerk', short: 'Käffchen Blattwerk' },
     ];
     const MENSAS_MORE = [
         { id: 'botanik',   name: 'Mensa Botanischer Garten',  short: 'Botan. Garten' },
@@ -972,7 +975,7 @@
         { label: 'Кафешки',      open: false, items: CAFES },
         { label: 'Пауза',        open: false, items: PAUSE_PLACES },
     ];
-    const MENSA_BY_ID = Object.fromEntries([...MENSAS, ...MENSAS_MORE, ...CAFES, ...PAUSE_PLACES].map(m => [m.id, m]));
+    const MENSA_BY_ID = Object.fromEntries([...MENSAS, ...MENSAS_MORE, ...CAFES, ...PAUSE_PLACES, ...LEGACY_PLACES].map(m => [m.id, m]));
     /* ===== Mock group members ===== */
     const MOCK = {
         'u1': { id: 'u1', name: 'Аня',   username: 'durov' },
