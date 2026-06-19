@@ -25,21 +25,18 @@
             --radius-lg: 16px;
             --radius-md: 12px;
             --radius-sm: 8px;
-
             /* Timeline geometry */
             --tl-hour: 80px;
             --tl-padding-h: 12px;
             --tl-block-h: 68px;
             --tl-block-gap: 4px;
             --tl-col-w: 48px;
-
             /* iOS safe areas */
             --safe-top: env(safe-area-inset-top, 0px);
             --safe-bottom: env(safe-area-inset-bottom, 0px);
             --safe-left: env(safe-area-inset-left, 0px);
             --safe-right: env(safe-area-inset-right, 0px);
         }
-
         @media (prefers-color-scheme: dark) {
             :root {
                 --surface-alt: rgba(255, 255, 255, 0.04);
@@ -47,16 +44,13 @@
                 --border-soft: rgba(255, 255, 255, 0.04);
             }
         }
-
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
             -webkit-tap-highlight-color: transparent;
         }
-
         html, body { height: 100%; overflow-x: hidden; }
-
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Inter', system-ui, sans-serif;
             background-color: var(--bg);
@@ -68,7 +62,6 @@
             padding-left: var(--safe-left);
             padding-right: var(--safe-right);
         }
-
         /* ===== Header ===== */
        .app-header {
             padding: calc(16px + var(--safe-top)) 20px 8px;
@@ -88,7 +81,6 @@
         }
         .app-title .emoji { font-size: 22px; }
         .app-subtitle { font-size: 13px; color: var(--hint); margin-top: 2px; }
-
         /* ===== Tabs ===== */
         .tabs {
             display: flex; gap: 4px; padding: 4px;
@@ -111,7 +103,6 @@
             color: var(--text);
             box-shadow: 0 1px 3px rgba(0,0,0,0.05);
         }
-
         /* ===== Day navigation ===== */
         .day-nav {
             display: flex; align-items: center; justify-content: space-between;
@@ -149,7 +140,6 @@
         }
         .today-btn:active { background-color: var(--accent-soft); }
         .today-btn[hidden] { display: none; }
-
         /* ===== Timeline ===== */
         .timeline-wrap {
             display: flex; padding: 8px 20px 20px;
@@ -189,7 +179,6 @@
             border-radius: 50%;
             background-color: var(--now-line);
         }
-
         .tl-block {
             position: absolute;
             padding: 8px 10px;
@@ -216,7 +205,6 @@
             color: var(--accent-text);
         }
         .tl-block.me-here::before { background-color: rgba(255,255,255,0.6); }
-
         .tl-row {
             display: flex; align-items: center;
             gap: 6px;
@@ -230,7 +218,6 @@
             flex-shrink: 0;
         }
         .tl-block.me-here .tl-time { color: var(--accent-text); }
-
         .tl-mensa {
             font-size: 11px;
             font-weight: 600;
@@ -243,7 +230,6 @@
         .tl-block.me-here .tl-mensa {
             color: rgba(255,255,255,0.85);
         }
-
         .tl-users {
             display: flex; align-items: center;
             margin-top: auto;
@@ -267,7 +253,6 @@
             white-space: nowrap;
         }
         .tl-block.me-here .tl-count { color: rgba(255,255,255,0.85); }
-
         /* ===== Empty state ===== */
         .empty-state {
             text-align: center;
@@ -280,7 +265,6 @@
             color: var(--text); margin-bottom: 4px;
         }
         .empty-state .desc { font-size: 13px; }
-
         /* ===== FAB ===== */
         .fab {
             position: fixed;
@@ -299,7 +283,6 @@
             z-index: 50;
         }
         .fab:active { transform: scale(0.92); }
-
         /* ===== Week view ===== */
         .week-list { padding: 8px 20px; }
         .week-day {
@@ -357,7 +340,6 @@
             color: var(--accent);
         }
         .week-block-tag.has-me .mensa-mini { color: var(--accent); opacity: 0.7; }
-
         /* ===== Bottom sheet ===== */
         .sheet-backdrop {
             position: fixed; inset: 0;
@@ -432,7 +414,6 @@
             font-size: 11px; color: var(--hint);
             opacity: 0.7; cursor: pointer;
         }
-
         /* ===== Time chips ===== */
         .time-scroller {
             display: flex; flex-wrap: wrap;
@@ -459,7 +440,6 @@
             color: var(--accent-text);
             border-color: var(--accent);
         }
-
         /* ===== Custom time input ===== */
         .custom-time-row {
             display: flex; align-items: center; gap: 10px;
@@ -492,10 +472,8 @@
             outline: none;
             text-align: right;
         }
-
         .custom-time-row { cursor: pointer; }
         #bib-custom-time-row, #bib-until-row { min-height: 56px; padding: 14px 14px; }
-
         /* ===== Mensa chips ===== */
         .mensa-grid {
             display: grid;
@@ -524,7 +502,6 @@
             color: var(--accent-text);
             border-color: var(--accent);
         }
-
         /* ===== User chips in detail sheet ===== */
         .user-chip {
             display: inline-flex; align-items: center; gap: 8px;
@@ -576,7 +553,6 @@
             font-weight: 700;
             color: var(--text);
         }
-
         /* ===== Mode switcher ===== */
         .app-title { cursor: pointer; }
         .app-title .tri { font-size: 13px; color: var(--accent); background: var(--accent-soft); border-radius: 6px; padding: 2px 6px; margin-left: 6px; }
@@ -594,10 +570,8 @@
         }
         .mode-item span { font-size: 18px; }
         .mode-item:active { background: var(--surface-alt); }
-
         /* ===== Bib mode accent ===== */
         body.bib-mode { --accent: #2563eb; --accent-soft: rgba(37,99,235,0.12); --accent-softer: rgba(37,99,235,0.06); }
-
         /* ===== Bib library cards ===== */
         .bib-list { padding: 8px 20px 24px; }
         .bib-card {
@@ -616,7 +590,6 @@
         .bib-card { padding: 15px 15px; }
         .bib-name { font-size: 16px; }
         #bib-lib-grid .mensa-chip { min-height: 54px; font-size: 15px; padding: 14px 14px; }
-
         /* ===== Audience picker ===== */
         .aud-modes { display: flex; gap: 6px; margin: 6px 0 4px; }
         .aud-mode {
@@ -645,17 +618,26 @@
         .aud-place { font-size: 12px; font-weight: 600; color: var(--hint); white-space: nowrap; flex-shrink: 0; max-width: 42%; overflow: hidden; text-overflow: ellipsis; }
         .aud-check { width: 20px; flex-shrink: 0; color: var(--accent); font-weight: 800; text-align: center; }
         .aud-groups { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0 2px; }
-        .aud-gchip { display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px 6px 6px; border-radius: 999px; background: var(--surface); color: var(--text); font-size: 13px; font-weight: 700; cursor: pointer; border: 1px solid var(--border); }
+        .aud-gchip { display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px 6px 6px; border-radius: 999px; background: var(--surface); color: var(--text); font-size: 13px; font-weight: 700; cursor: pointer; border: 1px solid var(--border); -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
         .aud-gchip:active { transform: scale(0.96); }
         .aud-gchip.active { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
         .aud-gchip.add { padding: 8px 12px; color: var(--hint); border: 1px dashed var(--border); }
         .aud-gavs { display: inline-flex; }
         .aud-gav { width: 22px; height: 22px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 700; color: #fff; margin-left: -7px; border: 2px solid var(--bg); background-size: cover; background-position: center; }
         .aud-gav:first-child { margin-left: 0; }
-        .aud-gmanage { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin: 8px 0 2px; font-size: 13px; color: var(--hint); }
-        .aud-gbtn { padding: 6px 12px; border-radius: 999px; border: 1px solid var(--border); background: var(--surface); color: var(--accent); font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit; }
-        .aud-gbtn.danger { color: var(--danger); }
-
+        .gm-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 119; }
+        .gm-backdrop[hidden] { display: none; }
+        .gm-modal { position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(86vw, 340px); background: var(--bg); border: 1px solid var(--border); border-radius: 16px; padding: 16px; z-index: 120; box-shadow: 0 18px 50px rgba(0,0,0,0.35); }
+        .gm-modal[hidden] { display: none; }
+        .gm-title { font-size: 17px; font-weight: 800; margin-bottom: 12px; }
+        .gm-members { display: flex; flex-direction: column; gap: 8px; max-height: 40vh; overflow-y: auto; margin-bottom: 14px; }
+        .gm-member { display: flex; align-items: center; gap: 10px; }
+        .gm-mname { font-size: 14px; font-weight: 600; }
+        .gm-empty { font-size: 13px; color: var(--hint); }
+        .gm-actions { display: flex; gap: 8px; }
+        .gm-btn { flex: 1; padding: 12px; border-radius: 10px; border: 1px solid var(--border); background: var(--surface); color: var(--accent); font-size: 14px; font-weight: 700; cursor: pointer; font-family: inherit; }
+        .gm-btn.danger { color: var(--danger); border-color: var(--danger); }
+        .gm-close { width: 100%; margin-top: 8px; padding: 10px; background: none; border: none; color: var(--hint); font-size: 13px; cursor: pointer; font-family: inherit; }
         /* ===== Toast ===== */
         .toast {
             position: fixed;
@@ -688,12 +670,10 @@
         <div class="mode-item" data-mode="mensa"><span>🍜</span> Mensa Crew</div>
         <div class="mode-item" data-mode="bib"><span>📚</span> Bib Crew</div>
     </div>
-
     <div class="tabs" role="tablist">
         <button class="tab active" data-view="day">День</button>
         <button class="tab" data-view="week">Неделя</button>
     </div>
-
     <div id="view-day">
         <div class="day-nav">
             <button class="nav-btn" id="prev-day">←</button>
@@ -706,7 +686,6 @@
         <button class="today-btn" id="today-btn">↺ Вернуться к сегодня</button>
         <div class="timeline-wrap" id="timeline-wrap"></div>
     </div>
-
     <div id="view-week" hidden>
         <div class="day-nav">
             <button class="nav-btn" id="prev-week">←</button>
@@ -719,7 +698,6 @@
         <div class="week-list" id="week-list"></div>
         <div class="credit" id="credit">made by Diyorbek Omonov</div>
     </div>
-
     <div id="bib-day" hidden>
         <div class="day-nav">
             <button class="nav-btn" id="bib-prev-day">←</button>
@@ -732,7 +710,6 @@
         <button class="today-btn" id="bib-today-btn">↺ Вернуться к сегодня</button>
         <div class="bib-list" id="bib-list"></div>
     </div>
-
     <div id="bib-week" hidden>
         <div class="day-nav">
             <button class="nav-btn" id="bib-prev-week">←</button>
@@ -745,16 +722,13 @@
         <div class="week-list" id="bib-week-list"></div>
         <div class="credit" id="bib-credit">made by Diyorbek Omonov</div>
     </div>
-
     <button class="fab" id="fab">+</button>
-
     <!-- Sheet: create -->
     <div class="sheet-backdrop" id="sheet-backdrop"></div>
     <div class="sheet" id="sheet-create" hidden>
         <div class="sheet-handle"></div>
         <div class="sheet-title">Во сколько идёшь в столовку?</div>
         <div class="sheet-subtitle" id="sheet-create-sub">Выбери время и столовую</div>
-
         <div class="sheet-section-label">Время</div>
         <div class="time-scroller" id="time-scroller"></div>
         <div class="custom-time-row" id="custom-time-row">
@@ -765,13 +739,10 @@
             <span class="custom-time-label">До скольки (по желанию)</span>
             <input class="custom-time-input" id="mensa-until-input" type="time" step="60">
         </div>
-
         <div class="sheet-section-label">Столовая</div>
         <div class="mensa-grid" id="mensa-grid"></div>
-
         <button class="sheet-action" id="sheet-confirm" disabled>Записаться</button>
     </div>
-
     <!-- Sheet: detail -->
     <div class="sheet" id="sheet-detail" hidden>
         <div class="sheet-handle"></div>
@@ -785,7 +756,6 @@
         <button class="sheet-action" id="detail-edit" hidden>Изменить время</button>
         <button class="sheet-action" id="detail-action">Присоединиться</button>
     </div>
-
     <!-- Sheet: bib create -->
     <div class="sheet" id="sheet-bib-create" hidden>
         <div class="sheet-handle"></div>
@@ -805,7 +775,6 @@
         </div>
         <button class="sheet-action" id="bib-confirm" disabled>Я приду</button>
     </div>
-
     <!-- Sheet: bib detail -->
     <div class="sheet" id="sheet-bib-detail" hidden>
         <div class="sheet-handle"></div>
@@ -815,7 +784,6 @@
         <button class="sheet-action" id="bib-detail-edit" hidden>Изменить время</button>
         <button class="sheet-action" id="bib-detail-action">Я приду сюда</button>
     </div>
-
     <!-- Sheet: audience -->
     <div class="sheet" id="sheet-audience" hidden>
         <div class="sheet-handle"></div>
@@ -827,7 +795,6 @@
             <button class="aud-mode" data-amode="except" type="button">Кроме…</button>
         </div>
         <div class="aud-groups" id="aud-groups"></div>
-        <div class="aud-gmanage" id="aud-groupmanage" hidden></div>
         <div id="aud-groupsave" hidden>
             <input class="aud-search" id="aud-group-name" type="text" placeholder="Название группы…" maxlength="24" style="margin:8px 0 0;">
             <div style="display:flex; gap:6px; margin-top:6px;">
@@ -841,9 +808,18 @@
         </div>
         <button class="sheet-action" id="aud-confirm">Готово</button>
     </div>
-
+    <!-- Modal: group manage (long-press) -->
+    <div class="gm-backdrop" id="gm-backdrop" hidden></div>
+    <div class="gm-modal" id="gm-modal" hidden>
+        <div class="gm-title" id="gm-title">Группа</div>
+        <div class="gm-members" id="gm-members"></div>
+        <div class="gm-actions">
+            <button class="gm-btn" id="gm-update" type="button">Обновить состав</button>
+            <button class="gm-btn danger" id="gm-delete" type="button">Удалить</button>
+        </div>
+        <button class="gm-close" id="gm-close" type="button">Закрыть</button>
+    </div>
     <div class="toast" id="toast"></div>
-
     <script type="module">
     /* =====================================================================
        FIREBASE — fill in firebaseConfig once you've created the project.
@@ -876,7 +852,6 @@
             console.error('Firebase init failed:', e);
         }
     }
-
     /* ===== Telegram setup ===== */
     const tg = window.Telegram?.WebApp;
     if (tg) {
@@ -887,7 +862,6 @@
         // Enable vertical swipe gesture closing on iOS only when at top of scroll
         tg.disableVerticalSwipes?.();
     }
-
     /* ===== Native Telegram BackButton for sheets ===== */
     let backButtonOwner = null; // 'create' | 'detail' | null
     function attachBackButton(owner, onBack) {
@@ -902,7 +876,6 @@
         tg.BackButton.hide();
         tg.BackButton.offClick();
     }
-
     /* ===== Current user ===== */
     const tgUser = tg?.initDataUnsafe?.user;
     const currentUser = tgUser ? {
@@ -911,7 +884,6 @@
         username: tgUser.username || null,
         photo_url: tgUser.photo_url || null,
     } : { id: 'me_demo', name: 'Вы', username: null, photo_url: null };
-
     /* ===== Room ID =====
        - Group chat → chat.id (all members share the room)
        - No chat (debug / private) → user id (private demo room) */
@@ -923,7 +895,6 @@
     let navBibDate = null, navBib = null, navBibFrom = null, startMode = null;
     if (spParts[1] === 'b') { startMode = 'bib'; navBibDate = spParts[2]; navBib = spParts[3]; navBibFrom = spParts[4] || null; }
     else if (spParts[1]) { startMode = 'mensa'; navDate = spParts[1]; navTime = spParts[2]; navMensa = spParts[3]; }
-
     /* ===== Mensas (order matters: Studi & Phil first) ===== */
     const MENSAS = [
         { id: 'studi',     name: 'Mensa Studierendenhaus',   short: 'Studierendenhaus' },
@@ -936,7 +907,6 @@
         { id: 'kaff_blatt',name: 'Käffchen Blattwerk',       short: 'Käffchen Blattwerk' },
     ];
     const MENSA_BY_ID = Object.fromEntries(MENSAS.map(m => [m.id, m]));
-
     /* ===== Mock group members ===== */
     const MOCK = {
         'u1': { id: 'u1', name: 'Аня',   username: 'durov' },
@@ -946,7 +916,6 @@
         'u5': { id: 'u5', name: 'Соня',  username: 'durov' },
         'u6': { id: 'u6', name: 'Артём', username: 'durov' },
     };
-
     /* ===== Palette (no yellow) ===== */
     const PALETTE = [
         '#6d28d9', '#1d4ed8', '#047857', '#be185d',
@@ -957,7 +926,6 @@
         for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) | 0;
         return PALETTE[Math.abs(h) % PALETTE.length];
     }
-
     /* ===== Date utils ===== */
     const isoDate = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
     const addDays = (d, n) => { const r = new Date(d); r.setDate(r.getDate() + n); return r; };
@@ -977,7 +945,6 @@
     const RU_DAYS_SHORT = ['Вс','Пн','Вт','Ср','Чт','Пт','Сб'];
     const RU_MONTHS_GEN = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
     const RU_MONTHS_SHORT = ['янв','фев','мар','апр','мая','июн','июл','авг','сен','окт','ноя','дек'];
-
     function formatDayLabel(d) {
         const t = isoDate(new Date()), di = isoDate(d);
         if (di === t) return 'Сегодня';
@@ -986,7 +953,6 @@
         const n = RU_DAYS_FULL[d.getDay()]; return n.charAt(0).toUpperCase() + n.slice(1);
     }
     const formatDayHint = d => `${d.getDate()} ${RU_MONTHS_GEN[d.getMonth()]}`;
-
     /* ===== Pluralization ===== */
     function pluralRu(n, forms) {
         // forms = [one, few, many]   e.g. ['человек','человека','человек']
@@ -995,7 +961,6 @@
         if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) return forms[1];
         return forms[2];
     }
-
     /* ===== Time utils ===== */
     const TL_START_MIN = 10 * 60;   // 10:00
     const TL_END_MIN = 18 * 60;     // 18:00
@@ -1005,19 +970,16 @@
     function minToTime(m) { return `${String(Math.floor(m/60)).padStart(2,'0')}:${String(m%60).padStart(2,'0')}`; }
     function minToPx(min) { return (min - TL_START_MIN) * HOUR_PX / 60; }
     function timeToPx(t) { return minToPx(timeToMin(t)); }
-
     /* 30-min preset chips between 10:00 and 17:30 */
     const TIME_OPTIONS = (() => {
         const out = [];
         for (let m = TL_START_MIN; m < TL_END_MIN; m += 30) out.push(minToTime(m));
         return out;
     })();
-
     /* ===== State =====
        entries[date][userId] = { start: '11:30', mensa: 'studi', updatedAt: ... }
        members[userId] = { name, username, photo_url, lastSeen } */
     const STORAGE_KEY = 'staya_v1';
-
     function demoSeed() {
         const today = isoDate(new Date());
         const tomorrow = isoDate(addDays(new Date(), 1));
@@ -1051,10 +1013,8 @@
     function saveLocalState() {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
     }
-
     let state = FIREBASE_READY ? { entries: {}, members: {} } : loadLocalState();
     if (!state.bib) state.bib = {};
-
     /* ===== Firebase wiring ===== */
     function startFirebaseSync() {
         if (!FIREBASE_READY || !fbDb) return;
@@ -1090,7 +1050,6 @@
             lastSeen: serverTimestamp(),
         }).catch(e => console.error('member update failed', e));
     }
-
     /* ===== UI state ===== */
     let view = 'day';
     let mode = startMode || localStorage.getItem('app_mode') || 'mensa';
@@ -1099,7 +1058,6 @@
     let selectedTime = null;
     let selectedMensa = null;
     let detailGroupKey = null; // `${mensa}|${start}`
-
     /* ===== Helpers ===== */
     function getDayGroups(dateIso) {
         const entries = state.entries[dateIso] || {};
@@ -1145,7 +1103,6 @@
         if (!e) return null;
         return typeof e === 'string' ? { start: e, mensa: 'studi' } : e;
     }
-
     function showToast(text) {
         const t = document.getElementById('toast');
         t.textContent = text;
@@ -1154,7 +1111,6 @@
         showToast._t = setTimeout(() => t.classList.remove('show'), 2200);
     }
     const haptic = (t='light') => { try { tg?.HapticFeedback?.impactOccurred(t); } catch (e) {} };
-
     /* ===== Visibility (audience) ===== */
     function audIds(a) { if (!a || !a.ids) return []; return Array.isArray(a.ids) ? a.ids : Object.values(a.ids); }
     function canSee(uid, e) {
@@ -1201,7 +1157,6 @@
         });
         return members;
     }
-
     /* ===== Notifications ===== */
     const NOTIFY_URL = 'https://mensa-notify.omonovdd.workers.dev/'; // ← URL воркера
     const NOTIFY_SECRET = 'crew-7h3x9q2';                                // ← тот же секрет
@@ -1246,14 +1201,13 @@
             body: JSON.stringify({ secret: NOTIFY_SECRET, initData: tg?.initData || '', recipients: [currentUser.id], text }),
         }).catch(() => {});
     }
-   
+
     /* ===== Actions ===== */
    async function setMyEntry(dateIso, start, mensa, audience, until) {
         const payload = { start, mensa, until: until || null, name: currentUser.name, username: currentUser.username || null, photo_url: currentUser.photo_url || null, audience: audience || { mode: 'all', ids: [] }, updatedAt: FIREBASE_READY ? serverTimestamp() : Date.now() };
         const mensaShort = MENSA_BY_ID[mensa]?.short || mensa;
         const oldE = findMyEntry(dateIso);
         const dayTxt = `${currentDate.getDate()} ${RU_MONTHS_SHORT[currentDate.getMonth()]}`;
-
         if (FIREBASE_READY && fbDb) {
             try {
                 await set(ref(fbDb, `rooms/${roomId}/entries/${dateIso}/${currentUser.id}`), payload);
@@ -1283,7 +1237,6 @@
             }
             return;
         }
-
         if (!state.entries[dateIso]) state.entries[dateIso] = {};
         state.entries[dateIso][currentUser.id] = { start, mensa, until: until || null, audience: audience || { mode: 'all', ids: [] } };
         saveLocalState();
@@ -1329,7 +1282,6 @@
             tg.openTelegramLink(`tg://user?id=${user.id}`);
         } else showToast('У пользователя нет @username');
     }
-
     /* ===== Lane algorithm for visual overlaps ===== */
     function computeLanes(groups) {
         const items = groups.map(g => ({
@@ -1348,7 +1300,6 @@
         });
         return { items, lanes: Math.max(1, laneBottoms.length) };
     }
-
     /* ===== Render: day timeline ===== */
     function renderDayHeader() {
         document.getElementById('day-label').textContent = formatDayLabel(currentDate);
@@ -1356,12 +1307,10 @@
         const isToday = isoDate(currentDate) === isoDate(new Date());
         document.getElementById('today-btn').hidden = isToday;
     }
-
     function renderTimeline() {
         const wrap = document.getElementById('timeline-wrap');
         wrap.innerHTML = '';
         const totalH = (TL_END_MIN - TL_START_MIN) * HOUR_PX / 60;
-
         const timeCol = document.createElement('div');
         timeCol.className = 'time-col';
         timeCol.style.height = totalH + 'px';
@@ -1373,18 +1322,15 @@
             timeCol.appendChild(lbl);
         }
         wrap.appendChild(timeCol);
-
         const grid = document.createElement('div');
         grid.className = 'grid-col';
         grid.style.height = totalH + 'px';
-
         for (let m = TL_START_MIN; m <= TL_END_MIN; m += 30) {
             const line = document.createElement('div');
             line.className = 'grid-line' + (m % 60 !== 0 ? ' half' : '');
             line.style.top = minToPx(m) + 'px';
             grid.appendChild(line);
         }
-
         const now = new Date();
         if (isoDate(currentDate) === isoDate(now)) {
             const nowMin = now.getHours() * 60 + now.getMinutes();
@@ -1395,7 +1341,6 @@
                 grid.appendChild(nl);
             }
         }
-
         const groups = getDayGroups(isoDate(currentDate));
         if (groups.length === 0) {
             const empty = document.createElement('div');
@@ -1414,18 +1359,15 @@
         } else {
             const { items, lanes } = computeLanes(groups);
             const laneWPct = 100 / lanes;
-
             items.forEach(g => {
                 const myE = findMyEntry(isoDate(currentDate));
                 const iAmHere = myE && myE.start === g.start && myE.mensa === g.mensa;
-
                 const block = document.createElement('div');
                 block.className = 'tl-block' + (iAmHere ? ' me-here' : '');
                 block.style.top = g.topPx + 'px';
                 block.style.height = BLOCK_VIS_H + 'px';
                 block.style.left = `calc(${g.lane * laneWPct}% + 8px)`;
                 block.style.width = `calc(${laneWPct}% - ${g.lane === lanes - 1 ? 12 : 6}px)`;
-
                 // Row 1: time + mensa
                 const row1 = document.createElement('div');
                 row1.className = 'tl-row';
@@ -1438,7 +1380,6 @@
                 mensaEl.textContent = MENSA_BY_ID[g.mensa]?.short || '—';
                 row1.appendChild(mensaEl);
                 block.appendChild(row1);
-
                 // Row 2: users
                 const usersRow = document.createElement('div');
                 usersRow.className = 'tl-users';
@@ -1465,17 +1406,13 @@
                     : `${userInfos.length} ${peopleWord}`;
                 usersRow.appendChild(cnt);
                 block.appendChild(usersRow);
-
                 block.onclick = () => openDetailSheet(g.mensa, g.start);
                 grid.appendChild(block);
             });
         }
-
         wrap.appendChild(grid);
     }
-
     function renderDayView() { renderDayHeader(); renderTimeline(); }
-
     /* ===== Render: week view ===== */
     function renderWeekHeader() {
         const ws = weekStart, we = addDays(ws, 6);
@@ -1494,10 +1431,8 @@
             const groups = getDayGroups(di);
             const myE = findMyEntry(di);
             const totalUsers = groups.reduce((s,g) => s + g.users.length, 0);
-
             const card = document.createElement('div');
             card.className = 'week-day' + (di === todayIso ? ' today' : '');
-
             const head = document.createElement('div');
             head.className = 'week-day-head';
             const left = document.createElement('div');
@@ -1510,7 +1445,6 @@
             dnum.textContent = `${d.getDate()} ${RU_MONTHS_SHORT[d.getMonth()]}`;
             left.appendChild(name); left.appendChild(dnum);
             head.appendChild(left);
-
             const cnt = document.createElement('div');
             cnt.className = 'week-day-count' + (myE ? ' active' : '');
             if (groups.length === 0) {
@@ -1522,7 +1456,6 @@
             }
             head.appendChild(cnt);
             card.appendChild(head);
-
             if (groups.length > 0) {
                 const tags = document.createElement('div');
                 tags.className = 'week-day-blocks';
@@ -1541,12 +1474,10 @@
                 });
                 card.appendChild(tags);
             }
-
             card.onclick = () => { currentDate = d; switchView('day'); };
             list.appendChild(card);
         }
     }
-
     /* ===== View switching ===== */
     function applyModeChrome() {
         const isBib = mode === 'bib';
@@ -1570,7 +1501,6 @@
         document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.view === v));
         render();
     }
-
     /* ===== Create sheet ===== */
     function updateConfirmState() {
         document.getElementById('sheet-confirm').disabled = !(selectedTime && selectedMensa);
@@ -1606,7 +1536,6 @@
             chip.onclick = () => { setSelectedTime(t, false); haptic('light'); };
             scroller.appendChild(chip);
         });
-
         // Mensa chips
         const grid = document.getElementById('mensa-grid');
         grid.innerHTML = '';
@@ -1619,7 +1548,6 @@
             chip.onclick = () => { setSelectedMensa(m.id); haptic('light'); };
             grid.appendChild(chip);
         });
-
         // Custom-time wiring
         const customInput = document.getElementById('custom-time-input');
         customInput.value = '';
@@ -1640,7 +1568,6 @@
             const r = document.getElementById(rowId), inp = document.getElementById(inId);
             if (r && inp) r.onclick = (ev) => { if (ev.target.tagName !== 'INPUT') { inp.focus(); try { inp.showPicker(); } catch (e) {} } };
         });
-
         // Pre-fill from existing entry if user already booked this day
         const myE = findMyEntry(isoDate(currentDate));
         if (myE) {
@@ -1666,12 +1593,10 @@
             selectedMensa = null;
         }
         updateConfirmState();
-
         document.getElementById('sheet-create-sub').textContent =
             isoDate(currentDate) === isoDate(new Date())
                 ? 'Сегодня · выбери время и куда идёшь'
                 : `${formatDayLabel(currentDate)}, ${formatDayHint(currentDate)}`;
-
         document.getElementById('sheet-create').hidden = false;
         document.getElementById('sheet-backdrop').classList.add('show');
         requestAnimationFrame(() => document.getElementById('sheet-create').classList.add('show'));
@@ -1683,7 +1608,6 @@
         setTimeout(() => document.getElementById('sheet-create').hidden = true, 280);
         if (backButtonOwner === 'create') detachBackButton();
     }
-
     /* ===== Detail sheet ===== */
     function openDetailSheet(mensa, start) {
         detailGroupKey = `${mensa}|${start}`;
@@ -1691,14 +1615,12 @@
         const groups = getDayGroups(dateIso);
         const g = groups.find(x => x.mensa === mensa && x.start === start);
         if (!g) return;
-
         document.getElementById('detail-time').textContent = start;
         const peopleWord = pluralRu(g.users.length, ['человек','человека','человек']);
         document.getElementById('detail-subtitle').textContent =
             `${g.users.length} ${peopleWord} ${pluralRu(g.users.length, ['идёт','идут','идут'])} вместе`;
         document.getElementById('detail-mensa-name').textContent =
             MENSA_BY_ID[g.mensa]?.name || g.mensa;
-
         const usersDiv = document.getElementById('detail-users');
         usersDiv.innerHTML = '';
         g.users.map(getUserInfo).filter(Boolean).forEach(u => {
@@ -1723,14 +1645,12 @@
             chip.onclick = () => openUserChat(u);
             usersDiv.appendChild(chip);
         });
-
         const myE = findMyEntry(dateIso);
         const iAmHere = myE && myE.start === start && myE.mensa === mensa;
         const btn = document.getElementById('detail-action');
         btn.textContent = iAmHere ? 'Выйти' : 'Присоединиться';
         btn.className = 'sheet-action' + (iAmHere ? ' secondary' : '');
         document.getElementById('detail-edit').hidden = !iAmHere;
-
         document.getElementById('sheet-detail').hidden = false;
         document.getElementById('sheet-backdrop').classList.add('show');
         requestAnimationFrame(() => document.getElementById('sheet-detail').classList.add('show'));
@@ -1742,7 +1662,6 @@
         setTimeout(() => document.getElementById('sheet-detail').hidden = true, 280);
         if (backButtonOwner === 'detail') detachBackButton();
     }
-
     /* ===== Bib Crew ===== */
     const BIBS = [
         { id:'wiwi',  name:'WiWi',       emoji:'📈', color:'#2563eb' },
@@ -1756,7 +1675,6 @@
     const BIB_TIME_OPTIONS = (() => { const out=[]; for (let h=8; h<=20; h++) out.push(h + ':00'); return out; })();
     let bibSel = { bib:null, time:null, custom:false };
     let bibDetailId = null;
-
     function bibTmin(t){ if(!t) return 0; const p=String(t).split(':'); return (+p[0])*60 + (+(p[1]||0)); }
     function bibTo24(t){ if(!t) return ''; const p=String(t).split(':'); return String(p[0]).padStart(2,'0') + ':' + (p[1]||'00'); }
     function bibFindMine(dateIso) { return (state.bib[dateIso] || {})[currentUser.id] || null; }
@@ -1767,7 +1685,6 @@
         return arr.sort((a,b) => bibTmin(a.from) - bibTmin(b.from));
     }
     function bibDayCount(dateIso) { const day = state.bib[dateIso] || {}; return Object.keys(day).filter(uid => canSee(uid, day[uid])).length; }
-
     function renderBibDay() {
         document.getElementById('bib-day-label').textContent = formatDayLabel(currentDate);
         document.getElementById('bib-day-hint').textContent = formatDayHint(currentDate);
@@ -1822,7 +1739,6 @@
             list.appendChild(card);
         });
     }
-
     function renderBibWeek() {
         const ws = weekStart, we = addDays(ws, 6);
         document.getElementById('bib-week-label').textContent = `KW ${getWeekNumber(ws)}`;
@@ -1875,7 +1791,6 @@
             list.appendChild(card);
         }
     }
-
     function bibUpdateConfirm() {
         const cb = document.getElementById('bib-confirm');
         cb.disabled = !(bibSel.bib && bibSel.time);
@@ -2066,8 +1981,7 @@
         setTimeout(() => document.getElementById('sheet-audience').hidden = true, 280);
         if (backButtonOwner === 'audience') detachBackButton();
     }
-    function closeAllSheets() { closeCreateSheet(); closeDetailSheet(); closeBibCreate(); closeBibDetail(); closeAudience(); }
-
+    function closeAllSheets() { closeCreateSheet(); closeDetailSheet(); closeBibCreate(); closeBibDetail(); closeAudience(); closeGroupModal(); }
     /* ===== Audience picker ===== */
     let pendingBooking = null;
     let audMode = 'all';
@@ -2087,6 +2001,7 @@
     }
     /* ===== Audience groups (private, saved on this device) ===== */
     const POOLS_KEY = 'aud_pools';
+    let modalPool = null;
     function loadPools() { try { return JSON.parse(localStorage.getItem(POOLS_KEY) || '[]'); } catch (e) { return []; } }
     function savePools(p) { try { localStorage.setItem(POOLS_KEY, JSON.stringify(p)); } catch (e) {} }
     function applyPool(pool) {
@@ -2109,6 +2024,19 @@
             host.appendChild(a);
         });
     }
+    function attachChipPress(el, onTap, onLong) {
+        let timer = null, longFired = false;
+        const start = () => { longFired = false; timer = setTimeout(() => { longFired = true; timer = null; onLong(); }, 500); };
+        const cancel = () => { if (timer) { clearTimeout(timer); timer = null; } };
+        el.addEventListener('touchstart', start, { passive: true });
+        el.addEventListener('touchend', cancel);
+        el.addEventListener('touchmove', cancel);
+        el.addEventListener('mousedown', start);
+        el.addEventListener('mouseup', cancel);
+        el.addEventListener('mouseleave', cancel);
+        el.addEventListener('contextmenu', e => e.preventDefault());
+        el.addEventListener('click', e => { if (longFired) { e.preventDefault(); e.stopPropagation(); longFired = false; return; } onTap(); });
+    }
     function renderAudGroups() {
         const wrap = document.getElementById('aud-groups');
         if (!wrap) return;
@@ -2118,46 +2046,57 @@
             chip.className = 'aud-gchip' + (pool.id === activeGroupId ? ' active' : '');
             if ((pool.ids || []).length) { const avs = document.createElement('div'); avs.className = 'aud-gavs'; poolAvatars(pool, avs); chip.appendChild(avs); }
             const lbl = document.createElement('span'); lbl.textContent = pool.name; chip.appendChild(lbl);
-            chip.onclick = () => { haptic('light'); applyPool(pool); };
+            attachChipPress(chip, () => { haptic('light'); applyPool(pool); }, () => { haptic('medium'); openGroupModal(pool); });
             wrap.appendChild(chip);
         });
         const add = document.createElement('div');
         add.className = 'aud-gchip add'; add.textContent = '＋ Группа';
         add.onclick = () => { haptic('light'); openGroupSave(); };
         wrap.appendChild(add);
-        renderGroupManage();
     }
-    function renderGroupManage() {
-        const bar = document.getElementById('aud-groupmanage');
-        if (!bar) return;
-        const pool = loadPools().find(p => p.id === activeGroupId);
-        if (!pool) { bar.hidden = true; bar.innerHTML = ''; return; }
-        bar.hidden = false; bar.innerHTML = '';
-        const lab = document.createElement('span'); lab.textContent = 'Группа «' + pool.name + '»'; bar.appendChild(lab);
-        const upd = document.createElement('button'); upd.type = 'button'; upd.className = 'aud-gbtn'; upd.textContent = 'Обновить';
-        upd.onclick = () => { haptic('light'); updatePool(pool.id); }; bar.appendChild(upd);
-        const del = document.createElement('button'); del.type = 'button'; del.className = 'aud-gbtn danger'; del.textContent = 'Удалить';
-        del.onclick = () => {
-            const go = () => { savePools(loadPools().filter(p => p.id !== pool.id)); activeGroupId = null; renderAudGroups(); };
-            if (tg?.showConfirm) tg.showConfirm('Удалить группу «' + pool.name + '»?', (ok) => { if (ok) go(); });
-            else if (confirm('Удалить группу «' + pool.name + '»?')) go();
-        };
-        bar.appendChild(del);
+    function openGroupModal(pool) {
+        modalPool = pool;
+        document.getElementById('gm-title').textContent = 'Группа «' + pool.name + '»';
+        const list = document.getElementById('gm-members');
+        list.innerHTML = '';
+        const ids = (pool.ids || []);
+        if (!ids.length) { list.innerHTML = '<div class="gm-empty">В группе пока никого</div>'; }
+        else ids.forEach(id => {
+            const u = getUserInfo(id);
+            const row = document.createElement('div'); row.className = 'gm-member';
+            const av = document.createElement('div'); av.className = 'avatar';
+            if (u.photo_url) { av.style.backgroundImage = `url(${u.photo_url})`; }
+            else { av.style.backgroundColor = colorFor(id); av.textContent = userInitials(u); }
+            const nm = document.createElement('div'); nm.className = 'gm-mname'; nm.textContent = u.name || 'Гость';
+            row.appendChild(av); row.appendChild(nm); list.appendChild(row);
+        });
+        document.getElementById('gm-backdrop').hidden = false;
+        document.getElementById('gm-modal').hidden = false;
+    }
+    function closeGroupModal() {
+        modalPool = null;
+        document.getElementById('gm-backdrop').hidden = true;
+        document.getElementById('gm-modal').hidden = true;
     }
     function updatePool(id) {
         const sel = Object.keys(audSel).filter(x => audSel[x]);
-        if (!sel.length) { showToast('Никто не выбран'); return; }
+        if (!sel.length) { showToast('Сначала отметь людей в списке'); return false; }
         const pools = loadPools();
         const p = pools.find(x => x.id === id);
-        if (!p) return;
+        if (!p) return false;
         p.ids = sel; savePools(pools); renderAudGroups();
         showToast('Группа «' + p.name + '» обновлена');
+        return true;
     }
     function openGroupSave() {
-        const sel = Object.keys(audSel).filter(id => audSel[id]);
-        if (audMode !== 'only' || !sel.length) { showToast('Выбери людей в режиме «Только»'); return; }
+        audMode = 'only'; audSel = {}; activeGroupId = null;
+        document.querySelectorAll('#aud-modes .aud-mode').forEach(b => b.classList.toggle('active', b.dataset.amode === 'only'));
+        document.getElementById('aud-sub').textContent = audActiveLabel();
         document.getElementById('aud-groupsave').hidden = false;
-        const inp = document.getElementById('aud-group-name'); inp.value = ''; inp.focus();
+        document.getElementById('aud-group-name').value = '';
+        renderAudGroups();
+        renderAudPeople(document.getElementById('aud-search').value);
+        showToast('Отметь людей для группы');
     }
     function closeGroupSave() { const b = document.getElementById('aud-groupsave'); if (b) b.hidden = true; }
     function confirmGroupSave() {
@@ -2181,7 +2120,7 @@
         document.querySelectorAll('#aud-modes .aud-mode').forEach(b => b.classList.toggle('active', b.dataset.amode === audMode));
         document.getElementById('aud-people-wrap').hidden = false;
         document.getElementById('aud-sub').textContent = audActiveLabel();
-       const s = document.getElementById('aud-search'); if (s) s.value = '';
+        const s = document.getElementById('aud-search'); if (s) s.value = '';
         activeGroupId = null;
         closeGroupSave();
         renderAudGroups();
@@ -2256,8 +2195,6 @@
         else if (p.type === 'leave-mensa') removeMy(p.dateIso, audience);
         else if (p.type === 'leave-bib') removeMyBib(p.dateIso, audience);
     }
-
-
     /* ===== Events ===== */
     document.querySelectorAll('.tab').forEach(t => t.onclick = () => switchView(t.dataset.view));
     document.getElementById('prev-day').onclick = () => { currentDate = addDays(currentDate, -1); render(); haptic('light'); };
@@ -2265,7 +2202,6 @@
     document.getElementById('today-btn').onclick = () => { currentDate = new Date(); currentDate.setHours(0,0,0,0); render(); haptic('light'); };
     document.getElementById('prev-week').onclick = () => { weekStart = addDays(weekStart, -7); render(); haptic('light'); };
     document.getElementById('next-week').onclick = () => { weekStart = addDays(weekStart, +7); render(); haptic('light'); };
-
     function renderBell() {
         const on = state.members?.[currentUser.id]?.notify !== false;
         const b = document.getElementById('bell-btn');
@@ -2320,7 +2256,6 @@
             requestAudience({ type: 'mensa', dateIso, start, mensa, until: null });
         }
     };
-
     /* ===== Bib & mode events ===== */
     document.getElementById('app-title').onclick = (e) => {
         e.stopPropagation();
@@ -2371,9 +2306,19 @@
         haptic('light');
     });
     document.getElementById('aud-search').oninput = (e) => renderAudPeople(e.target.value);
+    document.getElementById('aud-confirm').onclick = () => confirmAudience();
     document.getElementById('aud-group-confirm').onclick = () => confirmGroupSave();
     document.getElementById('aud-group-cancel').onclick = () => closeGroupSave();
-
+    document.getElementById('gm-update').onclick = () => { if (modalPool && updatePool(modalPool.id)) closeGroupModal(); };
+    document.getElementById('gm-delete').onclick = () => {
+        if (!modalPool) return;
+        const p = modalPool;
+        const go = () => { savePools(loadPools().filter(x => x.id !== p.id)); if (activeGroupId === p.id) activeGroupId = null; renderAudGroups(); closeGroupModal(); };
+        if (tg?.showConfirm) tg.showConfirm('Удалить группу «' + p.name + '»?', (ok) => { if (ok) go(); });
+        else if (confirm('Удалить группу «' + p.name + '»?')) go();
+    };
+    document.getElementById('gm-close').onclick = () => closeGroupModal();
+    document.getElementById('gm-backdrop').onclick = () => closeGroupModal();
    let pendingNav = null;
     if (navDate && navTime && navMensa) {
         currentDate = new Date(+navDate.slice(0,4), +navDate.slice(4,6)-1, +navDate.slice(6,8));
