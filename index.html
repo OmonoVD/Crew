@@ -2281,12 +2281,28 @@
         activeGroupId = np.id; closeGroupSave(); renderAudGroups();
         showToast('Группа «' + name + '» сохранена');
     }
+    function slotPeopleFor(p) {
+        if (!p) return [];
+        const di = p.dateIso;
+        if (p.type === 'mensa') {
+            const g = getDayGroups(di).find(x => x.start === p.start && x.mensa === p.mensa);
+            return (g ? g.users : []).filter(u => u !== currentUser.id);
+        }
+        if (p.type === 'bib') {
+            return bibPeople(di, p.bib).map(x => x.uid).filter(u => u !== currentUser.id);
+        }
+        return [];
+    }
     function requestAudience(pending) {
         pendingBooking = pending;
         if (pending && pending.presetMode) {
             audMode = pending.presetMode; audSel = {};
             (pending.presetIds || []).forEach(id => { audSel[id] = true; });
-        } else { audMode = 'all'; audSel = {}; }
+        } else {
+            const slotIds = slotPeopleFor(pending);
+            if (slotIds.length) { audMode = 'only'; audSel = {}; slotIds.forEach(id => { audSel[id] = true; }); }
+            else { audMode = 'all'; audSel = {}; }
+        }
         document.querySelectorAll('#aud-modes .aud-mode').forEach(b => b.classList.toggle('active', b.dataset.amode === audMode));
         document.getElementById('aud-people-wrap').hidden = false;
         document.getElementById('aud-sub').textContent = audActiveLabel();
