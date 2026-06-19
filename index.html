@@ -369,7 +369,12 @@
             background-color: var(--hint);
             opacity: 0.3;
             border-radius: 2px;
-            margin: 0 auto 16px;
+            margin: 0 auto 12px;
+            padding: 10px 30px;
+            box-sizing: content-box;
+            background-clip: content-box;
+            cursor: grab;
+            touch-action: none;
         }
         .sheet-title {
             font-size: 18px; font-weight: 700;
@@ -945,7 +950,7 @@
         { id: 'pizzabar',  name: 'PizzaBar Harburg',          short: 'PizzaBar' },
     ];
     const CAFES = [
-        { id: 'cafe_campus',      name: 'CampusCafé',            short: 'CampusCafé' },
+        { id: 'cafe_campus',      name: 'Café "Sparkasse"',      short: 'Café "Sparkasse"' },
         { id: 'cafe_carl',        name: 'Café Carl',             short: 'Café Carl' },
         { id: 'cafe_blattwerk',   name: 'Café Blattwerk',        short: 'Café Blattwerk' },
         { id: 'cafe_campusblick', name: 'Café CampusBlick',      short: 'CampusBlick' },
@@ -1986,8 +1991,13 @@
         const ui = document.getElementById('bib-until-input');
         const until = (ui && ui.value) ? ui.value : null;
         const b = bibSel.bib, f = bibSel.time;
+        const _old = bibFindMine(di);
+        let _pre = {};
+        if (_old) {
+            _pre = { presetMode: 'only', presetIds: bibPeople(di, _old.bib).map(p => p.uid).filter(u => u !== currentUser.id) };
+        }
         closeBibCreate();
-        requestAudience({ type: 'bib', dateIso: di, bib: b, from: f, until: until });
+        requestAudience({ type: 'bib', dateIso: di, bib: b, from: f, until: until, ..._pre });
     }
     async function setMyBib(dateIso, bib, from, until, audience) {
         const lib = BIB_BY_ID[bib];
@@ -2097,6 +2107,21 @@
         if (backButtonOwner === 'audience') detachBackButton();
     }
     function closeAllSheets() { closeCreateSheet(); closeDetailSheet(); closeBibCreate(); closeBibDetail(); closeAudience(); closeGroupModal(); }
+    function makeSheetDraggable(sheet, closeFn) {
+        const handle = sheet && sheet.querySelector('.sheet-handle');
+        if (!handle) return;
+        let startY = 0, dy = 0, dragging = false;
+        const begin = (y) => { dragging = true; startY = y; dy = 0; sheet.style.transition = 'none'; };
+        const move = (y) => { if (!dragging) return; dy = Math.max(0, y - startY); sheet.style.transform = 'translateY(' + dy + 'px)'; };
+        const end = () => { if (!dragging) return; dragging = false; sheet.style.transition = ''; sheet.style.transform = ''; if (dy > 110) closeFn(); };
+        handle.addEventListener('touchstart', (e) => begin(e.touches[0].clientY), { passive: true });
+        handle.addEventListener('touchmove', (e) => { if (dragging) { e.preventDefault(); move(e.touches[0].clientY); } }, { passive: false });
+        handle.addEventListener('touchend', end);
+        handle.addEventListener('touchcancel', end);
+        handle.addEventListener('mousedown', (e) => begin(e.clientY));
+        window.addEventListener('mousemove', (e) => move(e.clientY));
+        window.addEventListener('mouseup', end);
+    }
     /* ===== Audience picker ===== */
     let pendingBooking = null;
     let audMode = 'all';
@@ -2363,13 +2388,20 @@
         if (tg?.openLink) tg.openLink(u); else window.open(u, '_blank');
     };
     document.getElementById('sheet-backdrop').onclick = () => { closeAllSheets(); };
+    [['sheet-create', closeCreateSheet], ['sheet-detail', closeDetailSheet], ['sheet-bib-create', closeBibCreate], ['sheet-bib-detail', closeBibDetail], ['sheet-audience', closeAudience]].forEach(([id, fn]) => makeSheetDraggable(document.getElementById(id), fn));
     document.getElementById('sheet-confirm').onclick = () => {
         if (selectedTime && selectedMensa) {
             const d = isoDate(currentDate), s = selectedTime, m = selectedMensa;
             const _ui = document.getElementById('mensa-until-input');
             const _until = (_ui && _ui.value) ? _ui.value : null;
+            const _old = findMyEntry(d);
+            let _pre = {};
+            if (_old) {
+                const _g = getDayGroups(d).find(x => x.start === _old.start && x.mensa === _old.mensa);
+                _pre = { presetMode: 'only', presetIds: (_g ? _g.users : []).filter(u => u !== currentUser.id) };
+            }
             closeCreateSheet();
-            requestAudience({ type: 'mensa', dateIso: d, start: s, mensa: m, until: _until });
+            requestAudience({ type: 'mensa', dateIso: d, start: s, mensa: m, until: _until, ..._pre });
         }
     };
         document.getElementById('detail-edit').onclick = () => {
