@@ -605,7 +605,7 @@
             background: var(--surface); color: var(--text);
             font-size: 15px; font-family: inherit; outline: none;
         }
-        .aud-people { display: flex; flex-direction: column; gap: 4px; max-height: 44vh; overflow-y: auto; }
+        .aud-people { display: flex; flex-direction: column; gap: 4px; max-height: 34vh; overflow-y: auto; }
         .aud-person {
             display: flex; align-items: center; gap: 10px;
             padding: 8px 10px; border-radius: 10px; cursor: pointer;
@@ -618,8 +618,10 @@
         .aud-place { font-size: 12px; font-weight: 600; color: var(--hint); white-space: nowrap; flex-shrink: 0; max-width: 42%; overflow: hidden; text-overflow: ellipsis; }
         .aud-check { width: 20px; flex-shrink: 0; color: var(--accent); font-weight: 800; text-align: center; }
         .aud-groups { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0 2px; }
-        .aud-gchip { display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px 6px 6px; border-radius: 999px; background: var(--surface); color: var(--text); font-size: 13px; font-weight: 700; cursor: pointer; border: 1px solid var(--border); -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
-        .aud-gchip:active { transform: scale(0.96); }
+        .aud-gchip { display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px 6px 6px; border-radius: 999px; background: var(--surface); color: var(--text); font-size: 13px; font-weight: 700; cursor: pointer; border: 1px solid var(--border); transition: transform 0.18s ease; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+        .aud-gchip:active { transform: scale(0.97); }
+        .aud-gchip.pressing { transform: scale(0.9); transition: transform 0.5s ease; }
+        .aud-editlabel { font-size: 13px; font-weight: 600; color: var(--hint); margin: 8px 0 0; }
         .aud-gchip.active { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
         .aud-gchip.add { padding: 8px 12px; color: var(--hint); border: 1px dashed var(--border); }
         .aud-gavs { display: inline-flex; }
@@ -802,6 +804,13 @@
                 <button class="aud-mode active" id="aud-group-confirm" type="button">Сохранить</button>
             </div>
         </div>
+        <div id="aud-groupedit" hidden>
+            <div class="aud-editlabel" id="aud-edit-label">Меняешь состав группы</div>
+            <div style="display:flex; gap:6px; margin-top:6px;">
+                <button class="aud-mode" id="aud-edit-cancel" type="button">Отмена</button>
+                <button class="aud-mode active" id="aud-edit-save" type="button">Сохранить изменения</button>
+            </div>
+        </div>
         <div id="aud-people-wrap" hidden>
             <input class="aud-search" id="aud-search" type="text" placeholder="Поиск людей…">
             <div class="aud-people" id="aud-people"></div>
@@ -814,7 +823,7 @@
         <div class="gm-title" id="gm-title">Группа</div>
         <div class="gm-members" id="gm-members"></div>
         <div class="gm-actions">
-            <button class="gm-btn" id="gm-update" type="button">Обновить состав</button>
+            <button class="gm-btn" id="gm-update" type="button">Изменить состав</button>
             <button class="gm-btn danger" id="gm-delete" type="button">Удалить</button>
         </div>
         <button class="gm-close" id="gm-close" type="button">Закрыть</button>
@@ -2002,6 +2011,7 @@
     /* ===== Audience groups (private, saved on this device) ===== */
     const POOLS_KEY = 'aud_pools';
     let modalPool = null;
+    let editingGroupId = null;
     function loadPools() { try { return JSON.parse(localStorage.getItem(POOLS_KEY) || '[]'); } catch (e) { return []; } }
     function savePools(p) { try { localStorage.setItem(POOLS_KEY, JSON.stringify(p)); } catch (e) {} }
     function applyPool(pool) {
@@ -2026,8 +2036,8 @@
     }
     function attachChipPress(el, onTap, onLong) {
         let timer = null, longFired = false;
-        const start = () => { longFired = false; timer = setTimeout(() => { longFired = true; timer = null; onLong(); }, 500); };
-        const cancel = () => { if (timer) { clearTimeout(timer); timer = null; } };
+        const start = () => { longFired = false; el.classList.add('pressing'); timer = setTimeout(() => { longFired = true; timer = null; el.classList.remove('pressing'); onLong(); }, 500); };
+        const cancel = () => { el.classList.remove('pressing'); if (timer) { clearTimeout(timer); timer = null; } };
         el.addEventListener('touchstart', start, { passive: true });
         el.addEventListener('touchend', cancel);
         el.addEventListener('touchmove', cancel);
@@ -2088,7 +2098,24 @@
         showToast('Группа «' + p.name + '» обновлена');
         return true;
     }
+    function startEditGroup(pool) {
+        closeGroupModal();
+        applyPool(pool);
+        editingGroupId = pool.id;
+        document.getElementById('aud-groupsave').hidden = true;
+        document.getElementById('aud-edit-label').textContent = 'Отметь, кто в группе «' + pool.name + '», и нажми «Сохранить изменения»';
+        document.getElementById('aud-groupedit').hidden = false;
+    }
+    function saveGroupEdit() {
+        if (!editingGroupId) return;
+        if (updatePool(editingGroupId)) { editingGroupId = null; document.getElementById('aud-groupedit').hidden = true; }
+    }
+    function cancelGroupEdit() {
+        editingGroupId = null;
+        document.getElementById('aud-groupedit').hidden = true;
+    }
     function openGroupSave() {
+        editingGroupId = null; document.getElementById('aud-groupedit').hidden = true;
         audMode = 'only'; audSel = {}; activeGroupId = null;
         document.querySelectorAll('#aud-modes .aud-mode').forEach(b => b.classList.toggle('active', b.dataset.amode === 'only'));
         document.getElementById('aud-sub').textContent = audActiveLabel();
@@ -2122,6 +2149,8 @@
         document.getElementById('aud-sub').textContent = audActiveLabel();
         const s = document.getElementById('aud-search'); if (s) s.value = '';
         activeGroupId = null;
+        editingGroupId = null;
+        document.getElementById('aud-groupedit').hidden = true;
         closeGroupSave();
         renderAudGroups();
         renderAudPeople('');
@@ -2309,7 +2338,9 @@
     document.getElementById('aud-confirm').onclick = () => confirmAudience();
     document.getElementById('aud-group-confirm').onclick = () => confirmGroupSave();
     document.getElementById('aud-group-cancel').onclick = () => closeGroupSave();
-    document.getElementById('gm-update').onclick = () => { if (modalPool && updatePool(modalPool.id)) closeGroupModal(); };
+    document.getElementById('aud-edit-save').onclick = () => saveGroupEdit();
+    document.getElementById('aud-edit-cancel').onclick = () => cancelGroupEdit();
+    document.getElementById('gm-update').onclick = () => { if (modalPool) startEditGroup(modalPool); };
     document.getElementById('gm-delete').onclick = () => {
         if (!modalPool) return;
         const p = modalPool;
