@@ -2203,6 +2203,8 @@
         document.getElementById('aud-title').textContent = inb ? 'От кого получать?' : 'Кому показать?';
         document.getElementById('aud-gear').classList.toggle('active', inb);
         document.getElementById('aud-confirm').textContent = inb ? 'Сохранить' : 'Готово';
+        const _allBtn = document.querySelector('#aud-modes .aud-mode[data-amode="all"]');
+        if (_allBtn) _allBtn.textContent = inb ? 'Всех' : 'Всем';
         document.getElementById('aud-sub').textContent = audActiveLabel();
     }
     function loadInbound() {
