@@ -640,6 +640,10 @@
         .aud-person .aud-name { flex: 1; font-size: 15px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .aud-place { font-size: 12px; font-weight: 600; color: var(--hint); white-space: nowrap; flex-shrink: 0; max-width: 42%; overflow: hidden; text-overflow: ellipsis; }
         .aud-check { width: 20px; flex-shrink: 0; color: var(--accent); font-weight: 800; text-align: center; }
+        .aud-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+        .aud-gear { width: 34px; height: 34px; flex-shrink: 0; border: none; background: var(--surface-alt); color: var(--text); border-radius: 50%; font-size: 15px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-family: inherit; }
+        .aud-gear:active { transform: scale(0.92); }
+        .aud-gear.active { background: var(--accent); }
         .aud-groups { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0 2px; }
         .aud-gchip { display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px 6px 6px; border-radius: 999px; background: var(--surface); color: var(--text); font-size: 13px; font-weight: 700; cursor: pointer; border: 1px solid var(--border); transition: transform 0.18s ease; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
         .aud-gchip:active { transform: scale(0.97); }
@@ -814,7 +818,10 @@
     <!-- Sheet: audience -->
     <div class="sheet" id="sheet-audience" hidden>
         <div class="sheet-handle"></div>
-        <div class="sheet-title">Кому показать?</div>
+        <div class="aud-head">
+            <div class="sheet-title" id="aud-title">Кому показать?</div>
+            <button class="aud-gear" id="aud-gear" type="button" title="От кого получать">⚙️</button>
+        </div>
         <div class="sheet-subtitle" id="aud-sub">Запись увидят все в твоём круге</div>
         <div class="aud-modes" id="aud-modes">
             <button class="aud-mode active" data-amode="all" type="button">Всем</button>
@@ -1262,6 +1269,14 @@
             .filter(id => id !== currentUser.id && state.members[id]?.notify !== false);
         if (audience && audience.mode === 'only') { const s = audIds(audience); recipients = recipients.filter(id => s.indexOf(id) !== -1); }
         else if (audience && audience.mode === 'except') { const s = audIds(audience); recipients = recipients.filter(id => s.indexOf(id) === -1); }
+        recipients = recipients.filter(id => {
+            const ib = state.members[id] && state.members[id].inbound;
+            if (!ib || ib.mode === 'all') return true;
+            const _ids = audIds(ib);
+            if (ib.mode === 'only') return _ids.indexOf(currentUser.id) !== -1;
+            if (ib.mode === 'except') return _ids.indexOf(currentUser.id) === -1;
+            return true;
+        });
         if (!recipients.length) return;
         fetch(NOTIFY_URL, {
             method: 'POST',
@@ -2164,6 +2179,8 @@
     let audMode = 'all';
     let audSel = {};
     let activeGroupId = null;
+    let audView = 'audience';
+    let _savedAud = null;
     function loadLastAudience() {
         try {
             const a = JSON.parse(localStorage.getItem('last_audience') || 'null');
@@ -2172,16 +2189,70 @@
         audMode = 'all'; audSel = {};
     }
     function audActiveLabel() {
+        if (audView === 'inbound') {
+            if (audMode === 'only') return 'Получать только от выбранных';
+            if (audMode === 'except') return 'Получать от всех, кроме выбранных';
+            return 'Получать сообщения от всех';
+        }
         if (audMode === 'only') return 'Увидят только выбранные';
         if (audMode === 'except') return 'Увидят все, кроме выбранных';
         return 'Запись увидят все в твоём круге';
     }
+    function applyAudView() {
+        const inb = audView === 'inbound';
+        document.getElementById('aud-title').textContent = inb ? 'От кого получать?' : 'Кому показать?';
+        document.getElementById('aud-gear').classList.toggle('active', inb);
+        document.getElementById('aud-confirm').textContent = inb ? 'Сохранить' : 'Готово';
+        document.getElementById('aud-sub').textContent = audActiveLabel();
+    }
+    function loadInbound() {
+        const m = state.members && state.members[currentUser.id];
+        if (m && m.inbound && m.inbound.mode) return { mode: m.inbound.mode, ids: audIds(m.inbound) };
+        try { const a = JSON.parse(localStorage.getItem('inbound_filter') || 'null'); if (a && a.mode) return { mode: a.mode, ids: a.ids || [] }; } catch (e) {}
+        return { mode: 'all', ids: [] };
+    }
+    function saveInbound(obj) {
+        try { localStorage.setItem('inbound_filter', JSON.stringify(obj)); } catch (e) {}
+        if (FIREBASE_READY && fbDb) {
+            update(ref(fbDb, `rooms/${roomId}/members/${currentUser.id}`), { inbound: obj }).catch(() => {});
+        }
+    }
+    function enterInbound() {
+        _savedAud = { mode: audMode, sel: { ...audSel }, group: activeGroupId };
+        const ib = loadInbound();
+        audMode = ib.mode; audSel = {}; (ib.ids || []).forEach(id => { audSel[id] = true; });
+        activeGroupId = null; editingGroupId = null;
+        document.getElementById('aud-groupedit').hidden = true; closeGroupSave();
+        audView = 'inbound';
+        document.querySelectorAll('#aud-modes .aud-mode').forEach(b => b.classList.toggle('active', b.dataset.amode === audMode));
+        applyAudView();
+        renderAudGroups();
+        renderAudPeople(document.getElementById('aud-search').value);
+        haptic('light');
+    }
+    function exitInbound(save) {
+        if (save) {
+            const ids = Object.keys(audSel).filter(x => audSel[x]);
+            saveInbound({ mode: audMode, ids: (audMode === 'all') ? [] : ids });
+            showToast('Настройка сохранена');
+        }
+        const sv = _savedAud || { mode: 'all', sel: {}, group: null };
+        audMode = sv.mode; audSel = { ...sv.sel }; activeGroupId = sv.group;
+        _savedAud = null; editingGroupId = null;
+        document.getElementById('aud-groupedit').hidden = true; closeGroupSave();
+        audView = 'audience';
+        document.querySelectorAll('#aud-modes .aud-mode').forEach(b => b.classList.toggle('active', b.dataset.amode === audMode));
+        applyAudView();
+        renderAudGroups();
+        renderAudPeople(document.getElementById('aud-search').value);
+        haptic('light');
+    }
     /* ===== Audience groups (private, saved on this device) ===== */
-    const POOLS_KEY = 'aud_pools';
     let modalPool = null;
     let editingGroupId = null;
-    function loadPools() { try { return JSON.parse(localStorage.getItem(POOLS_KEY) || '[]'); } catch (e) { return []; } }
-    function savePools(p) { try { localStorage.setItem(POOLS_KEY, JSON.stringify(p)); } catch (e) {} }
+    function poolsKey() { return audView === 'inbound' ? 'aud_pools_inbound' : 'aud_pools'; }
+    function loadPools() { try { return JSON.parse(localStorage.getItem(poolsKey()) || '[]'); } catch (e) { return []; } }
+    function savePools(p) { try { localStorage.setItem(poolsKey(), JSON.stringify(p)); } catch (e) {} }
     function applyPool(pool) {
         const circle = relevanceOrder();
         audMode = 'only'; audSel = {};
@@ -2335,6 +2406,8 @@
         document.querySelectorAll('#aud-modes .aud-mode').forEach(b => b.classList.toggle('active', b.dataset.amode === audMode));
         document.getElementById('aud-people-wrap').hidden = false;
         document.getElementById('aud-sub').textContent = audActiveLabel();
+        audView = 'audience';
+        applyAudView();
         const s = document.getElementById('aud-search'); if (s) s.value = '';
         activeGroupId = null;
         editingGroupId = null;
@@ -2530,7 +2603,8 @@
         haptic('light');
     });
     document.getElementById('aud-search').oninput = (e) => renderAudPeople(e.target.value);
-    document.getElementById('aud-confirm').onclick = () => confirmAudience();
+    document.getElementById('aud-confirm').onclick = () => { if (audView === 'inbound') exitInbound(true); else confirmAudience(); };
+    document.getElementById('aud-gear').onclick = () => { if (audView === 'audience') enterInbound(); else exitInbound(true); };
     document.getElementById('aud-group-confirm').onclick = () => confirmGroupSave();
     document.getElementById('aud-group-cancel').onclick = () => closeGroupSave();
     document.getElementById('aud-edit-save').onclick = () => saveGroupEdit();
