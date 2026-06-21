@@ -1813,7 +1813,7 @@
     const ALL_BIBS = [...BIBS, ...BIBS_MORE];
     const BIB_BY_ID = Object.fromEntries(ALL_BIBS.map(b => [b.id, b]));
     function bibHexA(hex, a) { const n = parseInt(hex.slice(1),16); return `rgba(${(n>>16)&255},${(n>>8)&255},${n&255},${a})`; }
-    const BIB_TIME_OPTIONS = (() => { const out=[]; for (let h=8; h<=20; h++) out.push(h + ':00'); return out; })();
+    const BIB_TIME_OPTIONS = (() => { const out=[]; for (let h=8; h<=23; h++) out.push(h + ':00'); return out; })();
     let bibSel = { bib:null, time:null, custom:false };
     let bibDetailId = null;
     function bibTmin(t){ if(!t) return 0; const p=String(t).split(':'); return (+p[0])*60 + (+(p[1]||0)); }
