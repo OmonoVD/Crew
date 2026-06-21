@@ -789,7 +789,7 @@
         <div class="sheet-title">Куда идёшь заниматься?</div>
         <div class="sheet-subtitle" id="bib-create-sub">Выбери библиотеку и время</div>
         <div class="sheet-section-label">Библиотека</div>
-        <div class="mensa-grid" id="bib-lib-grid"></div>
+        <div id="bib-lib-grid"></div>
         <div class="sheet-section-label">Во сколько придёшь</div>
         <div class="time-scroller" id="bib-time-scroller"></div>
         <div class="custom-time-row" id="bib-custom-time-row">
@@ -1777,7 +1777,14 @@
         { id:'phil',  name:'Philturm',   emoji:'🏛️', color:'#f59e0b' },
         { id:'min',   name:'MIN',        emoji:'🔬', color:'#8b5cf6' },
     ];
-    const BIB_BY_ID = Object.fromEntries(BIBS.map(b => [b.id, b]));
+    const BIBS_MORE = [
+        { id:'haw',      name:'HAW',          emoji:'🤖', color:'#06b6d4' },
+        { id:'hsba',     name:'HSBA',         emoji:'💼', color:'#475569' },
+        { id:'chemie',   name:'Chemie Bib',   emoji:'⚗️', color:'#db2777' },
+        { id:'biologie', name:'Biologie Bib', emoji:'🧬', color:'#65a30d' },
+    ];
+    const ALL_BIBS = [...BIBS, ...BIBS_MORE];
+    const BIB_BY_ID = Object.fromEntries(ALL_BIBS.map(b => [b.id, b]));
     function bibHexA(hex, a) { const n = parseInt(hex.slice(1),16); return `rgba(${(n>>16)&255},${(n>>8)&255},${n&255},${a})`; }
     const BIB_TIME_OPTIONS = (() => { const out=[]; for (let h=8; h<=20; h++) out.push(h + ':00'); return out; })();
     let bibSel = { bib:null, time:null, custom:false };
@@ -1800,7 +1807,7 @@
         const list = document.getElementById('bib-list');
         list.innerHTML = '';
         const mine = bibFindMine(di);
-        BIBS.forEach(b => {
+        ALL_BIBS.forEach(b => {
             const ppl = bibPeople(di, b.id);
             const mineHere = mine && mine.bib === b.id;
             const card = document.createElement('div');
@@ -1881,7 +1888,7 @@
             if (total > 0) {
                 const tags = document.createElement('div');
                 tags.className = 'week-day-blocks';
-                BIBS.forEach(b => {
+                ALL_BIBS.forEach(b => {
                     const n = bibPeople(di, b.id).length;
                     if (n > 0) {
                         const tag = document.createElement('div');
@@ -1920,6 +1927,7 @@
             c.style.background = on ? col : '';
             c.style.borderColor = on ? col : '';
             c.style.color = on ? '#fff' : '';
+            if (on) { const body = c.closest('.pg-body'); if (body && body.hidden) { body.hidden = false; const h = body.previousElementSibling; if (h) h.classList.add('open'); } }
         });
         const libCol = BIB_BY_ID[id].color;
         const sheet = document.getElementById('sheet-bib-create');
@@ -1927,6 +1935,29 @@
         sheet.style.setProperty('--accent-soft', bibHexA(libCol, 0.14));
         sheet.style.setProperty('--accent-softer', bibHexA(libCol, 0.07));
         bibUpdateConfirm();
+    }
+    function makeBibChip(b) {
+        const chip = document.createElement('button');
+        chip.type = 'button'; chip.className = 'mensa-chip';
+        chip.innerHTML = b.emoji + ' ' + b.name;
+        chip.dataset.bib = b.id;
+        chip.onclick = () => { bibSetLib(b.id); haptic('light'); };
+        return chip;
+    }
+    function renderBibLibGrid() {
+        const host = document.getElementById('bib-lib-grid');
+        host.innerHTML = '';
+        const g0 = document.createElement('div'); g0.className = 'mensa-grid';
+        BIBS.forEach(b => g0.appendChild(makeBibChip(b)));
+        host.appendChild(g0);
+        const head = document.createElement('button');
+        head.type = 'button'; head.className = 'place-group-head';
+        head.innerHTML = '<span>Ещё бибки</span><span class="pg-chev">▾</span>';
+        const body = document.createElement('div'); body.className = 'mensa-grid pg-body'; body.hidden = true;
+        BIBS_MORE.forEach(b => body.appendChild(makeBibChip(b)));
+        head.onclick = () => { body.hidden = !body.hidden; head.classList.toggle('open', !body.hidden); haptic('light'); };
+        host.appendChild(head);
+        host.appendChild(body);
     }
     function openBibCreate(preset) {
         const di = isoDate(currentDate);
@@ -1936,16 +1967,7 @@
         _bs.style.removeProperty('--accent');
         _bs.style.removeProperty('--accent-soft');
         _bs.style.removeProperty('--accent-softer');
-        const grid = document.getElementById('bib-lib-grid');
-        grid.innerHTML = '';
-        BIBS.forEach(b => {
-            const chip = document.createElement('button');
-            chip.type = 'button'; chip.className = 'mensa-chip';
-            chip.innerHTML = `${b.emoji} ${b.name}`;
-            chip.dataset.bib = b.id;
-            chip.onclick = () => { bibSetLib(b.id); haptic('light'); };
-            grid.appendChild(chip);
-        });
+        renderBibLibGrid();
         const sc = document.getElementById('bib-time-scroller');
         sc.innerHTML = '';
         BIB_TIME_OPTIONS.forEach(t => {
