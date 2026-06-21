@@ -369,12 +369,7 @@
             background-color: var(--hint);
             opacity: 0.3;
             border-radius: 2px;
-            margin: 0 auto 12px;
-            padding: 10px 30px;
-            box-sizing: content-box;
-            background-clip: content-box;
-            cursor: grab;
-            touch-action: none;
+            margin: 0 auto 16px;
         }
         .sheet-title {
             font-size: 18px; font-weight: 700;
@@ -467,10 +462,11 @@
             font-size: 13px;
             font-weight: 600;
             color: var(--hint);
+            flex: 1;
         }
         .custom-time-row.active .custom-time-label { color: var(--accent); }
         .custom-time-input {
-            flex: 1;
+            flex: 0 0 auto;
             border: none;
             background: transparent;
             font-size: 16px;
@@ -698,8 +694,8 @@
         <button class="bell-btn" id="bell-btn" title="Включить уведомления">🔔</button>
     </header>
     <div class="mode-menu" id="mode-menu" hidden>
-        <div class="mode-item" data-mode="mensa"><span>🍜</span> Mensa Crew</div>
         <div class="mode-item" data-mode="bib"><span>📚</span> Bib Crew</div>
+        <div class="mode-item" data-mode="mensa"><span>🍜</span> Mensa Crew</div>
     </div>
     <div class="tabs" role="tablist">
         <button class="tab active" data-view="day">День</button>
@@ -1135,7 +1131,7 @@
     }
     /* ===== UI state ===== */
     let view = 'day';
-    let mode = startMode || localStorage.getItem('app_mode') || 'mensa';
+    let mode = startMode || localStorage.getItem('app_mode') || 'bib';
     let currentDate = new Date(); currentDate.setHours(0,0,0,0);
     let weekStart = startOfWeek(new Date());
     let selectedTime = null;
@@ -2181,6 +2177,7 @@
     let activeGroupId = null;
     let audView = 'audience';
     let _savedAud = null;
+    let _modeSel = { only: {}, except: {} };
     function loadLastAudience() {
         try {
             const a = JSON.parse(localStorage.getItem('last_audience') || 'null');
@@ -2207,6 +2204,11 @@
         if (_allBtn) _allBtn.textContent = inb ? 'Всех' : 'Всем';
         document.getElementById('aud-sub').textContent = audActiveLabel();
     }
+    function _seedModeSel() {
+        _modeSel = { only: {}, except: {} };
+        if (audMode === 'only') _modeSel.only = { ...audSel };
+        else if (audMode === 'except') _modeSel.except = { ...audSel };
+    }
     function loadInbound() {
         const m = state.members && state.members[currentUser.id];
         if (m && m.inbound && m.inbound.mode) return { mode: m.inbound.mode, ids: audIds(m.inbound) };
@@ -2223,6 +2225,7 @@
         _savedAud = { mode: audMode, sel: { ...audSel }, group: activeGroupId };
         const ib = loadInbound();
         audMode = ib.mode; audSel = {}; (ib.ids || []).forEach(id => { audSel[id] = true; });
+        _seedModeSel();
         activeGroupId = null; editingGroupId = null;
         document.getElementById('aud-groupedit').hidden = true; closeGroupSave();
         audView = 'inbound';
@@ -2240,6 +2243,7 @@
         }
         const sv = _savedAud || { mode: 'all', sel: {}, group: null };
         audMode = sv.mode; audSel = { ...sv.sel }; activeGroupId = sv.group;
+        _seedModeSel();
         _savedAud = null; editingGroupId = null;
         document.getElementById('aud-groupedit').hidden = true; closeGroupSave();
         audView = 'audience';
@@ -2410,6 +2414,7 @@
         document.getElementById('aud-sub').textContent = audActiveLabel();
         audView = 'audience';
         applyAudView();
+        _seedModeSel();
         const s = document.getElementById('aud-search'); if (s) s.value = '';
         activeGroupId = null;
         editingGroupId = null;
@@ -2594,8 +2599,12 @@
         } else { closeBibDetail(); openBibCreate(id); }
     };
     document.querySelectorAll('#aud-modes .aud-mode').forEach(b => b.onclick = () => {
+        if (audMode === 'only') _modeSel.only = { ...audSel };
+        else if (audMode === 'except') _modeSel.except = { ...audSel };
         audMode = b.dataset.amode;
-        audSel = {};
+        if (audMode === 'only') audSel = { ..._modeSel.only };
+        else if (audMode === 'except') audSel = { ..._modeSel.except };
+        else audSel = {};
         activeGroupId = null;
         renderAudGroups();
         document.querySelectorAll('#aud-modes .aud-mode').forEach(x => x.classList.toggle('active', x === b));
@@ -2606,7 +2615,7 @@
     });
     document.getElementById('aud-search').oninput = (e) => renderAudPeople(e.target.value);
     document.getElementById('aud-confirm').onclick = () => { if (audView === 'inbound') exitInbound(true); else confirmAudience(); };
-    document.getElementById('aud-gear').onclick = () => { if (audView === 'audience') enterInbound(); else exitInbound(true); };
+    document.getElementById('aud-gear').onclick = () => { if (audView === 'audience') enterInbound(); else exitInbound(false); };
     document.getElementById('aud-group-confirm').onclick = () => confirmGroupSave();
     document.getElementById('aud-group-cancel').onclick = () => closeGroupSave();
     document.getElementById('aud-edit-save').onclick = () => saveGroupEdit();
