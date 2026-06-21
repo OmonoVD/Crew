@@ -2211,12 +2211,13 @@
         audMode = 'all'; audSel = {};
     }
     function audActiveLabel() {
+        const _sel = Object.keys(audSel).filter(x => audSel[x]).length;
         if (audView === 'inbound') {
-            if (audMode === 'only') return 'Получать только от выбранных';
+            if (audMode === 'only') return _sel ? 'Получать только от выбранных' : 'Ни от кого';
             if (audMode === 'except') return 'Получать от всех, кроме выбранных';
             return 'Получать сообщения от всех';
         }
-        if (audMode === 'only') return 'Увидят только выбранные';
+        if (audMode === 'only') return _sel ? 'Увидят только выбранные' : 'Никто не увидит';
         if (audMode === 'except') return 'Увидят все, кроме выбранных';
         return 'Запись увидят все в твоём круге';
     }
@@ -2500,10 +2501,10 @@
                     audSel = {};
                     relevanceOrder().forEach(x => { if (x !== id) audSel[x] = true; });
                     document.querySelectorAll('#aud-modes .aud-mode').forEach(b => b.classList.toggle('active', b.dataset.amode === 'only'));
-                    document.getElementById('aud-sub').textContent = audActiveLabel();
                 } else {
                     if (audSel[id]) delete audSel[id]; else audSel[id] = true;
                 }
+                document.getElementById('aud-sub').textContent = audActiveLabel();
                 renderAudPeople(document.getElementById('aud-search').value);
             };
             wrap.appendChild(row);
