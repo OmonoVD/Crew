@@ -1807,7 +1807,8 @@
         const list = document.getElementById('bib-list');
         list.innerHTML = '';
         const mine = bibFindMine(di);
-        ALL_BIBS.forEach(b => {
+        const _extra = BIBS_MORE.filter(b => bibPeople(di, b.id).length > 0);
+        [...BIBS, ..._extra].forEach(b => {
             const ppl = bibPeople(di, b.id);
             const mineHere = mine && mine.bib === b.id;
             const card = document.createElement('div');
