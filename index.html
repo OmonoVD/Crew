@@ -446,6 +446,7 @@
             color: var(--accent-text);
             border-color: var(--accent);
         }
+        .time-chip:disabled { opacity: 0.3; cursor: not-allowed; }
         /* ===== Custom time input ===== */
         .custom-time-row {
             display: flex; align-items: center; gap: 10px;
@@ -467,7 +468,7 @@
         }
         .custom-time-row.active .custom-time-label { color: var(--accent); }
         .custom-time-input {
-            flex: 0 0 auto;
+            flex: 0 0 84px;
             border: none;
             background: transparent;
             font-size: 16px;
@@ -1184,6 +1185,11 @@
         return typeof e === 'string' ? { start: e, mensa: 'studi' } : e;
     }
     function isPastDate() { return isoDate(currentDate) < isoDate(new Date()); }
+    function isPastTimeToday(t) {
+        if (!t || isoDate(currentDate) !== isoDate(new Date())) return false;
+        const n = new Date();
+        return timeToMin(t) < (n.getHours() * 60 + n.getMinutes());
+    }
     function showToast(text) {
         const t = document.getElementById('toast');
         t.textContent = text;
@@ -1665,7 +1671,8 @@
             chip.className = 'time-chip';
             chip.textContent = t;
             chip.dataset.time = t;
-            chip.onclick = () => { setSelectedTime(t, false); haptic('light'); };
+            if (isPastTimeToday(t)) chip.disabled = true;
+            else chip.onclick = () => { setSelectedTime(t, false); haptic('light'); };
             scroller.appendChild(chip);
         });
         // Place chips, grouped & collapsible
@@ -1995,7 +2002,8 @@
             const chip = document.createElement('button');
             chip.type = 'button'; chip.className = 'time-chip';
             chip.textContent = t; chip.dataset.time = t;
-            chip.onclick = () => { bibSetTime(t, false); haptic('light'); };
+            if (isPastTimeToday(t)) chip.disabled = true;
+            else chip.onclick = () => { bibSetTime(t, false); haptic('light'); };
             sc.appendChild(chip);
         });
         const ci = document.getElementById('bib-custom-time-input');
@@ -2032,6 +2040,7 @@
     }
     function bibConfirm() {
         if (!(bibSel.bib && bibSel.time)) return;
+        if (isPastTimeToday(bibSel.time)) { showToast('Это время уже прошло'); return; }
         const di = isoDate(currentDate);
         const ui = document.getElementById('bib-until-input');
         const until = (ui && ui.value) ? ui.value : null;
@@ -2417,6 +2426,10 @@
     }
     function requestAudience(pending) {
         pendingBooking = pending;
+        const _audSheet = document.getElementById('sheet-audience');
+        const _audCol = (pending && (pending.type === 'bib' || pending.type === 'leave-bib') && pending.bib && BIB_BY_ID[pending.bib]) ? BIB_BY_ID[pending.bib].color : null;
+        if (_audCol) { _audSheet.style.setProperty('--accent', _audCol); _audSheet.style.setProperty('--accent-soft', bibHexA(_audCol, 0.14)); _audSheet.style.setProperty('--accent-softer', bibHexA(_audCol, 0.07)); }
+        else { _audSheet.style.removeProperty('--accent'); _audSheet.style.removeProperty('--accent-soft'); _audSheet.style.removeProperty('--accent-softer'); }
         if (pending && pending.presetMode) {
             audMode = pending.presetMode; audSel = {};
             (pending.presetIds || []).forEach(id => { audSel[id] = true; });
@@ -2544,6 +2557,7 @@
     [['sheet-create', closeCreateSheet], ['sheet-detail', closeDetailSheet], ['sheet-bib-create', closeBibCreate], ['sheet-bib-detail', closeBibDetail], ['sheet-audience', closeAudience]].forEach(([id, fn]) => makeSheetDraggable(document.getElementById(id), fn));
     document.getElementById('sheet-confirm').onclick = () => {
         if (selectedTime && selectedMensa) {
+            if (isPastTimeToday(selectedTime)) { showToast('Это время уже прошло'); return; }
             const d = isoDate(currentDate), s = selectedTime, m = selectedMensa;
             const _ui = document.getElementById('mensa-until-input');
             const _until = (_ui && _ui.value) ? _ui.value : null;
@@ -2611,7 +2625,7 @@
         if (mine && mine.bib === id) {
             const _slot = bibPeople(di, id).map(p => p.uid).filter(u => u !== currentUser.id);
             closeBibDetail();
-            requestAudience({ type: 'leave-bib', dateIso: di, presetMode: 'only', presetIds: _slot });
+            requestAudience({ type: 'leave-bib', dateIso: di, bib: id, presetMode: 'only', presetIds: _slot });
         } else { closeBibDetail(); openBibCreate(id); }
     };
     document.querySelectorAll('#aud-modes .aud-mode').forEach(b => b.onclick = () => {
