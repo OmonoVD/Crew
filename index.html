@@ -1194,6 +1194,13 @@
     const haptic = (t='light') => { try { tg?.HapticFeedback?.impactOccurred(t); } catch (e) {} };
     /* ===== Visibility (audience) ===== */
     function audIds(a) { if (!a || !a.ids) return []; return Array.isArray(a.ids) ? a.ids : Object.values(a.ids); }
+    function inAud(id, aud) {
+        if (!aud || aud.mode === 'all') return true;
+        const ids = audIds(aud);
+        if (aud.mode === 'only') return ids.indexOf(id) !== -1;
+        if (aud.mode === 'except') return ids.indexOf(id) === -1;
+        return true;
+    }
     function canSee(uid, e) {
         if (uid === currentUser.id) return true;
         const a = e && e.audience;
@@ -1302,23 +1309,24 @@
                 await set(ref(fbDb, `rooms/${roomId}/entries/${dateIso}/${currentUser.id}`), payload);
                 haptic('medium');
                 showToast(`${start} · ${mensaShort}`);
-                let verb = null;
-                if (oldE && (oldE.start !== start || oldE.mensa !== mensa)) {
-                    verb = `меняет время — ${oldE.start} → ${start}`;
+                const changed = oldE && (oldE.start !== start || oldE.mensa !== mensa);
+                const roomKeySafe = roomKey || 'crew';
+                const dl = `https://t.me/mensacrew_bot/Mensa_Crew?startapp=${roomKeySafe}__${dateIso.replace(/-/g,'')}__${start.replace(':','')}__${mensa}`;
+                if (changed) {
+                    const _cand = Object.keys(state.members || {}).filter(id => id !== currentUser.id);
+                    const _newVis = _cand.filter(id => inAud(id, audience));
+                    const _oldAud = oldE.audience || { mode: 'all', ids: [] };
+                    const _movers = _newVis.filter(id => inAud(id, _oldAud));
+                    const _newbies = _newVis.filter(id => !inAud(id, _oldAud));
+                    if (_movers.length) notify(`🍜 <i>${nameLink()} меняет время — ${oldE.start} → ${start} · ${esc(mensaShort)} (${dayTxt})</i>`, dl, { mode: 'only', ids: _movers });
+                    if (_newbies.length) notify(`🍜 <i>${nameLink()} идёт — ${start} · ${esc(mensaShort)} (${dayTxt})</i>`, dl, { mode: 'only', ids: _newbies });
+                    notifySelf(`<i>✏️ Вы перенесли — ${oldE.start} → ${start} · ${esc(mensaShort)} (${dayTxt})</i>`);
                 } else if (!oldE) {
                     const slot = getDayGroups(dateIso).find(g => g.start === start && g.mensa === mensa);
                     const others = (slot?.users || []).filter(u => u !== currentUser.id);
-                    verb = others.length ? `присоединяется — ${start}` : `идёт — ${start}`;
-                }
-                const roomKeySafe = roomKey || 'crew';
-                const dl = `https://t.me/mensacrew_bot/Mensa_Crew?startapp=${roomKeySafe}__${dateIso.replace(/-/g,'')}__${start.replace(':','')}__${mensa}`;
-                if (verb) {
+                    const verb = others.length ? `присоединяется — ${start}` : `идёт — ${start}`;
                     notify(`🍜 <i>${nameLink()} ${verb} · ${esc(mensaShort)} (${dayTxt})</i>`, dl, audience);
-                    const moved = oldE && (oldE.start !== start || oldE.mensa !== mensa);
-                    const selfTxt = moved
-                        ? `✏️ Вы перенесли — ${oldE.start} → ${start} · ${esc(mensaShort)} (${dayTxt})`
-                        : `✅ Вы записаны — ${start} · ${esc(mensaShort)} (${dayTxt})`;
-                    notifySelf(`<i>${selfTxt}</i>`);
+                    notifySelf(`<i>✅ Вы записаны — ${start} · ${esc(mensaShort)} (${dayTxt})</i>`);
                 }
             } catch (e) {
                 console.error('setMyEntry failed', e);
@@ -2046,13 +2054,20 @@
                 await set(ref(fbDb, `rooms/${roomId}/bib/${dateIso}/${currentUser.id}`), { bib, from, until: until || null, name: currentUser.name, username: currentUser.username || null, photo_url: currentUser.photo_url || null, audience: audience || { mode: 'all', ids: [] }, updatedAt: serverTimestamp() });
                 haptic('medium');
                 showToast(`${lib.name} · ${from}`);
-                let verb = null;
-                if (oldE && (oldE.bib !== bib || oldE.from !== from || (oldE.until || null) !== (until || null))) verb = `меняет — ${lib.name} с ${from}${untilTxt}`;
-                else if (!oldE) verb = `идёт в ${lib.name} с ${from}${untilTxt}`;
+                const changed = oldE && (oldE.bib !== bib || oldE.from !== from || (oldE.until || null) !== (until || null));
                 const roomKeySafe = roomKey || 'crew';
                 const dl = `https://t.me/mensacrew_bot/Mensa_Crew?startapp=${roomKeySafe}__b__${dateIso.replace(/-/g,'')}__${bib}__${from.replace(':','')}`;
-                if (verb) {
-                    notify(`📚 <i>${nameLink()} ${verb} (${dayTxt})</i>`, dl, audience);
+                if (changed) {
+                    const _cand = Object.keys(state.members || {}).filter(id => id !== currentUser.id);
+                    const _newVis = _cand.filter(id => inAud(id, audience));
+                    const _oldAud = oldE.audience || { mode: 'all', ids: [] };
+                    const _movers = _newVis.filter(id => inAud(id, _oldAud));
+                    const _newbies = _newVis.filter(id => !inAud(id, _oldAud));
+                    if (_movers.length) notify(`📚 <i>${nameLink()} меняет — ${lib.name} с ${from}${untilTxt} (${dayTxt})</i>`, dl, { mode: 'only', ids: _movers });
+                    if (_newbies.length) notify(`📚 <i>${nameLink()} идёт в ${lib.name} с ${from}${untilTxt} (${dayTxt})</i>`, dl, { mode: 'only', ids: _newbies });
+                    notifySelf(`<i>✅ Вы в ${esc(lib.name)} с ${from}${untilTxt} (${dayTxt})</i>`);
+                } else if (!oldE) {
+                    notify(`📚 <i>${nameLink()} идёт в ${lib.name} с ${from}${untilTxt} (${dayTxt})</i>`, dl, audience);
                     notifySelf(`<i>✅ Вы в ${esc(lib.name)} с ${from}${untilTxt} (${dayTxt})</i>`);
                 }
             } catch (e) { console.error('setMyBib failed', e); showToast('Не удалось сохранить'); }
@@ -2645,6 +2660,12 @@
         weekStart = startOfWeek(currentDate);
         pendingBibNav = { bib: navBib };
         view = 'day';
+    }
+    if (pendingNav || pendingBibNav) {
+        setTimeout(() => {
+            if (pendingNav) { pendingNav = null; showToast('Эта запись отменена'); }
+            if (pendingBibNav) { pendingBibNav = null; showToast('Эта запись отменена'); }
+        }, 3500);
     }
     render();
     /* ===== Kick off Firebase live sync ===== */
