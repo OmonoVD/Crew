@@ -592,7 +592,7 @@
         .mode-item span { font-size: 18px; }
         .mode-item:active { background: var(--surface-alt); }
         .mode-item.active { color: var(--accent); }
-        .lang-btn { width: 40px; height: 40px; flex-shrink: 0; border: none; background-color: var(--surface-alt); color: var(--text); border-radius: 50%; font-size: 13px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; font-family: inherit; }
+        .lang-btn { width: 40px; height: 40px; flex-shrink: 0; border: none; background-color: var(--surface-alt); color: var(--text); border-radius: 50%; font-size: 17px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-family: inherit; }
         .lang-btn:active { transform: scale(0.9); }
         .lang-menu { position: absolute; top: calc(58px + var(--safe-top)); right: 20px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 6px; z-index: 150; box-shadow: 0 12px 30px rgba(0,0,0,0.18); min-width: 170px; }
         .lang-menu[hidden] { display: none; }
@@ -699,7 +699,7 @@
     <header class="app-header">
         <h1 class="app-title" id="app-title"><span class="emoji" id="app-emoji">🍜</span> <span id="app-name">Mensa Crew</span> <span class="tri">▾</span></h1>
         <div style="display:flex; align-items:center; gap:8px;">
-            <button class="lang-btn" id="lang-btn" title="Language">RU</button>
+            <button class="lang-btn" id="lang-btn" title="Language">🌐</button>
             <button class="bell-btn" id="bell-btn" title="Включить уведомления">🔔</button>
         </div>
     </header>
@@ -974,6 +974,7 @@
             gm_title:'Группа «{name}»', gm_empty:'В группе пока никого',
             empty_count:'пусто', n_today:'{p} сегодня', edit_group_hint:'Отметь, кто в группе «{name}», и нажми «Сохранить изменения»',
             edit_group_default:'Меняешь состав группы', pause_coffee_short:'☕ Кофе', pause_smoke_short:'🚬 Курилка',
+            btn_join_too:'🍜 Записаться тоже', btn_come_too:'📚 Тоже пойти',
             n_until:' до {t}', n_m_change:'меняет время — {old} → {new} · {place} ({day})', n_m_new:'идёт — {start} · {place} ({day})',
             n_m_join:'присоединяется — {start} · {place} ({day})', n_m_cancel:'отменяет — {old} · {place} ({day})',
             n_b_change:'меняет — {place} с {from}{until} ({day})', n_b_new:'идёт в {place} с {from}{until} ({day})', n_b_leave:'уходит из {place} ({day})',
@@ -1004,6 +1005,7 @@
             gm_title:'Group "{name}"', gm_empty:'No one in this group yet',
             empty_count:'empty', n_today:'{p} today', edit_group_hint:'Select who is in "{name}", then tap "Save changes"',
             edit_group_default:'Editing group members', pause_coffee_short:'☕ Coffee', pause_smoke_short:'🚬 Smoke',
+            btn_join_too:'🍜 Join too', btn_come_too:'📚 Come too',
             n_until:' until {t}', n_m_change:'changes time — {old} → {new} · {place} ({day})', n_m_new:'is going — {start} · {place} ({day})',
             n_m_join:'joins — {start} · {place} ({day})', n_m_cancel:'cancels — {old} · {place} ({day})',
             n_b_change:'changes — {place} from {from}{until} ({day})', n_b_new:'is going to {place} from {from}{until} ({day})', n_b_leave:'is leaving {place} ({day})',
@@ -1034,6 +1036,7 @@
             gm_title:'Gruppe „{name}"', gm_empty:'Noch niemand in der Gruppe',
             empty_count:'leer', n_today:'{p} heute', edit_group_hint:'Wähle, wer in „{name}" ist, dann „Änderungen speichern"',
             edit_group_default:'Mitglieder bearbeiten', pause_coffee_short:'☕ Kaffee', pause_smoke_short:'🚬 Rauchen',
+            btn_join_too:'🍜 Auch mitmachen', btn_come_too:'📚 Auch hin',
             n_until:' bis {t}', n_m_change:'ändert Zeit — {old} → {new} · {place} ({day})', n_m_new:'kommt — {start} · {place} ({day})',
             n_m_join:'macht mit — {start} · {place} ({day})', n_m_cancel:'sagt ab — {old} · {place} ({day})',
             n_b_change:'ändert — {place} ab {from}{until} ({day})', n_b_new:'geht in {place} ab {from}{until} ({day})', n_b_leave:'verlässt {place} ({day})',
@@ -1064,7 +1067,7 @@
     function dayTxtL(L) { return `${currentDate.getDate()} ${L_MONTHS_SHORT[L][currentDate.getMonth()]}`; }
     function applyI18n() {
         const lb = document.getElementById('lang-btn');
-        if (lb) lb.textContent = lang.toUpperCase();
+        if (lb) lb.textContent = '🌐';
         document.querySelectorAll('#lang-menu .mode-item').forEach(it => it.classList.toggle('active', it.dataset.lang === lang));
         const setT = (sel, key) => { const el = document.querySelector(sel); if (el) el.textContent = tr(key); };
         const setP = (sel, key) => { const el = document.querySelector(sel); if (el) el.setAttribute('placeholder', tr(key)); };
@@ -1462,7 +1465,7 @@
         if (currentUser.username) return `<a href="https://t.me/${currentUser.username}">${safe}</a>`;
         return `<a href="tg://user?id=${currentUser.id}">${safe}</a>`;
     }
-    function notify(text, link, audience) {
+    function notify(text, link, audience, btnKey) {
         if (!FIREBASE_READY || !NOTIFY_URL.startsWith('http')) return;
         let recipients = Object.keys(state.members || {})
             .filter(id => id !== currentUser.id && state.members[id]?.notify !== false);
@@ -1477,17 +1480,17 @@
             return true;
         });
         if (!recipients.length) return;
-        const _send = (rcpts, txt) => fetch(NOTIFY_URL, {
+        const _send = (rcpts, txt, btn) => fetch(NOTIFY_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ secret: NOTIFY_SECRET, initData: tg?.initData || '', recipients: rcpts, text: txt, link: link || null }),
+            body: JSON.stringify({ secret: NOTIFY_SECRET, initData: tg?.initData || '', recipients: rcpts, text: txt, link: link || null, btn: btn || null }),
         }).catch(() => {});
         if (typeof text === 'function') {
             const _byLang = {};
             recipients.forEach(id => { const _rl = (state.members[id] && STRINGS[state.members[id].lang]) ? state.members[id].lang : 'ru'; (_byLang[_rl] = _byLang[_rl] || []).push(id); });
-            for (const _rl in _byLang) _send(_byLang[_rl], text(_rl));
+            for (const _rl in _byLang) _send(_byLang[_rl], text(_rl), btnKey ? tL(btnKey, _rl) : null);
         } else {
-            _send(recipients, text);
+            _send(recipients, text, null);
         }
     }
      function notifySelf(text) {
@@ -1520,13 +1523,13 @@
                     const _oldAud = oldE.audience || { mode: 'all', ids: [] };
                     const _movers = _newVis.filter(id => inAud(id, _oldAud));
                     const _newbies = _newVis.filter(id => !inAud(id, _oldAud));
-                    if (_movers.length) notify(L => `🍜 <i>${nameLink()} ${tL('n_m_change', L, {old: oldE.start, new: start, place: esc(mensaShort), day: dayTxtL(L)})}</i>`, dl, { mode: 'only', ids: _movers });
-                    if (_newbies.length) notify(L => `🍜 <i>${nameLink()} ${tL('n_m_new', L, {start, place: esc(mensaShort), day: dayTxtL(L)})}</i>`, dl, { mode: 'only', ids: _newbies });
+                    if (_movers.length) notify(L => `🍜 <i>${nameLink()} ${tL('n_m_change', L, {old: oldE.start, new: start, place: esc(mensaShort), day: dayTxtL(L)})}</i>`, dl, { mode: 'only', ids: _movers }, 'btn_join_too');
+                    if (_newbies.length) notify(L => `🍜 <i>${nameLink()} ${tL('n_m_new', L, {start, place: esc(mensaShort), day: dayTxtL(L)})}</i>`, dl, { mode: 'only', ids: _newbies }, 'btn_join_too');
                     notifySelf(`<i>${tr('n_self_moved', {old: oldE.start, new: start, place: esc(mensaShort), day: dayTxt})}</i>`);
                 } else if (!oldE) {
                     const slot = getDayGroups(dateIso).find(g => g.start === start && g.mensa === mensa);
                     const others = (slot?.users || []).filter(u => u !== currentUser.id);
-                    notify(L => `🍜 <i>${nameLink()} ${tL(others.length ? 'n_m_join' : 'n_m_new', L, {start, place: esc(mensaShort), day: dayTxtL(L)})}</i>`, dl, audience);
+                    notify(L => `🍜 <i>${nameLink()} ${tL(others.length ? 'n_m_join' : 'n_m_new', L, {start, place: esc(mensaShort), day: dayTxtL(L)})}</i>`, dl, audience, 'btn_join_too');
                     notifySelf(`<i>${tr('n_self_booked', {start, place: esc(mensaShort), day: dayTxt})}</i>`);
                 }
             } catch (e) {
@@ -2263,11 +2266,11 @@
                     const _oldAud = oldE.audience || { mode: 'all', ids: [] };
                     const _movers = _newVis.filter(id => inAud(id, _oldAud));
                     const _newbies = _newVis.filter(id => !inAud(id, _oldAud));
-                    if (_movers.length) notify(L => `📚 <i>${nameLink()} ${tL('n_b_change', L, {place: esc(lib.name), from, until: (until ? tL('n_until', L, {t: until}) : ''), day: dayTxtL(L)})}</i>`, dl, { mode: 'only', ids: _movers });
-                    if (_newbies.length) notify(L => `📚 <i>${nameLink()} ${tL('n_b_new', L, {place: esc(lib.name), from, until: (until ? tL('n_until', L, {t: until}) : ''), day: dayTxtL(L)})}</i>`, dl, { mode: 'only', ids: _newbies });
+                    if (_movers.length) notify(L => `📚 <i>${nameLink()} ${tL('n_b_change', L, {place: esc(lib.name), from, until: (until ? tL('n_until', L, {t: until}) : ''), day: dayTxtL(L)})}</i>`, dl, { mode: 'only', ids: _movers }, 'btn_come_too');
+                    if (_newbies.length) notify(L => `📚 <i>${nameLink()} ${tL('n_b_new', L, {place: esc(lib.name), from, until: (until ? tL('n_until', L, {t: until}) : ''), day: dayTxtL(L)})}</i>`, dl, { mode: 'only', ids: _newbies }, 'btn_come_too');
                     notifySelf(`<i>${tr('n_self_bib', {place: esc(lib.name), from, until: untilTxt, day: dayTxt})}</i>`);
                 } else if (!oldE) {
-                    notify(L => `📚 <i>${nameLink()} ${tL('n_b_new', L, {place: esc(lib.name), from, until: (until ? tL('n_until', L, {t: until}) : ''), day: dayTxtL(L)})}</i>`, dl, audience);
+                    notify(L => `📚 <i>${nameLink()} ${tL('n_b_new', L, {place: esc(lib.name), from, until: (until ? tL('n_until', L, {t: until}) : ''), day: dayTxtL(L)})}</i>`, dl, audience, 'btn_come_too');
                     notifySelf(`<i>${tr('n_self_bib', {place: esc(lib.name), from, until: untilTxt, day: dayTxt})}</i>`);
                 }
             } catch (e) { console.error('setMyBib failed', e); showToast(tr('toast_save_fail')); }
