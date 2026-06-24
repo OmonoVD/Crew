@@ -973,7 +973,12 @@
             toast_group_saved:'Группа «{name}» сохранена', toast_group_updated:'Группа «{name}» обновлена', confirm_delete_group:'Удалить группу «{name}»?',
             gm_title:'Группа «{name}»', gm_empty:'В группе пока никого',
             empty_count:'пусто', n_today:'{p} сегодня', edit_group_hint:'Отметь, кто в группе «{name}», и нажми «Сохранить изменения»',
-            edit_group_default:'Меняешь состав группы', pause_coffee_short:'☕ Кофе', pause_smoke_short:'🚬 Курилка' },
+            edit_group_default:'Меняешь состав группы', pause_coffee_short:'☕ Кофе', pause_smoke_short:'🚬 Курилка',
+            n_until:' до {t}', n_m_change:'меняет время — {old} → {new} · {place} ({day})', n_m_new:'идёт — {start} · {place} ({day})',
+            n_m_join:'присоединяется — {start} · {place} ({day})', n_m_cancel:'отменяет — {old} · {place} ({day})',
+            n_b_change:'меняет — {place} с {from}{until} ({day})', n_b_new:'идёт в {place} с {from}{until} ({day})', n_b_leave:'уходит из {place} ({day})',
+            n_self_moved:'✏️ Вы перенесли — {old} → {new} · {place} ({day})', n_self_booked:'✅ Вы записаны — {start} · {place} ({day})',
+            n_self_left_m:'❌ Вы вышли — {old} · {place} ({day})', n_self_bib:'✅ Вы в {place} с {from}{until} ({day})', n_self_left_b:'❌ Вы ушли из {place} ({day})' },
         en: { today:'Today', tomorrow:'Tomorrow', yesterday:'Yesterday', week:'Week', add_group:'＋ Group',
             tab_day:'Day', tab_week:'Week', back_today:'↺ Back to today',
             create_title:'When are you going to the canteen?', sec_time:'Time', sec_where:'Where to',
@@ -998,7 +1003,12 @@
             toast_group_saved:'Group "{name}" saved', toast_group_updated:'Group "{name}" updated', confirm_delete_group:'Delete group "{name}"?',
             gm_title:'Group "{name}"', gm_empty:'No one in this group yet',
             empty_count:'empty', n_today:'{p} today', edit_group_hint:'Select who is in "{name}", then tap "Save changes"',
-            edit_group_default:'Editing group members', pause_coffee_short:'☕ Coffee', pause_smoke_short:'🚬 Smoke' },
+            edit_group_default:'Editing group members', pause_coffee_short:'☕ Coffee', pause_smoke_short:'🚬 Smoke',
+            n_until:' until {t}', n_m_change:'changes time — {old} → {new} · {place} ({day})', n_m_new:'is going — {start} · {place} ({day})',
+            n_m_join:'joins — {start} · {place} ({day})', n_m_cancel:'cancels — {old} · {place} ({day})',
+            n_b_change:'changes — {place} from {from}{until} ({day})', n_b_new:'is going to {place} from {from}{until} ({day})', n_b_leave:'is leaving {place} ({day})',
+            n_self_moved:'✏️ You moved — {old} → {new} · {place} ({day})', n_self_booked:"✅ You're booked — {start} · {place} ({day})",
+            n_self_left_m:'❌ You left — {old} · {place} ({day})', n_self_bib:"✅ You're at {place} from {from}{until} ({day})", n_self_left_b:'❌ You left {place} ({day})' },
         de: { today:'Heute', tomorrow:'Morgen', yesterday:'Gestern', week:'Woche', add_group:'＋ Gruppe',
             tab_day:'Tag', tab_week:'Woche', back_today:'↺ Zurück zu heute',
             create_title:'Wann gehst du in die Mensa?', sec_time:'Zeit', sec_where:'Wohin',
@@ -1023,10 +1033,21 @@
             toast_group_saved:'Gruppe „{name}" gespeichert', toast_group_updated:'Gruppe „{name}" aktualisiert', confirm_delete_group:'Gruppe „{name}" löschen?',
             gm_title:'Gruppe „{name}"', gm_empty:'Noch niemand in der Gruppe',
             empty_count:'leer', n_today:'{p} heute', edit_group_hint:'Wähle, wer in „{name}" ist, dann „Änderungen speichern"',
-            edit_group_default:'Mitglieder bearbeiten', pause_coffee_short:'☕ Kaffee', pause_smoke_short:'🚬 Rauchen' },
+            edit_group_default:'Mitglieder bearbeiten', pause_coffee_short:'☕ Kaffee', pause_smoke_short:'🚬 Rauchen',
+            n_until:' bis {t}', n_m_change:'ändert Zeit — {old} → {new} · {place} ({day})', n_m_new:'kommt — {start} · {place} ({day})',
+            n_m_join:'macht mit — {start} · {place} ({day})', n_m_cancel:'sagt ab — {old} · {place} ({day})',
+            n_b_change:'ändert — {place} ab {from}{until} ({day})', n_b_new:'geht in {place} ab {from}{until} ({day})', n_b_leave:'verlässt {place} ({day})',
+            n_self_moved:'✏️ Du hast verschoben — {old} → {new} · {place} ({day})', n_self_booked:'✅ Du bist eingetragen — {start} · {place} ({day})',
+            n_self_left_m:'❌ Du hast dich ausgetragen — {old} · {place} ({day})', n_self_bib:'✅ Du bist in {place} ab {from}{until} ({day})', n_self_left_b:'❌ Du hast {place} verlassen ({day})' },
     };
     function detectLang() {
         try { const sv = localStorage.getItem('app_lang'); if (sv && STRINGS[sv]) return sv; } catch (e) {}
+        try {
+            const tgLang = (window.Telegram?.WebApp?.initDataUnsafe?.user?.language_code || '').toLowerCase();
+            if (tgLang.startsWith('ru')) return 'ru';
+            if (tgLang.startsWith('de')) return 'de';
+            if (tgLang) return 'en';
+        } catch (e) {}
         return 'ru';
     }
     let lang = detectLang();
@@ -1035,6 +1056,12 @@
         if (params) for (const pk in params) v = v.split('{' + pk + '}').join(params[pk]);
         return v;
     }
+    function tL(k, L, params) {
+        let v = (STRINGS[L] && STRINGS[L][k] != null) ? STRINGS[L][k] : (STRINGS.en[k] != null ? STRINGS.en[k] : (STRINGS.ru[k] != null ? STRINGS.ru[k] : k));
+        if (params) for (const pk in params) v = v.split('{' + pk + '}').join(params[pk]);
+        return v;
+    }
+    function dayTxtL(L) { return `${currentDate.getDate()} ${L_MONTHS_SHORT[L][currentDate.getMonth()]}`; }
     function applyI18n() {
         const lb = document.getElementById('lang-btn');
         if (lb) lb.textContent = lang.toUpperCase();
@@ -1450,11 +1477,18 @@
             return true;
         });
         if (!recipients.length) return;
-        fetch(NOTIFY_URL, {
+        const _send = (rcpts, txt) => fetch(NOTIFY_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ secret: NOTIFY_SECRET, initData: tg?.initData || '', recipients, text, link: link || null }),
+            body: JSON.stringify({ secret: NOTIFY_SECRET, initData: tg?.initData || '', recipients: rcpts, text: txt, link: link || null }),
         }).catch(() => {});
+        if (typeof text === 'function') {
+            const _byLang = {};
+            recipients.forEach(id => { const _rl = (state.members[id] && STRINGS[state.members[id].lang]) ? state.members[id].lang : 'ru'; (_byLang[_rl] = _byLang[_rl] || []).push(id); });
+            for (const _rl in _byLang) _send(_byLang[_rl], text(_rl));
+        } else {
+            _send(recipients, text);
+        }
     }
      function notifySelf(text) {
         if (!FIREBASE_READY || !NOTIFY_URL.startsWith('http')) return;
@@ -1486,15 +1520,14 @@
                     const _oldAud = oldE.audience || { mode: 'all', ids: [] };
                     const _movers = _newVis.filter(id => inAud(id, _oldAud));
                     const _newbies = _newVis.filter(id => !inAud(id, _oldAud));
-                    if (_movers.length) notify(`🍜 <i>${nameLink()} меняет время — ${oldE.start} → ${start} · ${esc(mensaShort)} (${dayTxt})</i>`, dl, { mode: 'only', ids: _movers });
-                    if (_newbies.length) notify(`🍜 <i>${nameLink()} идёт — ${start} · ${esc(mensaShort)} (${dayTxt})</i>`, dl, { mode: 'only', ids: _newbies });
-                    notifySelf(`<i>✏️ Вы перенесли — ${oldE.start} → ${start} · ${esc(mensaShort)} (${dayTxt})</i>`);
+                    if (_movers.length) notify(L => `🍜 <i>${nameLink()} ${tL('n_m_change', L, {old: oldE.start, new: start, place: esc(mensaShort), day: dayTxtL(L)})}</i>`, dl, { mode: 'only', ids: _movers });
+                    if (_newbies.length) notify(L => `🍜 <i>${nameLink()} ${tL('n_m_new', L, {start, place: esc(mensaShort), day: dayTxtL(L)})}</i>`, dl, { mode: 'only', ids: _newbies });
+                    notifySelf(`<i>${tr('n_self_moved', {old: oldE.start, new: start, place: esc(mensaShort), day: dayTxt})}</i>`);
                 } else if (!oldE) {
                     const slot = getDayGroups(dateIso).find(g => g.start === start && g.mensa === mensa);
                     const others = (slot?.users || []).filter(u => u !== currentUser.id);
-                    const verb = others.length ? `присоединяется — ${start}` : `идёт — ${start}`;
-                    notify(`🍜 <i>${nameLink()} ${verb} · ${esc(mensaShort)} (${dayTxt})</i>`, dl, audience);
-                    notifySelf(`<i>✅ Вы записаны — ${start} · ${esc(mensaShort)} (${dayTxt})</i>`);
+                    notify(L => `🍜 <i>${nameLink()} ${tL(others.length ? 'n_m_join' : 'n_m_new', L, {start, place: esc(mensaShort), day: dayTxtL(L)})}</i>`, dl, audience);
+                    notifySelf(`<i>${tr('n_self_booked', {start, place: esc(mensaShort), day: dayTxt})}</i>`);
                 }
             } catch (e) {
                 console.error('setMyEntry failed', e);
@@ -1519,8 +1552,8 @@
                 showToast(tr('toast_left'));
                 if (oldE) {
                     const ms = MENSA_BY_ID[oldE.mensa]?.short || oldE.mensa;
-                    notify(`🍜 <i>${nameLink()} отменяет — ${oldE.start} · ${esc(ms)} (${dayTxt})</i>`, null, audience);
-                    notifySelf(`<i>❌ Вы вышли — ${oldE.start} · ${esc(ms)} (${dayTxt})</i>`);
+                    notify(L => `🍜 <i>${nameLink()} ${tL('n_m_cancel', L, {old: oldE.start, place: esc(ms), day: dayTxtL(L)})}</i>`, null, audience);
+                    notifySelf(`<i>${tr('n_self_left_m', {old: oldE.start, place: esc(ms), day: dayTxt})}</i>`);
                 }
             } catch (e) {
                 console.error('removeMy failed', e);
@@ -2215,7 +2248,7 @@
         const lib = BIB_BY_ID[bib];
         const oldE = bibFindMine(dateIso);
         const dayTxt = `${currentDate.getDate()} ${L_MONTHS_SHORT[lang][currentDate.getMonth()]}`;
-        const untilTxt = until ? ` до ${until}` : '';
+        const untilTxt = until ? tr('n_until', {t: until}) : '';
         if (FIREBASE_READY && fbDb) {
             try {
                 await set(ref(fbDb, `rooms/${roomId}/bib/${dateIso}/${currentUser.id}`), { bib, from, until: until || null, name: currentUser.name, username: currentUser.username || null, photo_url: currentUser.photo_url || null, audience: audience || { mode: 'all', ids: [] }, updatedAt: serverTimestamp() });
@@ -2230,12 +2263,12 @@
                     const _oldAud = oldE.audience || { mode: 'all', ids: [] };
                     const _movers = _newVis.filter(id => inAud(id, _oldAud));
                     const _newbies = _newVis.filter(id => !inAud(id, _oldAud));
-                    if (_movers.length) notify(`📚 <i>${nameLink()} меняет — ${lib.name} с ${from}${untilTxt} (${dayTxt})</i>`, dl, { mode: 'only', ids: _movers });
-                    if (_newbies.length) notify(`📚 <i>${nameLink()} идёт в ${lib.name} с ${from}${untilTxt} (${dayTxt})</i>`, dl, { mode: 'only', ids: _newbies });
-                    notifySelf(`<i>✅ Вы в ${esc(lib.name)} с ${from}${untilTxt} (${dayTxt})</i>`);
+                    if (_movers.length) notify(L => `📚 <i>${nameLink()} ${tL('n_b_change', L, {place: esc(lib.name), from, until: (until ? tL('n_until', L, {t: until}) : ''), day: dayTxtL(L)})}</i>`, dl, { mode: 'only', ids: _movers });
+                    if (_newbies.length) notify(L => `📚 <i>${nameLink()} ${tL('n_b_new', L, {place: esc(lib.name), from, until: (until ? tL('n_until', L, {t: until}) : ''), day: dayTxtL(L)})}</i>`, dl, { mode: 'only', ids: _newbies });
+                    notifySelf(`<i>${tr('n_self_bib', {place: esc(lib.name), from, until: untilTxt, day: dayTxt})}</i>`);
                 } else if (!oldE) {
-                    notify(`📚 <i>${nameLink()} идёт в ${lib.name} с ${from}${untilTxt} (${dayTxt})</i>`, dl, audience);
-                    notifySelf(`<i>✅ Вы в ${esc(lib.name)} с ${from}${untilTxt} (${dayTxt})</i>`);
+                    notify(L => `📚 <i>${nameLink()} ${tL('n_b_new', L, {place: esc(lib.name), from, until: (until ? tL('n_until', L, {t: until}) : ''), day: dayTxtL(L)})}</i>`, dl, audience);
+                    notifySelf(`<i>${tr('n_self_bib', {place: esc(lib.name), from, until: untilTxt, day: dayTxt})}</i>`);
                 }
             } catch (e) { console.error('setMyBib failed', e); showToast(tr('toast_save_fail')); }
             return;
@@ -2254,8 +2287,8 @@
                 if (oldE) {
                     const lib = BIB_BY_ID[oldE.bib];
                     const nm = lib ? lib.name : oldE.bib;
-                    notify(`📚 <i>${nameLink()} уходит из ${esc(nm)} (${dayTxt})</i>`, null, audience);
-                    notifySelf(`<i>❌ Вы ушли из ${esc(nm)} (${dayTxt})</i>`);
+                    notify(L => `📚 <i>${nameLink()} ${tL('n_b_leave', L, {place: esc(nm), day: dayTxtL(L)})}</i>`, null, audience);
+                    notifySelf(`<i>${tr('n_self_left_b', {place: esc(nm), day: dayTxt})}</i>`);
                 }
             } catch (e) { console.error('removeMyBib failed', e); showToast(tr('toast_fail')); }
             return;
