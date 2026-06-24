@@ -591,6 +591,11 @@
         }
         .mode-item span { font-size: 18px; }
         .mode-item:active { background: var(--surface-alt); }
+        .mode-item.active { color: var(--accent); }
+        .lang-btn { width: 40px; height: 40px; flex-shrink: 0; border: none; background-color: var(--surface-alt); color: var(--text); border-radius: 50%; font-size: 13px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; font-family: inherit; }
+        .lang-btn:active { transform: scale(0.9); }
+        .lang-menu { position: absolute; top: calc(58px + var(--safe-top)); right: 20px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 6px; z-index: 150; box-shadow: 0 12px 30px rgba(0,0,0,0.18); min-width: 170px; }
+        .lang-menu[hidden] { display: none; }
         /* ===== Bib mode accent ===== */
         body.bib-mode { --accent: #2563eb; --accent-soft: rgba(37,99,235,0.12); --accent-softer: rgba(37,99,235,0.06); }
         /* ===== Bib library cards ===== */
@@ -693,11 +698,19 @@
 <body>
     <header class="app-header">
         <h1 class="app-title" id="app-title"><span class="emoji" id="app-emoji">🍜</span> <span id="app-name">Mensa Crew</span> <span class="tri">▾</span></h1>
-        <button class="bell-btn" id="bell-btn" title="Включить уведомления">🔔</button>
+        <div style="display:flex; align-items:center; gap:8px;">
+            <button class="lang-btn" id="lang-btn" title="Language">RU</button>
+            <button class="bell-btn" id="bell-btn" title="Включить уведомления">🔔</button>
+        </div>
     </header>
     <div class="mode-menu" id="mode-menu" hidden>
         <div class="mode-item" data-mode="bib"><span>📚</span> Bib Crew</div>
         <div class="mode-item" data-mode="mensa"><span>🍜</span> Mensa Crew</div>
+    </div>
+    <div class="lang-menu" id="lang-menu" hidden>
+        <div class="mode-item" data-lang="en">English</div>
+        <div class="mode-item" data-lang="de">Deutsch</div>
+        <div class="mode-item" data-lang="ru">Русский</div>
     </div>
     <div class="tabs" role="tablist">
         <button class="tab active" data-view="day">День</button>
@@ -758,7 +771,7 @@
         <div class="sheet-handle"></div>
         <div class="sheet-title">Во сколько идёшь в столовку?</div>
         <div class="sheet-subtitle" id="sheet-create-sub">Выбери время и столовую</div>
-        <div class="sheet-section-label">Время</div>
+        <div class="sheet-section-label" id="sec-mensa-time">Время</div>
         <div class="time-scroller" id="time-scroller"></div>
         <div class="custom-time-row" id="custom-time-row">
             <span class="custom-time-label">Точное время</span>
@@ -768,7 +781,7 @@
             <span class="custom-time-label">До скольки (по желанию)</span>
             <input class="custom-time-input" id="mensa-until-input" type="time" step="60">
         </div>
-        <div class="sheet-section-label">Куда идёшь</div>
+        <div class="sheet-section-label" id="sec-mensa-where">Куда идёшь</div>
         <div id="mensa-grid"></div>
         <button class="sheet-action" id="sheet-confirm" disabled>Записаться</button>
     </div>
@@ -790,9 +803,9 @@
         <div class="sheet-handle"></div>
         <div class="sheet-title">Куда идёшь заниматься?</div>
         <div class="sheet-subtitle" id="bib-create-sub">Выбери библиотеку и время</div>
-        <div class="sheet-section-label">Библиотека</div>
+        <div class="sheet-section-label" id="sec-bib-lib">Библиотека</div>
         <div id="bib-lib-grid"></div>
-        <div class="sheet-section-label">Во сколько придёшь</div>
+        <div class="sheet-section-label" id="sec-bib-when">Во сколько придёшь</div>
         <div class="time-scroller" id="bib-time-scroller"></div>
         <div class="custom-time-row" id="bib-custom-time-row">
             <span class="custom-time-label">Точное время</span>
@@ -934,6 +947,124 @@
     let navBibDate = null, navBib = null, navBibFrom = null, startMode = null;
     if (spParts[1] === 'b') { startMode = 'bib'; navBibDate = spParts[2]; navBib = spParts[3]; navBibFrom = spParts[4] || null; }
     else if (spParts[1]) { startMode = 'mensa'; navDate = spParts[1]; navTime = spParts[2]; navMensa = spParts[3]; }
+    /* ===== i18n (EN / DE / RU) ===== */
+    const STRINGS = {
+        ru: { today:'Сегодня', tomorrow:'Завтра', yesterday:'Вчера', week:'Неделя', add_group:'＋ Группа',
+            tab_day:'День', tab_week:'Неделя', back_today:'↺ Вернуться к сегодня',
+            create_title:'Во сколько идёшь в столовку?', sec_time:'Время', sec_where:'Куда идёшь',
+            exact_time:'Точное время', until_opt:'До скольки (по желанию)', btn_book:'Записаться',
+            btn_change_time:'Изменить время', bibcreate_title:'Куда идёшь заниматься?', sec_library:'Библиотека',
+            sec_when_come:'Во сколько придёшь', btn_i_come:'Я приду', mode_only:'Только…', mode_except:'Кроме…',
+            ph_search:'Поиск людей…', ph_group_name:'Название группы…', btn_cancel:'Отмена', btn_save:'Сохранить',
+            btn_save_changes:'Сохранить изменения', btn_edit_members:'Изменить состав', btn_delete:'Удалить', btn_close:'Закрыть',
+            act_join:'Присоединиться', act_leave:'Выйти', act_come_here:'Я приду сюда', act_leave_here:'Я ухожу отсюда',
+            day_passed:'День уже прошёл', audience_title:'Кому показать?', inbound_title:'От кого получать?', btn_done:'Готово',
+            all_show:'Всем', all_recv:'Всех', empty_title:'Пока никого', empty_desc:'Будь первым — нажми + и выбери время',
+            bib_empty_short:'никого · будь первым', bib_empty_long:'Пока никого — будь первым', circle_empty:'Пока никого в круге',
+            you:'Вы', guest:'Гость', grp_canteen:'Столовая', grp_more_canteens:'Ещё столовые', grp_cafes:'Кафешки', grp_pause:'Пауза',
+            more_libs:'Ещё бибки', create_sub_today:'Сегодня · выбери время и куда идёшь',
+            lbl_in_only:'Получать только от выбранных', lbl_in_none:'Ни от кого', lbl_in_except:'Получать от всех, кроме выбранных', lbl_in_all:'Получать сообщения от всех',
+            lbl_only:'Увидят только выбранные', lbl_none:'Никто не увидит', lbl_except:'Увидят все, кроме выбранных', lbl_all:'Запись увидят все в твоём круге',
+            toast_left:'Вы вышли', toast_left_bib:'Вы ушли', toast_fail:'Не удалось', toast_save_fail:'Не удалось сохранить',
+            toast_its_you:'Это вы 🙂', toast_no_username:'У пользователя нет @username', toast_no_past:'Нельзя записаться задним числом',
+            toast_time_passed:'Это время уже прошло', toast_cancelled:'Эта запись отменена', toast_setting_saved:'Настройка сохранена',
+            toast_pick_in_list:'Сначала отметь людей в списке', toast_pick_for_group:'Отметь людей для группы', toast_enter_name:'Введи название', toast_none_selected:'Никто не выбран',
+            notif_on_title:'Уведомления включены', notif_off_title:'Уведомления выключены', toast_notif_on:'Уведомления включены 🔔', toast_notif_off:'Уведомления выключены 🔕',
+            toast_group_saved:'Группа «{name}» сохранена', toast_group_updated:'Группа «{name}» обновлена', confirm_delete_group:'Удалить группу «{name}»?',
+            gm_title:'Группа «{name}»', gm_empty:'В группе пока никого',
+            empty_count:'пусто', n_today:'{p} сегодня', edit_group_hint:'Отметь, кто в группе «{name}», и нажми «Сохранить изменения»',
+            edit_group_default:'Меняешь состав группы', pause_coffee_short:'☕ Кофе', pause_smoke_short:'🚬 Курилка' },
+        en: { today:'Today', tomorrow:'Tomorrow', yesterday:'Yesterday', week:'Week', add_group:'＋ Group',
+            tab_day:'Day', tab_week:'Week', back_today:'↺ Back to today',
+            create_title:'When are you going to the canteen?', sec_time:'Time', sec_where:'Where to',
+            exact_time:'Exact time', until_opt:'Until (optional)', btn_book:'Book',
+            btn_change_time:'Change time', bibcreate_title:'Where are you studying?', sec_library:'Library',
+            sec_when_come:'When will you arrive?', btn_i_come:"I'll come", mode_only:'Only…', mode_except:'Except…',
+            ph_search:'Search people…', ph_group_name:'Group name…', btn_cancel:'Cancel', btn_save:'Save',
+            btn_save_changes:'Save changes', btn_edit_members:'Edit members', btn_delete:'Delete', btn_close:'Close',
+            act_join:'Join', act_leave:'Leave', act_come_here:"I'll come here", act_leave_here:"I'm leaving",
+            day_passed:'Day has passed', audience_title:'Who can see?', inbound_title:'Receive from whom?', btn_done:'Done',
+            all_show:'Everyone', all_recv:'Everyone', empty_title:'Nobody yet', empty_desc:'Be first — tap + and pick a time',
+            bib_empty_short:'nobody · be first', bib_empty_long:'Nobody yet — be first', circle_empty:'Nobody in your circle yet',
+            you:'You', guest:'Guest', grp_canteen:'Canteen', grp_more_canteens:'More canteens', grp_cafes:'Cafés', grp_pause:'Break',
+            more_libs:'More libraries', create_sub_today:'Today · pick a time and place',
+            lbl_in_only:'Only from selected', lbl_in_none:'From nobody', lbl_in_except:'From everyone except selected', lbl_in_all:'Receive from everyone',
+            lbl_only:'Only selected will see', lbl_none:'Nobody will see', lbl_except:'Everyone except selected will see', lbl_all:'Everyone in your circle will see',
+            toast_left:'You left', toast_left_bib:'You left', toast_fail:'Failed', toast_save_fail:"Couldn't save",
+            toast_its_you:"That's you 🙂", toast_no_username:'User has no @username', toast_no_past:"Can't book in the past",
+            toast_time_passed:'That time has passed', toast_cancelled:'This entry was cancelled', toast_setting_saved:'Setting saved',
+            toast_pick_in_list:'First select people in the list', toast_pick_for_group:'Select people for the group', toast_enter_name:'Enter a name', toast_none_selected:'Nobody selected',
+            notif_on_title:'Notifications on', notif_off_title:'Notifications off', toast_notif_on:'Notifications on 🔔', toast_notif_off:'Notifications off 🔕',
+            toast_group_saved:'Group "{name}" saved', toast_group_updated:'Group "{name}" updated', confirm_delete_group:'Delete group "{name}"?',
+            gm_title:'Group "{name}"', gm_empty:'No one in this group yet',
+            empty_count:'empty', n_today:'{p} today', edit_group_hint:'Select who is in "{name}", then tap "Save changes"',
+            edit_group_default:'Editing group members', pause_coffee_short:'☕ Coffee', pause_smoke_short:'🚬 Smoke' },
+        de: { today:'Heute', tomorrow:'Morgen', yesterday:'Gestern', week:'Woche', add_group:'＋ Gruppe',
+            tab_day:'Tag', tab_week:'Woche', back_today:'↺ Zurück zu heute',
+            create_title:'Wann gehst du in die Mensa?', sec_time:'Zeit', sec_where:'Wohin',
+            exact_time:'Genaue Zeit', until_opt:'Bis wann (optional)', btn_book:'Eintragen',
+            btn_change_time:'Zeit ändern', bibcreate_title:'Wo lernst du?', sec_library:'Bibliothek',
+            sec_when_come:'Wann kommst du?', btn_i_come:'Ich komme', mode_only:'Nur…', mode_except:'Außer…',
+            ph_search:'Leute suchen…', ph_group_name:'Gruppenname…', btn_cancel:'Abbrechen', btn_save:'Speichern',
+            btn_save_changes:'Änderungen speichern', btn_edit_members:'Mitglieder ändern', btn_delete:'Löschen', btn_close:'Schließen',
+            act_join:'Mitmachen', act_leave:'Austragen', act_come_here:'Ich komme her', act_leave_here:'Ich gehe',
+            day_passed:'Tag ist vorbei', audience_title:'Wer sieht es?', inbound_title:'Von wem empfangen?', btn_done:'Fertig',
+            all_show:'Allen', all_recv:'Allen', empty_title:'Noch niemand', empty_desc:'Sei der Erste — tippe + und wähle eine Zeit',
+            bib_empty_short:'niemand · sei der Erste', bib_empty_long:'Noch niemand — sei der Erste', circle_empty:'Niemand in deinem Kreis',
+            you:'Du', guest:'Gast', grp_canteen:'Mensa', grp_more_canteens:'Weitere Mensen', grp_cafes:'Cafés', grp_pause:'Pause',
+            more_libs:'Weitere Bibliotheken', create_sub_today:'Heute · wähle Zeit und Ort',
+            lbl_in_only:'Nur von Ausgewählten', lbl_in_none:'Von niemandem', lbl_in_except:'Von allen außer Ausgewählten', lbl_in_all:'Von allen empfangen',
+            lbl_only:'Nur Ausgewählte sehen es', lbl_none:'Niemand sieht es', lbl_except:'Alle außer Ausgewählten sehen es', lbl_all:'Alle in deinem Kreis sehen es',
+            toast_left:'Du hast dich ausgetragen', toast_left_bib:'Du bist gegangen', toast_fail:'Fehlgeschlagen', toast_save_fail:'Speichern fehlgeschlagen',
+            toast_its_you:'Das bist du 🙂', toast_no_username:'Nutzer hat keinen @username', toast_no_past:'Kein Eintrag rückwirkend',
+            toast_time_passed:'Diese Zeit ist vorbei', toast_cancelled:'Dieser Eintrag wurde storniert', toast_setting_saved:'Einstellung gespeichert',
+            toast_pick_in_list:'Wähle zuerst Leute aus der Liste', toast_pick_for_group:'Wähle Leute für die Gruppe', toast_enter_name:'Gib einen Namen ein', toast_none_selected:'Niemand ausgewählt',
+            notif_on_title:'Benachrichtigungen an', notif_off_title:'Benachrichtigungen aus', toast_notif_on:'Benachrichtigungen an 🔔', toast_notif_off:'Benachrichtigungen aus 🔕',
+            toast_group_saved:'Gruppe „{name}" gespeichert', toast_group_updated:'Gruppe „{name}" aktualisiert', confirm_delete_group:'Gruppe „{name}" löschen?',
+            gm_title:'Gruppe „{name}"', gm_empty:'Noch niemand in der Gruppe',
+            empty_count:'leer', n_today:'{p} heute', edit_group_hint:'Wähle, wer in „{name}" ist, dann „Änderungen speichern"',
+            edit_group_default:'Mitglieder bearbeiten', pause_coffee_short:'☕ Kaffee', pause_smoke_short:'🚬 Rauchen' },
+    };
+    function detectLang() {
+        try { const sv = localStorage.getItem('app_lang'); if (sv && STRINGS[sv]) return sv; } catch (e) {}
+        return 'ru';
+    }
+    let lang = detectLang();
+    function tr(k, params) {
+        let v = (STRINGS[lang] && STRINGS[lang][k] != null) ? STRINGS[lang][k] : (STRINGS.en[k] != null ? STRINGS.en[k] : (STRINGS.ru[k] != null ? STRINGS.ru[k] : k));
+        if (params) for (const pk in params) v = v.split('{' + pk + '}').join(params[pk]);
+        return v;
+    }
+    function applyI18n() {
+        const lb = document.getElementById('lang-btn');
+        if (lb) lb.textContent = lang.toUpperCase();
+        document.querySelectorAll('#lang-menu .mode-item').forEach(it => it.classList.toggle('active', it.dataset.lang === lang));
+        const setT = (sel, key) => { const el = document.querySelector(sel); if (el) el.textContent = tr(key); };
+        const setP = (sel, key) => { const el = document.querySelector(sel); if (el) el.setAttribute('placeholder', tr(key)); };
+        setT('.tab[data-view="day"]', 'tab_day'); setT('.tab[data-view="week"]', 'tab_week');
+        setT('#today-btn', 'back_today'); setT('#bib-today-btn', 'back_today');
+        setT('#sheet-create .sheet-title', 'create_title');
+        setT('#sec-mensa-time', 'sec_time'); setT('#sec-mensa-where', 'sec_where');
+        setT('#custom-time-row .custom-time-label', 'exact_time'); setT('#mensa-until-row .custom-time-label', 'until_opt');
+        setT('#sheet-confirm', 'btn_book'); setT('#detail-edit', 'btn_change_time');
+        setT('#sheet-bib-create .sheet-title', 'bibcreate_title');
+        setT('#sec-bib-lib', 'sec_library'); setT('#sec-bib-when', 'sec_when_come');
+        setT('#bib-custom-time-row .custom-time-label', 'exact_time'); setT('#bib-until-row .custom-time-label', 'until_opt');
+        setT('#bib-confirm', 'btn_i_come'); setT('#bib-detail-edit', 'btn_change_time');
+        setT('#aud-modes .aud-mode[data-amode="only"]', 'mode_only'); setT('#aud-modes .aud-mode[data-amode="except"]', 'mode_except');
+        setP('#aud-search', 'ph_search'); setP('#aud-group-name', 'ph_group_name');
+        setT('#aud-group-cancel', 'btn_cancel'); setT('#aud-group-confirm', 'btn_save');
+        setT('#aud-edit-cancel', 'btn_cancel'); setT('#aud-edit-save', 'btn_save_changes');
+        setT('#gm-update', 'btn_edit_members'); setT('#gm-delete', 'btn_delete'); setT('#gm-close', 'btn_close');
+        setT('#aud-edit-label', 'edit_group_default');
+    }
+    function setLang(l) {
+        if (!STRINGS[l]) return;
+        lang = l;
+        try { localStorage.setItem('app_lang', l); } catch (e) {}
+        if (FIREBASE_READY && fbDb) update(ref(fbDb, `rooms/${roomId}/members/${currentUser.id}`), { lang: l }).catch(() => {});
+        applyI18n(); render(); haptic('light');
+    }
     /* ===== Mensas (order matters: Studi & Phil first) ===== */
     const MENSAS = [
         { id: 'studi',     name: 'Mensa Studierendenhaus',   short: 'Studierendenhaus' },
@@ -978,8 +1109,8 @@
         { id: 'cafe_zessp',       name: 'Café ZessP',            short: 'ZessP' },
     ];
     const PAUSE_PLACES = [
-        { id: 'pause_coffee', name: 'Кофе-пауза', short: '☕ Кофе' },
-        { id: 'pause_smoke',  name: 'Перекур',    short: '🚬 Курилка' },
+        { id: 'pause_coffee', name: 'Кофе-пауза', short: '☕ Кофе', shortKey: 'pause_coffee_short' },
+        { id: 'pause_smoke',  name: 'Перекур',    short: '🚬 Курилка', shortKey: 'pause_smoke_short' },
     ];
     const PLACE_GROUPS = [
         { label: 'Столовая',     open: true,  items: MENSAS },
@@ -1022,18 +1153,34 @@
         const yearStart = new Date(Date.UTC(date.getUTCFullYear(),0,1));
         return Math.ceil((((date - yearStart) / 86400000) + 1) / 7);
     }
-    const RU_DAYS_FULL = ['воскресенье','понедельник','вторник','среда','четверг','пятница','суббота'];
-    const RU_DAYS_SHORT = ['Вс','Пн','Вт','Ср','Чт','Пт','Сб'];
-    const RU_MONTHS_GEN = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
-    const RU_MONTHS_SHORT = ['янв','фев','мар','апр','мая','июн','июл','авг','сен','окт','ноя','дек'];
+    const L_DAYS_FULL = {
+        ru:['воскресенье','понедельник','вторник','среда','четверг','пятница','суббота'],
+        en:['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'],
+        de:['Sonntag','Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag'],
+    };
+    const L_DAYS_SHORT = {
+        ru:['Вс','Пн','Вт','Ср','Чт','Пт','Сб'],
+        en:['Su','Mo','Tu','We','Th','Fr','Sa'],
+        de:['So','Mo','Di','Mi','Do','Fr','Sa'],
+    };
+    const L_MONTHS_GEN = {
+        ru:['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'],
+        en:['January','February','March','April','May','June','July','August','September','October','November','December'],
+        de:['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'],
+    };
+    const L_MONTHS_SHORT = {
+        ru:['янв','фев','мар','апр','мая','июн','июл','авг','сен','окт','ноя','дек'],
+        en:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
+        de:['Jan','Feb','Mär','Apr','Mai','Jun','Jul','Aug','Sep','Okt','Nov','Dez'],
+    };
     function formatDayLabel(d) {
         const t = isoDate(new Date()), di = isoDate(d);
-        if (di === t) return 'Сегодня';
-        if (di === isoDate(addDays(new Date(), 1))) return 'Завтра';
-        if (di === isoDate(addDays(new Date(), -1))) return 'Вчера';
-        const n = RU_DAYS_FULL[d.getDay()]; return n.charAt(0).toUpperCase() + n.slice(1);
+        if (di === t) return tr('today');
+        if (di === isoDate(addDays(new Date(), 1))) return tr('tomorrow');
+        if (di === isoDate(addDays(new Date(), -1))) return tr('yesterday');
+        const n = L_DAYS_FULL[lang][d.getDay()]; return n.charAt(0).toUpperCase() + n.slice(1);
     }
-    const formatDayHint = d => `${d.getDate()} ${RU_MONTHS_GEN[d.getMonth()]}`;
+    const formatDayHint = d => `${d.getDate()} ${L_MONTHS_GEN[lang][d.getMonth()]}`;
     /* ===== Pluralization ===== */
     function pluralRu(n, forms) {
         // forms = [one, few, many]   e.g. ['человек','человека','человек']
@@ -1041,6 +1188,21 @@
         if (mod10 === 1 && mod100 !== 11) return forms[0];
         if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) return forms[1];
         return forms[2];
+    }
+    function nPeople(n) {
+        if (lang === 'en') return n + (n === 1 ? ' person' : ' people');
+        if (lang === 'de') return n + (n === 1 ? ' Person' : ' Personen');
+        return n + ' ' + pluralRu(n, ['человек','человека','человек']);
+    }
+    function nGroups(n) {
+        if (lang === 'en') return n + (n === 1 ? ' group' : ' groups');
+        if (lang === 'de') return n + (n === 1 ? ' Gruppe' : ' Gruppen');
+        return n + ' ' + pluralRu(n, ['группа','группы','групп']);
+    }
+    function goingTogether(n) {
+        if (lang === 'en') return nPeople(n) + ' going together';
+        if (lang === 'de') return nPeople(n) + ' gehen zusammen';
+        return `${nPeople(n)} ${pluralRu(n, ['идёт','идут','идут'])} вместе`;
     }
     /* ===== Time utils ===== */
     const TL_START_MIN = 10 * 60;   // 10:00
@@ -1176,7 +1338,7 @@
         if (name) {
             return { id: uid, name, username: (m && m.username) || (ep && ep.username) || null, photo_url: (m && m.photo_url) || (ep && ep.photo_url) || null };
         }
-        return MOCK[uid] || { id: uid, name: 'Гость', username: null, photo_url: null };
+        return MOCK[uid] || { id: uid, name: tr('guest'), username: null, photo_url: null };
     }
     function userInitials(u) { return (u.name || '?').trim().charAt(0).toUpperCase(); }
     function findMyEntry(dateIso) {
@@ -1309,7 +1471,7 @@
         const payload = { start, mensa, until: until || null, name: currentUser.name, username: currentUser.username || null, photo_url: currentUser.photo_url || null, audience: audience || { mode: 'all', ids: [] }, updatedAt: FIREBASE_READY ? serverTimestamp() : Date.now() };
         const mensaShort = MENSA_BY_ID[mensa]?.short || mensa;
         const oldE = findMyEntry(dateIso);
-        const dayTxt = `${currentDate.getDate()} ${RU_MONTHS_SHORT[currentDate.getMonth()]}`;
+        const dayTxt = `${currentDate.getDate()} ${L_MONTHS_SHORT[lang][currentDate.getMonth()]}`;
         if (FIREBASE_READY && fbDb) {
             try {
                 await set(ref(fbDb, `rooms/${roomId}/entries/${dateIso}/${currentUser.id}`), payload);
@@ -1336,7 +1498,7 @@
                 }
             } catch (e) {
                 console.error('setMyEntry failed', e);
-                showToast('Не удалось сохранить');
+                showToast(tr('toast_save_fail'));
             }
             return;
         }
@@ -1349,12 +1511,12 @@
     }
    async function removeMy(dateIso, audience) {
         const oldE = findMyEntry(dateIso);
-        const dayTxt = `${currentDate.getDate()} ${RU_MONTHS_SHORT[currentDate.getMonth()]}`;
+        const dayTxt = `${currentDate.getDate()} ${L_MONTHS_SHORT[lang][currentDate.getMonth()]}`;
         if (FIREBASE_READY && fbDb) {
             try {
                 await remove(ref(fbDb, `rooms/${roomId}/entries/${dateIso}/${currentUser.id}`));
                 haptic('medium');
-                showToast('Вы вышли');
+                showToast(tr('toast_left'));
                 if (oldE) {
                     const ms = MENSA_BY_ID[oldE.mensa]?.short || oldE.mensa;
                     notify(`🍜 <i>${nameLink()} отменяет — ${oldE.start} · ${esc(ms)} (${dayTxt})</i>`, null, audience);
@@ -1362,7 +1524,7 @@
                 }
             } catch (e) {
                 console.error('removeMy failed', e);
-                showToast('Не удалось');
+                showToast(tr('toast_fail'));
             }
             return;
         }
@@ -1372,18 +1534,18 @@
         else state.entries[dateIso] = e;
         saveLocalState();
         haptic('medium');
-        showToast('Вы вышли');
+        showToast(tr('toast_left'));
         render();
     }
     function openUserChat(user) {
-        if (user.isMe) { showToast('Это вы 🙂'); return; }
+        if (user.isMe) { showToast(tr('toast_its_you')); return; }
         haptic('light');
         if (user.username) {
             if (tg) tg.openTelegramLink(`https://t.me/${user.username}`);
             else window.open(`https://t.me/${user.username}`, '_blank');
         } else if (tg) {
             tg.openTelegramLink(`tg://user?id=${user.id}`);
-        } else showToast('У пользователя нет @username');
+        } else showToast(tr('toast_no_username'));
     }
     /* ===== Lane algorithm for visual overlaps ===== */
     function computeLanes(groups) {
@@ -1450,8 +1612,8 @@
             empty.className = 'empty-state';
             empty.innerHTML = `
                 <div class="icon">🍽️</div>
-                <div class="title">Пока никого</div>
-                <div class="desc">Будь первым — нажми + и выбери время</div>
+                <div class="title">${tr('empty_title')}</div>
+                <div class="desc">${tr('empty_desc')}</div>
             `;
             empty.style.position = 'absolute';
             empty.style.left = '0';
@@ -1503,10 +1665,9 @@
                 });
                 const cnt = document.createElement('span');
                 cnt.className = 'tl-count';
-                const peopleWord = pluralRu(userInfos.length, ['человек','человека','человек']);
                 cnt.textContent = userInfos.length > 3
-                    ? `+${userInfos.length - 3} · ${userInfos.length} ${peopleWord}`
-                    : `${userInfos.length} ${peopleWord}`;
+                    ? `+${userInfos.length - 3} · ${nPeople(userInfos.length)}`
+                    : nPeople(userInfos.length);
                 usersRow.appendChild(cnt);
                 block.appendChild(usersRow);
                 block.onclick = () => openDetailSheet(g.mensa, g.start);
@@ -1519,9 +1680,9 @@
     /* ===== Render: week view ===== */
     function renderWeekHeader() {
         const ws = weekStart, we = addDays(ws, 6);
-        document.getElementById('week-label').textContent = `KW ${getWeekNumber(ws)}`;
+        document.getElementById('week-label').textContent = `${tr('week')} ${getWeekNumber(ws)}`;
         document.getElementById('week-hint').textContent =
-            `${ws.getDate()} ${RU_MONTHS_SHORT[ws.getMonth()]} – ${we.getDate()} ${RU_MONTHS_SHORT[we.getMonth()]}`;
+            `${ws.getDate()} ${L_MONTHS_SHORT[lang][ws.getMonth()]} – ${we.getDate()} ${L_MONTHS_SHORT[lang][we.getMonth()]}`;
     }
     function renderWeekView() {
         renderWeekHeader();
@@ -1542,20 +1703,18 @@
             left.className = 'week-day-date';
             const name = document.createElement('div');
             name.className = 'week-day-name';
-            name.textContent = RU_DAYS_SHORT[d.getDay()];
+            name.textContent = L_DAYS_SHORT[lang][d.getDay()];
             const dnum = document.createElement('div');
             dnum.className = 'week-day-date-num';
-            dnum.textContent = `${d.getDate()} ${RU_MONTHS_SHORT[d.getMonth()]}`;
+            dnum.textContent = `${d.getDate()} ${L_MONTHS_SHORT[lang][d.getMonth()]}`;
             left.appendChild(name); left.appendChild(dnum);
             head.appendChild(left);
             const cnt = document.createElement('div');
             cnt.className = 'week-day-count' + (myE ? ' active' : '');
             if (groups.length === 0) {
-                cnt.textContent = 'пусто';
+                cnt.textContent = tr('empty_count');
             } else {
-                const peopleWord = pluralRu(totalUsers, ['человек','человека','человек']);
-                const groupWord = pluralRu(groups.length, ['группа','группы','групп']);
-                cnt.textContent = `${groups.length} ${groupWord} · ${totalUsers} ${peopleWord}`;
+                cnt.textContent = `${nGroups(groups.length)} · ${nPeople(totalUsers)}`;
             }
             head.appendChild(cnt);
             card.appendChild(head);
@@ -1632,11 +1791,12 @@
         const chip = document.createElement('button');
         chip.type = 'button';
         chip.className = 'mensa-chip';
-        chip.textContent = m.short;
+        chip.textContent = m.shortKey ? tr(m.shortKey) : m.short;
         chip.dataset.mensa = m.id;
         chip.onclick = () => { setSelectedMensa(m.id); haptic('light'); };
         return chip;
     }
+    const GRP_KEYS = { 'Столовая':'grp_canteen', 'Ещё столовые':'grp_more_canteens', 'Кафешки':'grp_cafes', 'Пауза':'grp_pause' };
     function renderPlaceGrid() {
         const host = document.getElementById('mensa-grid');
         host.innerHTML = '';
@@ -1650,7 +1810,7 @@
                 const head = document.createElement('button');
                 head.type = 'button';
                 head.className = 'place-group-head' + (grp.open ? ' open' : '');
-                head.innerHTML = '<span>' + grp.label + '</span><span class="pg-chev">▾</span>';
+                head.innerHTML = '<span>' + (GRP_KEYS[grp.label] ? tr(GRP_KEYS[grp.label]) : grp.label) + '</span><span class="pg-chev">▾</span>';
                 const body = document.createElement('div');
                 body.className = 'mensa-grid pg-body';
                 body.hidden = !grp.open;
@@ -1724,7 +1884,7 @@
         updateConfirmState();
         document.getElementById('sheet-create-sub').textContent =
             isoDate(currentDate) === isoDate(new Date())
-                ? 'Сегодня · выбери время и куда идёшь'
+                ? tr('create_sub_today')
                 : `${formatDayLabel(currentDate)}, ${formatDayHint(currentDate)}`;
         document.getElementById('sheet-create').hidden = false;
         document.getElementById('sheet-backdrop').classList.add('show');
@@ -1745,9 +1905,7 @@
         const g = groups.find(x => x.mensa === mensa && x.start === start);
         if (!g) return;
         document.getElementById('detail-time').textContent = start;
-        const peopleWord = pluralRu(g.users.length, ['человек','человека','человек']);
-        document.getElementById('detail-subtitle').textContent =
-            `${g.users.length} ${peopleWord} ${pluralRu(g.users.length, ['идёт','идут','идут'])} вместе`;
+        document.getElementById('detail-subtitle').textContent = goingTogether(g.users.length);
         document.getElementById('detail-mensa-name').textContent =
             MENSA_BY_ID[g.mensa]?.name || g.mensa;
         const usersDiv = document.getElementById('detail-users');
@@ -1778,10 +1936,10 @@
         const iAmHere = myE && myE.start === start && myE.mensa === mensa;
         const btn = document.getElementById('detail-action');
         if (!iAmHere && isPastDate()) {
-            btn.textContent = 'День уже прошёл';
+            btn.textContent = tr('day_passed');
             btn.className = 'sheet-action past-off';
         } else {
-            btn.textContent = iAmHere ? 'Выйти' : 'Присоединиться';
+            btn.textContent = iAmHere ? tr('act_leave') : tr('act_join');
             btn.className = 'sheet-action' + (iAmHere ? ' secondary' : '');
         }
         document.getElementById('detail-edit').hidden = !iAmHere;
@@ -1855,12 +2013,12 @@
                 cnt.className = 'bib-count';
                 cnt.style.color = b.color;
                 cnt.style.background = bibHexA(b.color, 0.18);
-                cnt.textContent = `${ppl.length} ${pluralRu(ppl.length, ['человек','человека','человек'])}`;
+                cnt.textContent = nPeople(ppl.length);
                 top.appendChild(cnt);
             } else {
                 const e = document.createElement('div');
                 e.className = 'bib-empty-txt';
-                e.textContent = 'никого · будь первым';
+                e.textContent = tr('bib_empty_short');
                 top.appendChild(e);
             }
             card.appendChild(top);
@@ -1872,7 +2030,7 @@
                     const chip = document.createElement('span');
                     chip.className = 'bib-pchip';
                     if (u.isMe) { chip.style.background = b.color; chip.style.color = '#fff'; }
-                    chip.textContent = (u.isMe ? 'Вы' : (u.name || 'Гость')) + ' · ' + p.from + (p.until ? (' → ' + p.until) : '');
+                    chip.textContent = (u.isMe ? tr('you') : (u.name || tr('guest'))) + ' · ' + p.from + (p.until ? (' → ' + p.until) : '');
                     chips.appendChild(chip);
                 });
                 card.appendChild(chips);
@@ -1883,9 +2041,9 @@
     }
     function renderBibWeek() {
         const ws = weekStart, we = addDays(ws, 6);
-        document.getElementById('bib-week-label').textContent = `KW ${getWeekNumber(ws)}`;
+        document.getElementById('bib-week-label').textContent = `${tr('week')} ${getWeekNumber(ws)}`;
         document.getElementById('bib-week-hint').textContent =
-            `${ws.getDate()} ${RU_MONTHS_SHORT[ws.getMonth()]} – ${we.getDate()} ${RU_MONTHS_SHORT[we.getMonth()]}`;
+            `${ws.getDate()} ${L_MONTHS_SHORT[lang][ws.getMonth()]} – ${we.getDate()} ${L_MONTHS_SHORT[lang][we.getMonth()]}`;
         const list = document.getElementById('bib-week-list');
         list.innerHTML = '';
         const todayIso = isoDate(new Date());
@@ -1902,15 +2060,15 @@
             left.className = 'week-day-date';
             const name = document.createElement('div');
             name.className = 'week-day-name';
-            name.textContent = RU_DAYS_SHORT[d.getDay()];
+            name.textContent = L_DAYS_SHORT[lang][d.getDay()];
             const dnum = document.createElement('div');
             dnum.className = 'week-day-date-num';
-            dnum.textContent = `${d.getDate()} ${RU_MONTHS_SHORT[d.getMonth()]}`;
+            dnum.textContent = `${d.getDate()} ${L_MONTHS_SHORT[lang][d.getMonth()]}`;
             left.appendChild(name); left.appendChild(dnum);
             head.appendChild(left);
             const cnt = document.createElement('div');
             cnt.className = 'week-day-count' + (mine ? ' active' : '');
-            cnt.textContent = total ? `${total} ${pluralRu(total, ['человек','человека','человек'])}` : 'пусто';
+            cnt.textContent = total ? nPeople(total) : tr('empty_count');
             head.appendChild(cnt);
             card.appendChild(head);
             if (total > 0) {
@@ -1980,7 +2138,7 @@
         host.appendChild(g0);
         const head = document.createElement('button');
         head.type = 'button'; head.className = 'place-group-head';
-        head.innerHTML = '<span>Ещё бибки</span><span class="pg-chev">▾</span>';
+        head.innerHTML = '<span>' + tr('more_libs') + '</span><span class="pg-chev">▾</span>';
         const body = document.createElement('div'); body.className = 'mensa-grid pg-body'; body.hidden = true;
         BIBS_MORE.forEach(b => body.appendChild(makeBibChip(b)));
         head.onclick = () => { body.hidden = !body.hidden; head.classList.toggle('open', !body.hidden); haptic('light'); };
@@ -2040,7 +2198,7 @@
     }
     function bibConfirm() {
         if (!(bibSel.bib && bibSel.time)) return;
-        if (isPastTimeToday(bibSel.time)) { showToast('Это время уже прошло'); return; }
+        if (isPastTimeToday(bibSel.time)) { showToast(tr('toast_time_passed')); return; }
         const di = isoDate(currentDate);
         const ui = document.getElementById('bib-until-input');
         const until = (ui && ui.value) ? ui.value : null;
@@ -2056,7 +2214,7 @@
     async function setMyBib(dateIso, bib, from, until, audience) {
         const lib = BIB_BY_ID[bib];
         const oldE = bibFindMine(dateIso);
-        const dayTxt = `${currentDate.getDate()} ${RU_MONTHS_SHORT[currentDate.getMonth()]}`;
+        const dayTxt = `${currentDate.getDate()} ${L_MONTHS_SHORT[lang][currentDate.getMonth()]}`;
         const untilTxt = until ? ` до ${until}` : '';
         if (FIREBASE_READY && fbDb) {
             try {
@@ -2079,7 +2237,7 @@
                     notify(`📚 <i>${nameLink()} идёт в ${lib.name} с ${from}${untilTxt} (${dayTxt})</i>`, dl, audience);
                     notifySelf(`<i>✅ Вы в ${esc(lib.name)} с ${from}${untilTxt} (${dayTxt})</i>`);
                 }
-            } catch (e) { console.error('setMyBib failed', e); showToast('Не удалось сохранить'); }
+            } catch (e) { console.error('setMyBib failed', e); showToast(tr('toast_save_fail')); }
             return;
         }
         if (!state.bib[dateIso]) state.bib[dateIso] = {};
@@ -2088,24 +2246,24 @@
     }
     async function removeMyBib(dateIso, audience) {
         const oldE = bibFindMine(dateIso);
-        const dayTxt = `${currentDate.getDate()} ${RU_MONTHS_SHORT[currentDate.getMonth()]}`;
+        const dayTxt = `${currentDate.getDate()} ${L_MONTHS_SHORT[lang][currentDate.getMonth()]}`;
         if (FIREBASE_READY && fbDb) {
             try {
                 await remove(ref(fbDb, `rooms/${roomId}/bib/${dateIso}/${currentUser.id}`));
-                haptic('medium'); showToast('Вы ушли');
+                haptic('medium'); showToast(tr('toast_left_bib'));
                 if (oldE) {
                     const lib = BIB_BY_ID[oldE.bib];
                     const nm = lib ? lib.name : oldE.bib;
                     notify(`📚 <i>${nameLink()} уходит из ${esc(nm)} (${dayTxt})</i>`, null, audience);
                     notifySelf(`<i>❌ Вы ушли из ${esc(nm)} (${dayTxt})</i>`);
                 }
-            } catch (e) { console.error('removeMyBib failed', e); showToast('Не удалось'); }
+            } catch (e) { console.error('removeMyBib failed', e); showToast(tr('toast_fail')); }
             return;
         }
         const day = state.bib[dateIso] || {};
         delete day[currentUser.id];
         if (Object.keys(day).length === 0) delete state.bib[dateIso]; else state.bib[dateIso] = day;
-        saveLocalState(); haptic('medium'); showToast('Вы ушли'); render();
+        saveLocalState(); haptic('medium'); showToast(tr('toast_left_bib')); render();
     }
     function openBibDetail(bibId) {
         bibDetailId = bibId;
@@ -2114,8 +2272,8 @@
         const ppl = bibPeople(di, bibId);
         document.getElementById('bib-detail-name').innerHTML = `${lib.emoji} ${lib.name}`;
         document.getElementById('bib-detail-sub').textContent = ppl.length
-            ? `${ppl.length} ${pluralRu(ppl.length, ['человек','человека','человек'])} сегодня`
-            : 'Пока никого — будь первым';
+            ? tr('n_today', {p: nPeople(ppl.length)})
+            : tr('bib_empty_long');
         const usersDiv = document.getElementById('bib-detail-users');
         usersDiv.innerHTML = '';
         ppl.forEach(p => {
@@ -2130,7 +2288,7 @@
             else { av.style.backgroundColor = u.isMe ? '#fff' : colorFor(u.id || p.uid); av.style.color = u.isMe ? lib.color : '#fff'; av.textContent = userInitials(u); }
             const name = document.createElement('span');
             name.className = 'user-name';
-            name.textContent = (u.isMe ? 'Вы' : (u.name || 'Гость')) + ' · ' + p.from + (p.until ? (' → ' + p.until) : '');
+            name.textContent = (u.isMe ? tr('you') : (u.name || tr('guest'))) + ' · ' + p.from + (p.until ? (' → ' + p.until) : '');
             chip.appendChild(av); chip.appendChild(name);
             chip.onclick = () => openUserChat(u);
             usersDiv.appendChild(chip);
@@ -2139,11 +2297,11 @@
         const iAmHere = mine && mine.bib === bibId;
         const btn = document.getElementById('bib-detail-action');
         if (!iAmHere && isPastDate()) {
-            btn.textContent = 'День уже прошёл';
+            btn.textContent = tr('day_passed');
             btn.className = 'sheet-action past-off';
             btn.style.background = '';
         } else {
-            btn.textContent = iAmHere ? 'Я ухожу отсюда' : 'Я приду сюда';
+            btn.textContent = iAmHere ? tr('act_leave_here') : tr('act_come_here');
             btn.className = 'sheet-action' + (iAmHere ? ' secondary' : '');
             btn.style.background = iAmHere ? '' : lib.color;
         }
@@ -2213,21 +2371,21 @@
     function audActiveLabel() {
         const _sel = Object.keys(audSel).filter(x => audSel[x]).length;
         if (audView === 'inbound') {
-            if (audMode === 'only') return _sel ? 'Получать только от выбранных' : 'Ни от кого';
-            if (audMode === 'except') return 'Получать от всех, кроме выбранных';
-            return 'Получать сообщения от всех';
+            if (audMode === 'only') return _sel ? tr('lbl_in_only') : tr('lbl_in_none');
+            if (audMode === 'except') return tr('lbl_in_except');
+            return tr('lbl_in_all');
         }
-        if (audMode === 'only') return _sel ? 'Увидят только выбранные' : 'Никто не увидит';
-        if (audMode === 'except') return 'Увидят все, кроме выбранных';
-        return 'Запись увидят все в твоём круге';
+        if (audMode === 'only') return _sel ? tr('lbl_only') : tr('lbl_none');
+        if (audMode === 'except') return tr('lbl_except');
+        return tr('lbl_all');
     }
     function applyAudView() {
         const inb = audView === 'inbound';
-        document.getElementById('aud-title').textContent = inb ? 'От кого получать?' : 'Кому показать?';
+        document.getElementById('aud-title').textContent = inb ? tr('inbound_title') : tr('audience_title');
         document.getElementById('aud-gear').classList.toggle('active', inb);
-        document.getElementById('aud-confirm').textContent = inb ? 'Сохранить' : 'Готово';
+        document.getElementById('aud-confirm').textContent = inb ? tr('btn_save') : tr('btn_done');
         const _allBtn = document.querySelector('#aud-modes .aud-mode[data-amode="all"]');
-        if (_allBtn) _allBtn.textContent = inb ? 'Всех' : 'Всем';
+        if (_allBtn) _allBtn.textContent = inb ? tr('all_recv') : tr('all_show');
         document.getElementById('aud-sub').textContent = audActiveLabel();
     }
     function _seedModeSel() {
@@ -2265,7 +2423,7 @@
         if (save) {
             const ids = Object.keys(audSel).filter(x => audSel[x]);
             saveInbound({ mode: audMode, ids: (audMode === 'all') ? [] : ids });
-            showToast('Настройка сохранена');
+            showToast(tr('toast_setting_saved'));
         }
         const sv = _savedAud || { mode: 'all', sel: {}, group: null };
         audMode = sv.mode; audSel = { ...sv.sel }; activeGroupId = sv.group;
@@ -2331,24 +2489,24 @@
             wrap.appendChild(chip);
         });
         const add = document.createElement('div');
-        add.className = 'aud-gchip add'; add.textContent = '＋ Группа';
+        add.className = 'aud-gchip add'; add.textContent = tr('add_group');
         add.onclick = () => { haptic('light'); openGroupSave(); };
         wrap.appendChild(add);
     }
     function openGroupModal(pool) {
         modalPool = pool;
-        document.getElementById('gm-title').textContent = 'Группа «' + pool.name + '»';
+        document.getElementById('gm-title').textContent = tr('gm_title', {name: pool.name});
         const list = document.getElementById('gm-members');
         list.innerHTML = '';
         const ids = (pool.ids || []);
-        if (!ids.length) { list.innerHTML = '<div class="gm-empty">В группе пока никого</div>'; }
+        if (!ids.length) { list.innerHTML = '<div class="gm-empty">' + tr('gm_empty') + '</div>'; }
         else ids.forEach(id => {
             const u = getUserInfo(id);
             const row = document.createElement('div'); row.className = 'gm-member';
             const av = document.createElement('div'); av.className = 'avatar';
             if (u.photo_url) { av.style.backgroundImage = `url(${u.photo_url})`; }
             else { av.style.backgroundColor = colorFor(id); av.textContent = userInitials(u); }
-            const nm = document.createElement('div'); nm.className = 'gm-mname'; nm.textContent = u.name || 'Гость';
+            const nm = document.createElement('div'); nm.className = 'gm-mname'; nm.textContent = u.name || tr('guest');
             row.appendChild(av); row.appendChild(nm); list.appendChild(row);
         });
         const _bd = document.getElementById('gm-backdrop');
@@ -2365,12 +2523,12 @@
     }
     function updatePool(id) {
         const sel = Object.keys(audSel).filter(x => audSel[x]);
-        if (!sel.length) { showToast('Сначала отметь людей в списке'); return false; }
+        if (!sel.length) { showToast(tr('toast_pick_in_list')); return false; }
         const pools = loadPools();
         const p = pools.find(x => x.id === id);
         if (!p) return false;
         p.ids = sel; savePools(pools); renderAudGroups();
-        showToast('Группа «' + p.name + '» обновлена');
+        showToast(tr('toast_group_updated', {name: p.name}));
         return true;
     }
     function startEditGroup(pool) {
@@ -2378,7 +2536,7 @@
         applyPool(pool);
         editingGroupId = pool.id;
         document.getElementById('aud-groupsave').hidden = true;
-        document.getElementById('aud-edit-label').textContent = 'Отметь, кто в группе «' + pool.name + '», и нажми «Сохранить изменения»';
+        document.getElementById('aud-edit-label').textContent = tr('edit_group_hint', {name: pool.name});
         document.getElementById('aud-groupedit').hidden = false;
     }
     function saveGroupEdit() {
@@ -2398,20 +2556,20 @@
         document.getElementById('aud-group-name').value = '';
         renderAudGroups();
         renderAudPeople(document.getElementById('aud-search').value);
-        showToast('Отметь людей для группы');
+        showToast(tr('toast_pick_for_group'));
     }
     function closeGroupSave() { const b = document.getElementById('aud-groupsave'); if (b) b.hidden = true; }
     function confirmGroupSave() {
         const inp = document.getElementById('aud-group-name');
         const name = (inp.value || '').trim();
         const sel = Object.keys(audSel).filter(id => audSel[id]);
-        if (!name) { showToast('Введи название'); return; }
-        if (!sel.length) { showToast('Никто не выбран'); return; }
+        if (!name) { showToast(tr('toast_enter_name')); return; }
+        if (!sel.length) { showToast(tr('toast_none_selected')); return; }
         const pools = loadPools();
         const np = { id: 'p' + Date.now(), name: name.slice(0, 24), ids: sel };
         pools.push(np); savePools(pools);
         activeGroupId = np.id; closeGroupSave(); renderAudGroups();
-        showToast('Группа «' + name + '» сохранена');
+        showToast(tr('toast_group_saved', {name}));
     }
     function slotPeopleFor(p) {
         if (!p) return [];
@@ -2468,7 +2626,7 @@
             const e = (state.entries[di] || {})[uid];
             if (!e || !canSee(uid, e)) return null;
             const m = MENSA_BY_ID[e.mensa];
-            return m ? { text: m.short, color: '#6366f1' } : null;
+            return m ? { text: m.shortKey ? tr(m.shortKey) : m.short, color: '#6366f1' } : null;
         }
     }
     function renderAudPeople(filter) {
@@ -2478,7 +2636,7 @@
         const f = (filter || '').trim().toLowerCase();
         let ids = relevanceOrder();
         if (f) ids = ids.filter(id => (getUserInfo(id).name || '').toLowerCase().indexOf(f) !== -1);
-        if (!ids.length) { wrap.innerHTML = '<div class="bib-empty-txt" style="padding:10px">Пока никого в круге</div>'; return; }
+        if (!ids.length) { wrap.innerHTML = '<div class="bib-empty-txt" style="padding:10px">' + tr('circle_empty') + '</div>'; return; }
         ids.forEach(id => {
             const u = getUserInfo(id);
             const info = audPlace(id);
@@ -2489,7 +2647,7 @@
             av.className = 'avatar';
             if (u.photo_url) { av.style.backgroundImage = `url(${u.photo_url})`; }
             else { av.style.backgroundColor = colorFor(id); av.textContent = userInitials(u); }
-            const nm = document.createElement('div'); nm.className = 'aud-name'; nm.textContent = u.name || 'Гость';
+            const nm = document.createElement('div'); nm.className = 'aud-name'; nm.textContent = u.name || tr('guest');
             row.appendChild(av); row.appendChild(nm);
             if (info) { const pl = document.createElement('div'); pl.className = 'aud-place'; pl.textContent = info.text; pl.style.color = info.color; row.appendChild(pl); }
             const ck = document.createElement('div'); ck.className = 'aud-check'; ck.textContent = checked ? '✓' : '';
@@ -2532,7 +2690,7 @@
     function renderBell() {
         const on = state.members?.[currentUser.id]?.notify !== false;
         const b = document.getElementById('bell-btn');
-        if (b) { b.textContent = on ? '🔔' : '🔕'; b.title = on ? 'Уведомления включены' : 'Уведомления выключены'; }
+        if (b) { b.textContent = on ? '🔔' : '🔕'; b.title = on ? tr('notif_on_title') : tr('notif_off_title'); }
     }
     document.getElementById('bell-btn').onclick = () => {
         haptic('light');
@@ -2541,7 +2699,7 @@
         if (FIREBASE_READY && fbDb) {
             update(ref(fbDb, `rooms/${roomId}/members/${currentUser.id}`), { notify: next }).catch(() => {});
         }
-        showToast(next ? 'Уведомления включены 🔔' : 'Уведомления выключены 🔕');
+        showToast(next ? tr('toast_notif_on') : tr('toast_notif_off'));
         if (next && !localStorage.getItem('bot_started')) {
             localStorage.setItem('bot_started', '1');
             const url = 'https://t.me/mensacrew_bot?start=on';
@@ -2549,7 +2707,7 @@
         }
         renderBell();
     };
-    document.getElementById('fab').onclick = () => { haptic('light'); if (isPastDate()) { showToast('Нельзя записаться задним числом'); return; } if (mode === 'bib') openBibCreate(); else openCreateSheet(); };
+    document.getElementById('fab').onclick = () => { haptic('light'); if (isPastDate()) { showToast(tr('toast_no_past')); return; } if (mode === 'bib') openBibCreate(); else openCreateSheet(); };
     document.getElementById('credit').onclick = () => {
         const u = 'https://www.linkedin.com/in/diyorbek-omonov-0734b8264';
         if (tg?.openLink) tg.openLink(u); else window.open(u, '_blank');
@@ -2558,7 +2716,7 @@
     [['sheet-create', closeCreateSheet], ['sheet-detail', closeDetailSheet], ['sheet-bib-create', closeBibCreate], ['sheet-bib-detail', closeBibDetail], ['sheet-audience', closeAudience]].forEach(([id, fn]) => makeSheetDraggable(document.getElementById(id), fn));
     document.getElementById('sheet-confirm').onclick = () => {
         if (selectedTime && selectedMensa) {
-            if (isPastTimeToday(selectedTime)) { showToast('Это время уже прошло'); return; }
+            if (isPastTimeToday(selectedTime)) { showToast(tr('toast_time_passed')); return; }
             const d = isoDate(currentDate), s = selectedTime, m = selectedMensa;
             const _ui = document.getElementById('mensa-until-input');
             const _until = (_ui && _ui.value) ? _ui.value : null;
@@ -2597,7 +2755,7 @@
         const mm = document.getElementById('mode-menu');
         mm.hidden = !mm.hidden;
     };
-    document.querySelectorAll('.mode-item').forEach(it => it.onclick = () => {
+    document.querySelectorAll('#mode-menu .mode-item').forEach(it => it.onclick = () => {
         mode = it.dataset.mode;
         try { localStorage.setItem('app_mode', mode); } catch (e) {}
         document.getElementById('mode-menu').hidden = true;
@@ -2607,9 +2765,13 @@
         render();
         haptic('light');
     });
+    document.getElementById('lang-btn').onclick = (e) => { e.stopPropagation(); const lm = document.getElementById('lang-menu'); lm.hidden = !lm.hidden; };
+    document.querySelectorAll('#lang-menu .mode-item').forEach(it => it.onclick = () => { setLang(it.dataset.lang); document.getElementById('lang-menu').hidden = true; });
     document.addEventListener('click', () => {
         const mm = document.getElementById('mode-menu');
         if (mm && !mm.hidden) mm.hidden = true;
+        const lm = document.getElementById('lang-menu');
+        if (lm && !lm.hidden) lm.hidden = true;
     });
     document.getElementById('bib-prev-day').onclick = () => { currentDate = addDays(currentDate, -1); render(); haptic('light'); };
     document.getElementById('bib-next-day').onclick = () => { currentDate = addDays(currentDate, +1); render(); haptic('light'); };
@@ -2656,8 +2818,8 @@
         if (!modalPool) return;
         const p = modalPool;
         const go = () => { savePools(loadPools().filter(x => x.id !== p.id)); if (activeGroupId === p.id) activeGroupId = null; renderAudGroups(); closeGroupModal(); };
-        if (tg?.showConfirm) tg.showConfirm('Удалить группу «' + p.name + '»?', (ok) => { if (ok) go(); });
-        else if (confirm('Удалить группу «' + p.name + '»?')) go();
+        if (tg?.showConfirm) tg.showConfirm(tr('confirm_delete_group', {name: p.name}), (ok) => { if (ok) go(); });
+        else if (confirm(tr('confirm_delete_group', {name: p.name}))) go();
     };
     document.getElementById('gm-close').onclick = () => closeGroupModal();
     document.getElementById('gm-backdrop').onclick = () => closeGroupModal();
@@ -2678,10 +2840,11 @@
     }
     if (pendingNav || pendingBibNav) {
         setTimeout(() => {
-            if (pendingNav) { pendingNav = null; showToast('Эта запись отменена'); }
-            if (pendingBibNav) { pendingBibNav = null; showToast('Эта запись отменена'); }
+            if (pendingNav) { pendingNav = null; showToast(tr('toast_cancelled')); }
+            if (pendingBibNav) { pendingBibNav = null; showToast(tr('toast_cancelled')); }
         }, 3500);
     }
+    applyI18n();
     render();
     /* ===== Kick off Firebase live sync ===== */
     ensureAuth().finally(() => startFirebaseSync());
