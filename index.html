@@ -967,7 +967,7 @@
             lbl_only:'Увидят только выбранные', lbl_none:'Никто не увидит', lbl_except:'Увидят все, кроме выбранных', lbl_all:'Запись увидят все в твоём круге',
             toast_left:'Вы вышли', toast_left_bib:'Вы ушли', toast_fail:'Не удалось', toast_save_fail:'Не удалось сохранить',
             toast_its_you:'Это вы 🙂', toast_no_username:'У пользователя нет @username', toast_no_past:'Нельзя записаться задним числом',
-            toast_time_passed:'Это время уже прошло', toast_cancelled:'Эта запись отменена', toast_setting_saved:'Настройка сохранена',
+            toast_until_before:'Уйти можно только позже прихода', toast_time_passed:'Это время уже прошло', toast_cancelled:'Эта запись отменена', toast_setting_saved:'Настройка сохранена',
             toast_pick_in_list:'Сначала отметь людей в списке', toast_pick_for_group:'Отметь людей для группы', toast_enter_name:'Введи название', toast_none_selected:'Никто не выбран',
             notif_on_title:'Уведомления включены', notif_off_title:'Уведомления выключены', toast_notif_on:'Уведомления включены 🔔', toast_notif_off:'Уведомления выключены 🔕',
             toast_group_saved:'Группа «{name}» сохранена', toast_group_updated:'Группа «{name}» обновлена', confirm_delete_group:'Удалить группу «{name}»?',
@@ -998,7 +998,7 @@
             lbl_only:'Only selected will see', lbl_none:'Nobody will see', lbl_except:'Everyone except selected will see', lbl_all:'Everyone in your circle will see',
             toast_left:'You left', toast_left_bib:'You left', toast_fail:'Failed', toast_save_fail:"Couldn't save",
             toast_its_you:"That's you 🙂", toast_no_username:'User has no @username', toast_no_past:"Can't book in the past",
-            toast_time_passed:'That time has passed', toast_cancelled:'This entry was cancelled', toast_setting_saved:'Setting saved',
+            toast_until_before:'Leave time must be after arrival', toast_time_passed:'That time has passed', toast_cancelled:'This entry was cancelled', toast_setting_saved:'Setting saved',
             toast_pick_in_list:'First select people in the list', toast_pick_for_group:'Select people for the group', toast_enter_name:'Enter a name', toast_none_selected:'Nobody selected',
             notif_on_title:'Notifications on', notif_off_title:'Notifications off', toast_notif_on:'Notifications on 🔔', toast_notif_off:'Notifications off 🔕',
             toast_group_saved:'Group "{name}" saved', toast_group_updated:'Group "{name}" updated', confirm_delete_group:'Delete group "{name}"?',
@@ -1029,7 +1029,7 @@
             lbl_only:'Nur Ausgewählte sehen es', lbl_none:'Niemand sieht es', lbl_except:'Alle außer Ausgewählten sehen es', lbl_all:'Alle in deinem Kreis sehen es',
             toast_left:'Du hast dich ausgetragen', toast_left_bib:'Du bist gegangen', toast_fail:'Fehlgeschlagen', toast_save_fail:'Speichern fehlgeschlagen',
             toast_its_you:'Das bist du 🙂', toast_no_username:'Nutzer hat keinen @username', toast_no_past:'Kein Eintrag rückwirkend',
-            toast_time_passed:'Diese Zeit ist vorbei', toast_cancelled:'Dieser Eintrag wurde storniert', toast_setting_saved:'Einstellung gespeichert',
+            toast_until_before:'Endzeit muss nach Ankunft liegen', toast_time_passed:'Diese Zeit ist vorbei', toast_cancelled:'Dieser Eintrag wurde storniert', toast_setting_saved:'Einstellung gespeichert',
             toast_pick_in_list:'Wähle zuerst Leute aus der Liste', toast_pick_for_group:'Wähle Leute für die Gruppe', toast_enter_name:'Gib einen Namen ein', toast_none_selected:'Niemand ausgewählt',
             notif_on_title:'Benachrichtigungen an', notif_off_title:'Benachrichtigungen aus', toast_notif_on:'Benachrichtigungen an 🔔', toast_notif_off:'Benachrichtigungen aus 🔕',
             toast_group_saved:'Gruppe „{name}" gespeichert', toast_group_updated:'Gruppe „{name}" aktualisiert', confirm_delete_group:'Gruppe „{name}" löschen?',
@@ -2239,6 +2239,7 @@
         const ui = document.getElementById('bib-until-input');
         const until = (ui && ui.value) ? ui.value : null;
         const b = bibSel.bib, f = bibSel.time;
+        if (until && timeToMin(until) <= timeToMin(f)) { showToast(tr('toast_until_before')); return; }
         const _old = bibFindMine(di);
         let _pre = {};
         if (_old) {
@@ -2756,6 +2757,7 @@
             const d = isoDate(currentDate), s = selectedTime, m = selectedMensa;
             const _ui = document.getElementById('mensa-until-input');
             const _until = (_ui && _ui.value) ? _ui.value : null;
+            if (_until && timeToMin(_until) <= timeToMin(s)) { showToast(tr('toast_until_before')); return; }
             const _old = findMyEntry(d);
             let _pre = {};
             if (_old) {
@@ -2827,16 +2829,24 @@
             requestAudience({ type: 'leave-bib', dateIso: di, bib: id, presetMode: 'only', presetIds: _slot });
         } else { closeBibDetail(); openBibCreate(id); }
     };
+    const _amSel = o => Object.keys(o).filter(k => o[k]).length;
     document.querySelectorAll('#aud-modes .aud-mode').forEach(b => b.onclick = () => {
-        if (audMode === 'only') _modeSel.only = { ...audSel };
-        else if (audMode === 'except') _modeSel.except = { ...audSel };
-        audMode = b.dataset.amode;
-        if (audMode === 'only') audSel = { ..._modeSel.only };
-        else if (audMode === 'except') audSel = { ..._modeSel.except };
-        else audSel = {};
+        const amode = b.dataset.amode;
+        if (audMode === 'only' && _amSel(audSel)) _modeSel.only = { ...audSel };
+        else if (audMode === 'except' && _amSel(audSel)) _modeSel.except = { ...audSel };
+        if (amode === 'all') {
+            if (audMode === 'all') { audMode = 'only'; audSel = {}; }
+            else { audMode = 'all'; audSel = {}; }
+        } else if (amode === 'only') {
+            if (audMode === 'only') {
+                if (_amSel(audSel)) audSel = {};
+                else audSel = { ..._modeSel.only };
+            } else { audMode = 'only'; audSel = { ..._modeSel.only }; }
+        } else { audMode = 'except'; audSel = { ..._modeSel.except }; }
         activeGroupId = null;
         renderAudGroups();
-        document.querySelectorAll('#aud-modes .aud-mode').forEach(x => x.classList.toggle('active', x === b));
+        const _hl = (amode === 'all') ? 'all' : amode;
+        document.querySelectorAll('#aud-modes .aud-mode').forEach(x => x.classList.toggle('active', x.dataset.amode === _hl));
         document.getElementById('aud-people-wrap').hidden = false;
         document.getElementById('aud-sub').textContent = audActiveLabel();
         renderAudPeople(document.getElementById('aud-search').value);
