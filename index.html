@@ -934,7 +934,6 @@
         <div class="gm-title" id="qr-title">Пригласить в друзья</div>
         <div class="qr-box" id="qr-box"></div>
         <div class="qr-hint" id="qr-hint">Друг сканирует код — и вы в друзьях</div>
-        <button class="gm-btn" id="qr-copy" type="button">Скопировать ссылку</button>
         <button class="gm-close" id="qr-close" type="button">Закрыть</button>
     </div>
     <div class="toast" id="toast"></div>
@@ -1156,7 +1155,7 @@
         setT('#menu-lang-label', 'menu_lang'); setT('#menu-friends-label', 'menu_friends');
         setT('#friends-title', 'friends_title'); setT('#friends-sub', 'friends_sub');
         setT('#fr-invite-label', 'fr_invite'); setT('#fr-qr-label', 'fr_qr'); setP('#fr-search', 'fr_search');
-        setT('#qr-title', 'qr_title'); setT('#qr-hint', 'qr_hint'); setT('#qr-copy', 'qr_copy'); setT('#qr-close', 'btn_close');
+        setT('#qr-title', 'qr_title'); setT('#qr-hint', 'qr_hint'); setT('#qr-close', 'btn_close');
     }
     function setLang(l) {
         if (!STRINGS[l]) return;
@@ -2516,7 +2515,8 @@
         } catch (e) { showToast(tr('toast_fail')); }
     }
     function shareInvite(link) {
-        const shareUrl = 'https://t.me/share/url?url=' + encodeURIComponent(link) + '&text=' + encodeURIComponent(tr('fr_invite_text', { name: currentUser.name }));
+        const _txt = 'Be friends with ' + currentUser.name + ' on Campus Meet 👋';
+        const shareUrl = 'https://t.me/share/url?url=' + encodeURIComponent(link) + '&text=' + encodeURIComponent(_txt);
         if (tg?.openTelegramLink) tg.openTelegramLink(shareUrl);
         else { try { navigator.clipboard.writeText(link); showToast(tr('fr_link_copied')); } catch (e) { showToast(link); } }
     }
@@ -3106,7 +3106,6 @@
     document.getElementById('gm-backdrop').onclick = () => closeGroupModal();
     document.getElementById('qr-close').onclick = () => closeQR();
     document.getElementById('qr-backdrop').onclick = () => closeQR();
-    document.getElementById('qr-copy').onclick = () => { if (_qrLink) { try { navigator.clipboard.writeText(_qrLink); showToast(tr('fr_link_copied')); } catch (e) { showToast(_qrLink); } } };
    let pendingNav = null;
     if (navDate && navTime && navMensa) {
         currentDate = new Date(+navDate.slice(0,4), +navDate.slice(4,6)-1, +navDate.slice(6,8));
