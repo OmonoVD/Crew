@@ -482,6 +482,8 @@
         }
         .custom-time-row { cursor: pointer; }
         #bib-custom-time-row, #bib-until-row { min-height: 56px; padding: 14px 14px; }
+        .now-row { width: 100%; margin-top: 10px; min-height: 52px; padding: 0 12px; border-radius: 10px; background-color: var(--accent-softer); border: 1px solid var(--accent-soft); color: var(--accent); font-size: 15px; font-weight: 700; font-family: inherit; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .now-row:active { transform: scale(0.99); }
         /* ===== Mensa chips ===== */
         .mensa-grid {
             display: grid;
@@ -600,6 +602,8 @@
         .menu-row:active { background: var(--surface-alt); }
         .menu-ic { width:26px; height:26px; border-radius:50%; background:var(--surface-alt); display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; color:var(--text); flex-shrink:0; }
         .menu-ic svg { width:16px; height:16px; }
+        #menu-lang .menu-ic { background:rgba(37,99,235,0.16); color:#2563eb; }
+        #menu-friends .menu-ic { background:rgba(22,163,74,0.16); color:#16a34a; }
         .menu-label { flex:1; font-size:15px; font-weight:700; color:var(--text); }
         .menu-cur { font-size:13px; color:var(--hint); }
         .menu-chev { color:var(--hint); font-size:17px; }
@@ -618,6 +622,7 @@
         .fr-sub { font-size:12px; color:var(--hint); }
         .fr-iconbtn { width:34px; height:34px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; border:none; background:var(--surface-alt); color:var(--hint); font-family:inherit; flex-shrink:0; }
         .fr-iconbtn.ok { background:rgba(29,158,117,0.18); color:#1d9e75; }
+        .fr-iconbtn.danger { background:rgba(239,68,68,0.15); color:#ef4444; }
         .fr-iconbtn svg { width:18px; height:18px; }
         .fr-empty { text-align:center; color:var(--hint); font-size:13px; padding:18px 10px; }
         #fr-search { margin: 2px 0 10px; }
@@ -814,6 +819,7 @@
         <div class="sheet-subtitle" id="sheet-create-sub">Выбери время и столовую</div>
         <div class="sheet-section-label" id="sec-mensa-time">Время</div>
         <div class="time-scroller" id="time-scroller"></div>
+        <button class="now-row" id="mensa-now" type="button">Сейчас</button>
         <div class="custom-time-row" id="custom-time-row">
             <span class="custom-time-label">Точное время</span>
             <input class="custom-time-input" id="custom-time-input" type="time" step="60">
@@ -848,6 +854,7 @@
         <div id="bib-lib-grid"></div>
         <div class="sheet-section-label" id="sec-bib-when">Во сколько придёшь</div>
         <div class="time-scroller" id="bib-time-scroller"></div>
+        <button class="now-row" id="bib-now" type="button">Сейчас</button>
         <div class="custom-time-row" id="bib-custom-time-row">
             <span class="custom-time-label">Точное время</span>
             <input class="custom-time-input" id="bib-custom-time-input" type="time" step="60">
@@ -1019,7 +1026,7 @@
         ru: { soon:'Скоро', menu_lang:'Язык', menu_friends:'Друзья', friends_title:'Друзья', friends_sub:'контакты видны только взаимным друзьям', fr_invite:'Пригласить', fr_qr:'QR-код', fr_requests:'ЗАЯВКИ', fr_my:'МОИ ДРУЗЬЯ', fr_empty:'Пригласи друзей по ссылке или QR', fr_remove_confirm:'Удалить {name} из друзей?', fr_removed:'Удалён из друзей', fr_search:'Поиск друзей…', fr_nofound:'Никого не найдено', fr_invite_text:'Быть друзьями с {name} в Campus Meet 👋', fr_req_sent:'Заявка отправлена {name}', fr_req_already:'Вы уже отправили запрос {name}', fr_already_friends:'Вы уже друзья с {name}', fr_req_declined:'Заявка отклонена', fr_link_copied:'Ссылка скопирована', fr_qr_fail:'Не удалось показать QR', fr_added:'Теперь вы друзья 🎉', fr_added_name:'Теперь вы друзья 🎉 с {name}', qr_title:'Пригласить в друзья', qr_hint:'Друг сканирует код — и вы в друзьях', qr_copy:'Скопировать ссылку', today:'Сегодня', tomorrow:'Завтра', yesterday:'Вчера', week:'Неделя', add_group:'＋ Группа',
             tab_day:'День', tab_week:'Неделя', back_today:'↺ Вернуться к сегодня',
             create_title:'Во сколько идёшь в столовку?', sec_time:'Время', sec_where:'Куда идёшь',
-            exact_time:'Точное время', until_opt:'До скольки (по желанию)', btn_book:'Записаться',
+            exact_time:'Точное время', now_btn:'Сейчас', until_opt:'До скольки (по желанию)', btn_book:'Записаться',
             btn_change_time:'Изменить время', bibcreate_title:'Куда идёшь заниматься?', sec_library:'Библиотека',
             sec_when_come:'Во сколько придёшь', btn_i_come:'Я приду', mode_only:'Только…', mode_except:'Кроме…',
             ph_search:'Поиск людей…', ph_group_name:'Название группы…', btn_cancel:'Отмена', btn_save:'Сохранить',
@@ -1050,7 +1057,7 @@
         en: { soon:'Soon', menu_lang:'Language', menu_friends:'Friends', friends_title:'Friends', friends_sub:'contacts visible only to mutual friends', fr_invite:'Invite', fr_qr:'QR code', fr_requests:'REQUESTS', fr_my:'MY FRIENDS', fr_empty:'Invite friends via link or QR', fr_remove_confirm:'Remove {name} from friends?', fr_removed:'Removed from friends', fr_search:'Search friends…', fr_nofound:'Nobody found', fr_invite_text:'Be friends with {name} on Campus Meet 👋', fr_req_sent:'Request sent to {name}', fr_req_already:'You already sent a request to {name}', fr_already_friends:"You're already friends with {name}", fr_req_declined:'Request declined', fr_link_copied:'Link copied', fr_qr_fail:"Couldn't show QR", fr_added:"You're now friends 🎉", fr_added_name:"You're now friends 🎉 with {name}", qr_title:'Invite a friend', qr_hint:'Friend scans the code to connect', qr_copy:'Copy link', today:'Today', tomorrow:'Tomorrow', yesterday:'Yesterday', week:'Week', add_group:'＋ Group',
             tab_day:'Day', tab_week:'Week', back_today:'↺ Back to today',
             create_title:'When are you going to the canteen?', sec_time:'Time', sec_where:'Where to',
-            exact_time:'Exact time', until_opt:'Until (optional)', btn_book:'Book',
+            exact_time:'Exact time', now_btn:'Now', until_opt:'Until (optional)', btn_book:'Book',
             btn_change_time:'Change time', bibcreate_title:'Where are you studying?', sec_library:'Library',
             sec_when_come:'When will you arrive?', btn_i_come:"I'll come", mode_only:'Only…', mode_except:'Except…',
             ph_search:'Search people…', ph_group_name:'Group name…', btn_cancel:'Cancel', btn_save:'Save',
@@ -1081,7 +1088,7 @@
         de: { soon:'Bald', menu_lang:'Sprache', menu_friends:'Freunde', friends_title:'Freunde', friends_sub:'Kontakte nur für gegenseitige Freunde', fr_invite:'Einladen', fr_qr:'QR-Code', fr_requests:'ANFRAGEN', fr_my:'MEINE FREUNDE', fr_empty:'Lade Freunde per Link oder QR ein', fr_remove_confirm:'{name} aus Freunden entfernen?', fr_removed:'Aus Freunden entfernt', fr_search:'Freunde suchen…', fr_nofound:'Niemand gefunden', fr_invite_text:'Mit {name} befreundet sein bei Campus Meet 👋', fr_req_sent:'Anfrage an {name} gesendet', fr_req_already:'Anfrage an {name} läuft bereits', fr_already_friends:'Ihr seid schon Freunde mit {name}', fr_req_declined:'Anfrage abgelehnt', fr_link_copied:'Link kopiert', fr_qr_fail:'QR fehlgeschlagen', fr_added:'Ihr seid jetzt Freunde 🎉', fr_added_name:'Ihr seid jetzt Freunde 🎉 mit {name}', qr_title:'Freund einladen', qr_hint:'Freund scannt den Code', qr_copy:'Link kopieren', today:'Heute', tomorrow:'Morgen', yesterday:'Gestern', week:'Woche', add_group:'＋ Gruppe',
             tab_day:'Tag', tab_week:'Woche', back_today:'↺ Zurück zu heute',
             create_title:'Wann gehst du in die Mensa?', sec_time:'Zeit', sec_where:'Wohin',
-            exact_time:'Genaue Zeit', until_opt:'Bis wann (optional)', btn_book:'Eintragen',
+            exact_time:'Genaue Zeit', now_btn:'Jetzt', until_opt:'Bis wann (optional)', btn_book:'Eintragen',
             btn_change_time:'Zeit ändern', bibcreate_title:'Wo lernst du?', sec_library:'Bibliothek',
             sec_when_come:'Wann kommst du?', btn_i_come:'Ich komme', mode_only:'Nur…', mode_except:'Außer…',
             ph_search:'Leute suchen…', ph_group_name:'Gruppenname…', btn_cancel:'Abbrechen', btn_save:'Speichern',
@@ -1141,6 +1148,7 @@
         setT('#sheet-create .sheet-title', 'create_title');
         setT('#sec-mensa-time', 'sec_time'); setT('#sec-mensa-where', 'sec_where');
         setT('#custom-time-row .custom-time-label', 'exact_time'); setT('#mensa-until-row .custom-time-label', 'until_opt');
+        setT('#mensa-now', 'now_btn'); setT('#bib-now', 'now_btn');
         setT('#sheet-confirm', 'btn_book'); setT('#detail-edit', 'btn_change_time');
         setT('#sheet-bib-create .sheet-title', 'bibcreate_title');
         setT('#sec-bib-lib', 'sec_library'); setT('#sec-bib-when', 'sec_when_come');
@@ -1896,6 +1904,7 @@
     function updateConfirmState() {
         document.getElementById('sheet-confirm').disabled = !(selectedTime && selectedMensa);
     }
+    function nowHHMM() { const d = new Date(); return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0'); }
     function setSelectedTime(t, fromCustom = false) {
         selectedTime = t;
         document.querySelectorAll('#time-scroller .time-chip').forEach(c =>
@@ -2490,7 +2499,7 @@
         } else {
             row.style.cursor = 'pointer';
             row.onclick = () => openUserChat(u);
-            const rm = document.createElement('button'); rm.className = 'fr-iconbtn'; rm.innerHTML = _FR_SVG.rm; rm.onclick = (e) => { e.stopPropagation(); friendRemove(id, u.name || tr('guest')); };
+            const rm = document.createElement('button'); rm.className = 'fr-iconbtn danger'; rm.innerHTML = _FR_SVG.rm; rm.onclick = (e) => { e.stopPropagation(); friendRemove(id, u.name || tr('guest')); };
             row.appendChild(rm);
         }
         return row;
@@ -3053,6 +3062,8 @@
     document.getElementById('bib-next-week').onclick = () => { weekStart = addDays(weekStart, +7); render(); haptic('light'); };
     document.getElementById('bib-credit').onclick = () => { const u = 'https://www.linkedin.com/in/diyorbek-omonov-0734b8264'; if (tg?.openLink) tg.openLink(u); else window.open(u, '_blank'); };
     document.getElementById('bib-confirm').onclick = () => { if (bibSel.bib && bibSel.time) bibConfirm(); };
+    document.getElementById('mensa-now').onclick = () => { haptic('light'); const t = nowHHMM(); document.getElementById('custom-time-input').value = t; setSelectedTime(t, true); };
+    document.getElementById('bib-now').onclick = () => { haptic('light'); const t = nowHHMM(); document.getElementById('bib-custom-time-input').value = t; bibSetTime(t, true); };
     document.getElementById('bib-detail-edit').onclick = () => { haptic('light'); const id = bibDetailId; closeBibDetail(); openBibCreate(id); };
     document.getElementById('bib-detail-action').onclick = () => {
         const di = isoDate(currentDate);
