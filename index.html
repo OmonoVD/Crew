@@ -1398,7 +1398,6 @@
         update(ref(fbDb, `rooms/${roomId}/members/${currentUser.id}`), {
             id: currentUser.id,
             name: currentUser.name,
-            username: currentUser.username || null,
             photo_url: currentUser.photo_url || null,
             lastSeen: serverTimestamp(),
         }).catch(e => console.error('member update failed', e));
@@ -1589,7 +1588,7 @@
 
     /* ===== Actions ===== */
    async function setMyEntry(dateIso, start, mensa, audience, until) {
-        const payload = { start, mensa, until: until || null, name: currentUser.name, username: currentUser.username || null, photo_url: currentUser.photo_url || null, audience: audience || { mode: 'all', ids: [] }, updatedAt: FIREBASE_READY ? serverTimestamp() : Date.now() };
+        const payload = { start, mensa, until: until || null, name: currentUser.name, photo_url: currentUser.photo_url || null, audience: audience || { mode: 'all', ids: [] }, updatedAt: FIREBASE_READY ? serverTimestamp() : Date.now() };
         const mensaShort = MENSA_BY_ID[mensa]?.short || mensa;
         const oldE = findMyEntry(dateIso);
         const dayTxt = `${currentDate.getDate()} ${L_MONTHS_SHORT[lang][currentDate.getMonth()]}`;
@@ -2344,7 +2343,7 @@
         const untilTxt = until ? tr('n_until', {t: until}) : '';
         if (FIREBASE_READY && fbDb) {
             try {
-                await set(ref(fbDb, `rooms/${roomId}/bib/${dateIso}/${currentUser.id}`), { bib, from, until: until || null, name: currentUser.name, username: currentUser.username || null, photo_url: currentUser.photo_url || null, audience: audience || { mode: 'all', ids: [] }, updatedAt: serverTimestamp() });
+                await set(ref(fbDb, `rooms/${roomId}/bib/${dateIso}/${currentUser.id}`), { bib, from, until: until || null, name: currentUser.name, photo_url: currentUser.photo_url || null, audience: audience || { mode: 'all', ids: [] }, updatedAt: serverTimestamp() });
                 haptic('medium');
                 showToast(`${lib.name} · ${from}`);
                 const changed = oldE && (oldE.bib !== bib || oldE.from !== from || (oldE.until || null) !== (until || null));
