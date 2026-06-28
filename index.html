@@ -482,7 +482,8 @@
         }
         .custom-time-row { cursor: pointer; }
         #bib-custom-time-row, #bib-until-row { min-height: 56px; padding: 14px 14px; }
-        .now-row { width: 100%; margin-top: 10px; min-height: 52px; padding: 0 12px; border-radius: 10px; background-color: var(--accent-softer); border: 1px solid var(--accent-soft); color: var(--accent); font-size: 15px; font-weight: 700; font-family: inherit; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .now-row { width: 100%; margin-top: 10px; min-height: 56px; padding: 14px 14px; border-radius: 10px; background-color: var(--surface); border: 1px solid var(--border); color: var(--hint); font-size: 13px; font-weight: 600; font-family: inherit; cursor: pointer; display: flex; align-items: center; justify-content: flex-start; text-align: left; }
+        .now-row.active { border-color: var(--accent); background-color: var(--accent-softer); color: var(--accent); }
         .now-row:active { transform: scale(0.99); }
         /* ===== Mensa chips ===== */
         .mensa-grid {
@@ -1907,6 +1908,7 @@
     function nowHHMM() { const d = new Date(); return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0'); }
     function setSelectedTime(t, fromCustom = false) {
         selectedTime = t;
+        const _mn = document.getElementById('mensa-now'); if (_mn) _mn.classList.remove('active');
         document.querySelectorAll('#time-scroller .time-chip').forEach(c =>
             c.classList.toggle('active', !fromCustom && c.dataset.time === t)
         );
@@ -1960,6 +1962,7 @@
         });
     }
     function openCreateSheet() {
+        document.getElementById('mensa-now').classList.remove('active');
         // Time chips
         const scroller = document.getElementById('time-scroller');
         scroller.innerHTML = '';
@@ -2236,6 +2239,7 @@
     }
     function bibSetTime(t, fromCustom) {
         bibSel.time = t; bibSel.custom = !!fromCustom;
+        const _bn = document.getElementById('bib-now'); if (_bn) _bn.classList.remove('active');
         document.querySelectorAll('#bib-time-scroller .time-chip').forEach(c =>
             c.classList.toggle('active', !fromCustom && c.dataset.time === t));
         document.getElementById('bib-custom-time-row').classList.toggle('active', !!fromCustom);
@@ -2284,6 +2288,7 @@
         host.appendChild(body);
     }
     function openBibCreate(preset) {
+        document.getElementById('bib-now').classList.remove('active');
         const di = isoDate(currentDate);
         const mine = bibFindMine(di);
         bibSel = { bib:null, time:null, custom:false };
@@ -3062,8 +3067,24 @@
     document.getElementById('bib-next-week').onclick = () => { weekStart = addDays(weekStart, +7); render(); haptic('light'); };
     document.getElementById('bib-credit').onclick = () => { const u = 'https://www.linkedin.com/in/diyorbek-omonov-0734b8264'; if (tg?.openLink) tg.openLink(u); else window.open(u, '_blank'); };
     document.getElementById('bib-confirm').onclick = () => { if (bibSel.bib && bibSel.time) bibConfirm(); };
-    document.getElementById('mensa-now').onclick = () => { haptic('light'); const t = nowHHMM(); document.getElementById('custom-time-input').value = t; setSelectedTime(t, true); };
-    document.getElementById('bib-now').onclick = () => { haptic('light'); const t = nowHHMM(); document.getElementById('bib-custom-time-input').value = t; bibSetTime(t, true); };
+    document.getElementById('mensa-now').onclick = () => {
+        haptic('light');
+        selectedTime = nowHHMM();
+        document.querySelectorAll('#time-scroller .time-chip').forEach(c => c.classList.remove('active'));
+        document.getElementById('custom-time-row').classList.remove('active');
+        document.getElementById('custom-time-input').value = '';
+        document.getElementById('mensa-now').classList.add('active');
+        updateConfirmState();
+    };
+    document.getElementById('bib-now').onclick = () => {
+        haptic('light');
+        bibSel.time = nowHHMM(); bibSel.custom = false;
+        document.querySelectorAll('#bib-time-scroller .time-chip').forEach(c => c.classList.remove('active'));
+        document.getElementById('bib-custom-time-row').classList.remove('active');
+        document.getElementById('bib-custom-time-input').value = '';
+        document.getElementById('bib-now').classList.add('active');
+        bibUpdateConfirm();
+    };
     document.getElementById('bib-detail-edit').onclick = () => { haptic('light'); const id = bibDetailId; closeBibDetail(); openBibCreate(id); };
     document.getElementById('bib-detail-action').onclick = () => {
         const di = isoDate(currentDate);
