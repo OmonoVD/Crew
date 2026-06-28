@@ -688,6 +688,9 @@
         .gm-modal { position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%) scale(0.92); opacity: 0; transition: opacity 0.16s ease, transform 0.16s cubic-bezier(0.2, 0.9, 0.3, 1); width: min(86vw, 340px); background: var(--bg); border: 1px solid var(--border); border-radius: 16px; padding: 16px; z-index: 120; box-shadow: 0 18px 50px rgba(0,0,0,0.35); }
         .gm-modal[hidden] { display: none; }
         .gm-modal.show { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+        .qr-box { width: 220px; height: 220px; margin: 6px auto 10px; background: #fff; color: #333; border-radius: 12px; display: flex; align-items: center; justify-content: center; padding: 10px; box-sizing: border-box; font-size: 13px; text-align: center; }
+        .qr-box img, .qr-box canvas { width: 100% !important; height: 100% !important; }
+        .qr-hint { font-size: 12px; color: var(--hint); text-align: center; margin: 0 0 12px; }
         .gm-title { font-size: 17px; font-weight: 800; margin-bottom: 12px; }
         .gm-members { display: flex; flex-direction: column; gap: 8px; max-height: 40vh; overflow-y: auto; margin-bottom: 14px; }
         .gm-member { display: flex; align-items: center; gap: 10px; }
@@ -926,6 +929,14 @@
         </div>
         <button class="gm-close" id="gm-close" type="button">Закрыть</button>
     </div>
+    <div class="gm-backdrop" id="qr-backdrop" hidden></div>
+    <div class="gm-modal" id="qr-modal" hidden>
+        <div class="gm-title" id="qr-title">Пригласить в друзья</div>
+        <div class="qr-box" id="qr-box"></div>
+        <div class="qr-hint" id="qr-hint">Друг сканирует код — и вы в друзьях</div>
+        <button class="gm-btn" id="qr-copy" type="button">Скопировать ссылку</button>
+        <button class="gm-close" id="qr-close" type="button">Закрыть</button>
+    </div>
     <div class="toast" id="toast"></div>
     <script type="module">
     /* =====================================================================
@@ -1000,11 +1011,13 @@
     const roomId = roomKey ? `room_${roomKey}` : 'room_crew';
     let navDate = null, navTime = null, navMensa = null;
     let navBibDate = null, navBib = null, navBibFrom = null, startMode = null;
-    if (spParts[1] === 'b') { startMode = 'bib'; navBibDate = spParts[2]; navBib = spParts[3]; navBibFrom = spParts[4] || null; }
+    let inviteToken = null;
+    if (spParts[1] === 'fr') { inviteToken = spParts[2] || null; }
+    else if (spParts[1] === 'b') { startMode = 'bib'; navBibDate = spParts[2]; navBib = spParts[3]; navBibFrom = spParts[4] || null; }
     else if (spParts[1]) { startMode = 'mensa'; navDate = spParts[1]; navTime = spParts[2]; navMensa = spParts[3]; }
     /* ===== i18n (EN / DE / RU) ===== */
     const STRINGS = {
-        ru: { soon:'Скоро', menu_lang:'Язык', menu_friends:'Друзья', friends_title:'Друзья', friends_sub:'контакты видны только взаимным друзьям', fr_invite:'Пригласить', fr_qr:'QR-код', fr_requests:'ЗАЯВКИ', fr_my:'МОИ ДРУЗЬЯ', fr_empty:'Пригласи друзей по ссылке или QR', fr_remove_confirm:'Удалить {name} из друзей?', fr_removed:'Удалён из друзей', fr_search:'Поиск друзей…', fr_nofound:'Никого не найдено', today:'Сегодня', tomorrow:'Завтра', yesterday:'Вчера', week:'Неделя', add_group:'＋ Группа',
+        ru: { soon:'Скоро', menu_lang:'Язык', menu_friends:'Друзья', friends_title:'Друзья', friends_sub:'контакты видны только взаимным друзьям', fr_invite:'Пригласить', fr_qr:'QR-код', fr_requests:'ЗАЯВКИ', fr_my:'МОИ ДРУЗЬЯ', fr_empty:'Пригласи друзей по ссылке или QR', fr_remove_confirm:'Удалить {name} из друзей?', fr_removed:'Удалён из друзей', fr_search:'Поиск друзей…', fr_nofound:'Никого не найдено', fr_invite_text:'Добавляйся ко мне в Campus Meet 👋', fr_link_copied:'Ссылка скопирована', fr_qr_fail:'Не удалось показать QR', fr_added:'Теперь вы друзья 🎉', qr_title:'Пригласить в друзья', qr_hint:'Друг сканирует код — и вы в друзьях', qr_copy:'Скопировать ссылку', today:'Сегодня', tomorrow:'Завтра', yesterday:'Вчера', week:'Неделя', add_group:'＋ Группа',
             tab_day:'День', tab_week:'Неделя', back_today:'↺ Вернуться к сегодня',
             create_title:'Во сколько идёшь в столовку?', sec_time:'Время', sec_where:'Куда идёшь',
             exact_time:'Точное время', until_opt:'До скольки (по желанию)', btn_book:'Записаться',
@@ -1035,7 +1048,7 @@
             n_b_change:'меняет — {place} с {from}{until} ({day})', n_b_new:'идёт в {place} с {from}{until} ({day})', n_b_leave:'уходит из {place} ({day})',
             n_self_moved:'✏️ Вы перенесли — {old} → {new} · {place} ({day})', n_self_booked:'✅ Вы записаны — {start} · {place} ({day})',
             n_self_left_m:'❌ Вы вышли — {old} · {place} ({day})', n_self_bib:'✅ Вы в {place} с {from}{until} ({day})', n_self_left_b:'❌ Вы ушли из {place} ({day})' },
-        en: { soon:'Soon', menu_lang:'Language', menu_friends:'Friends', friends_title:'Friends', friends_sub:'contacts visible only to mutual friends', fr_invite:'Invite', fr_qr:'QR code', fr_requests:'REQUESTS', fr_my:'MY FRIENDS', fr_empty:'Invite friends via link or QR', fr_remove_confirm:'Remove {name} from friends?', fr_removed:'Removed from friends', fr_search:'Search friends…', fr_nofound:'Nobody found', today:'Today', tomorrow:'Tomorrow', yesterday:'Yesterday', week:'Week', add_group:'＋ Group',
+        en: { soon:'Soon', menu_lang:'Language', menu_friends:'Friends', friends_title:'Friends', friends_sub:'contacts visible only to mutual friends', fr_invite:'Invite', fr_qr:'QR code', fr_requests:'REQUESTS', fr_my:'MY FRIENDS', fr_empty:'Invite friends via link or QR', fr_remove_confirm:'Remove {name} from friends?', fr_removed:'Removed from friends', fr_search:'Search friends…', fr_nofound:'Nobody found', fr_invite_text:'Add me on Campus Meet 👋', fr_link_copied:'Link copied', fr_qr_fail:"Couldn't show QR", fr_added:"You're now friends 🎉", qr_title:'Invite a friend', qr_hint:'Friend scans the code to connect', qr_copy:'Copy link', today:'Today', tomorrow:'Tomorrow', yesterday:'Yesterday', week:'Week', add_group:'＋ Group',
             tab_day:'Day', tab_week:'Week', back_today:'↺ Back to today',
             create_title:'When are you going to the canteen?', sec_time:'Time', sec_where:'Where to',
             exact_time:'Exact time', until_opt:'Until (optional)', btn_book:'Book',
@@ -1066,7 +1079,7 @@
             n_b_change:'changes — {place} from {from}{until} ({day})', n_b_new:'is going to {place} from {from}{until} ({day})', n_b_leave:'is leaving {place} ({day})',
             n_self_moved:'✏️ You moved — {old} → {new} · {place} ({day})', n_self_booked:"✅ You're booked — {start} · {place} ({day})",
             n_self_left_m:'❌ You left — {old} · {place} ({day})', n_self_bib:"✅ You're at {place} from {from}{until} ({day})", n_self_left_b:'❌ You left {place} ({day})' },
-        de: { soon:'Bald', menu_lang:'Sprache', menu_friends:'Freunde', friends_title:'Freunde', friends_sub:'Kontakte nur für gegenseitige Freunde', fr_invite:'Einladen', fr_qr:'QR-Code', fr_requests:'ANFRAGEN', fr_my:'MEINE FREUNDE', fr_empty:'Lade Freunde per Link oder QR ein', fr_remove_confirm:'{name} aus Freunden entfernen?', fr_removed:'Aus Freunden entfernt', fr_search:'Freunde suchen…', fr_nofound:'Niemand gefunden', today:'Heute', tomorrow:'Morgen', yesterday:'Gestern', week:'Woche', add_group:'＋ Gruppe',
+        de: { soon:'Bald', menu_lang:'Sprache', menu_friends:'Freunde', friends_title:'Freunde', friends_sub:'Kontakte nur für gegenseitige Freunde', fr_invite:'Einladen', fr_qr:'QR-Code', fr_requests:'ANFRAGEN', fr_my:'MEINE FREUNDE', fr_empty:'Lade Freunde per Link oder QR ein', fr_remove_confirm:'{name} aus Freunden entfernen?', fr_removed:'Aus Freunden entfernt', fr_search:'Freunde suchen…', fr_nofound:'Niemand gefunden', fr_invite_text:'Füg mich bei Campus Meet hinzu 👋', fr_link_copied:'Link kopiert', fr_qr_fail:'QR fehlgeschlagen', fr_added:'Ihr seid jetzt Freunde 🎉', qr_title:'Freund einladen', qr_hint:'Freund scannt den Code', qr_copy:'Link kopieren', today:'Heute', tomorrow:'Morgen', yesterday:'Gestern', week:'Woche', add_group:'＋ Gruppe',
             tab_day:'Tag', tab_week:'Woche', back_today:'↺ Zurück zu heute',
             create_title:'Wann gehst du in die Mensa?', sec_time:'Zeit', sec_where:'Wohin',
             exact_time:'Genaue Zeit', until_opt:'Bis wann (optional)', btn_book:'Eintragen',
@@ -1143,6 +1156,7 @@
         setT('#menu-lang-label', 'menu_lang'); setT('#menu-friends-label', 'menu_friends');
         setT('#friends-title', 'friends_title'); setT('#friends-sub', 'friends_sub');
         setT('#fr-invite-label', 'fr_invite'); setT('#fr-qr-label', 'fr_qr'); setP('#fr-search', 'fr_search');
+        setT('#qr-title', 'qr_title'); setT('#qr-hint', 'qr_hint'); setT('#qr-copy', 'qr_copy'); setT('#qr-close', 'btn_close');
     }
     function setLang(l) {
         if (!STRINGS[l]) return;
@@ -2482,6 +2496,50 @@
         if (tg?.showConfirm) tg.showConfirm(msg, (ok) => { if (ok) go(); });
         else if (confirm(msg)) go();
     }
+    async function friendInvite(modeWanted) {
+        try {
+            const r = await fetch(FRIEND_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ initData: tg?.initData || '', action: 'invite_create', room: roomId }) });
+            const d = await r.json();
+            if (!d || !d.ok || !d.link) { showToast(tr('toast_fail')); return; }
+            if (modeWanted === 'qr') showQR(d.link); else shareInvite(d.link);
+        } catch (e) { showToast(tr('toast_fail')); }
+    }
+    function shareInvite(link) {
+        const shareUrl = 'https://t.me/share/url?url=' + encodeURIComponent(link) + '&text=' + encodeURIComponent(tr('fr_invite_text'));
+        if (tg?.openTelegramLink) tg.openTelegramLink(shareUrl);
+        else { try { navigator.clipboard.writeText(link); showToast(tr('fr_link_copied')); } catch (e) { showToast(link); } }
+    }
+    let _qrLink = null;
+    function ensureQRLib(cb) {
+        if (window.QRCode) { cb(true); return; }
+        const sc = document.createElement('script');
+        sc.src = 'https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js';
+        sc.onload = () => cb(true); sc.onerror = () => cb(false);
+        document.head.appendChild(sc);
+    }
+    function showQR(link) {
+        _qrLink = link;
+        const box = document.getElementById('qr-box'); box.innerHTML = '';
+        ensureQRLib((ok) => {
+            if (ok && window.QRCode) { try { new QRCode(box, { text: link, width: 200, height: 200, correctLevel: QRCode.CorrectLevel.M }); } catch (e) { box.textContent = tr('fr_qr_fail'); } }
+            else { box.textContent = tr('fr_qr_fail'); }
+        });
+        document.getElementById('qr-backdrop').hidden = false;
+        document.getElementById('qr-modal').hidden = false;
+        requestAnimationFrame(() => { document.getElementById('qr-backdrop').classList.add('show'); document.getElementById('qr-modal').classList.add('show'); });
+    }
+    function closeQR() {
+        document.getElementById('qr-backdrop').classList.remove('show');
+        document.getElementById('qr-modal').classList.remove('show');
+        setTimeout(() => { document.getElementById('qr-backdrop').hidden = true; document.getElementById('qr-modal').hidden = true; }, 180);
+    }
+    async function redeemInvite(token) {
+        try {
+            const r = await fetch(FRIEND_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ initData: tg?.initData || '', action: 'invite_redeem', token }) });
+            const d = await r.json();
+            if (d && d.ok) { haptic('medium'); showToast(tr('fr_added')); }
+        } catch (e) {}
+    }
     function renderFriends(filter) {
         if (filter == null) { const _se = document.getElementById('fr-search'); filter = _se ? _se.value : ''; }
         const reqs = state.friendReqs || {};
@@ -2950,8 +3008,8 @@
     document.getElementById('menu-btn').onclick = (e) => { e.stopPropagation(); document.getElementById('lang-menu').hidden = true; const m = document.getElementById('main-menu'); m.hidden = !m.hidden; };
     document.getElementById('menu-lang').onclick = (e) => { e.stopPropagation(); document.getElementById('main-menu').hidden = true; document.getElementById('lang-menu').hidden = false; };
     document.getElementById('menu-friends').onclick = (e) => { e.stopPropagation(); document.getElementById('main-menu').hidden = true; openFriends(); };
-    document.getElementById('fr-invite').onclick = () => { haptic('light'); showToast(tr('soon')); };
-    document.getElementById('fr-qr').onclick = () => { haptic('light'); showToast(tr('soon')); };
+    document.getElementById('fr-invite').onclick = () => { haptic('light'); friendInvite('share'); };
+    document.getElementById('fr-qr').onclick = () => { haptic('light'); friendInvite('qr'); };
     document.getElementById('fr-search').oninput = (e) => renderFriends(e.target.value);
     document.querySelectorAll('#lang-menu .mode-item').forEach(it => it.onclick = () => { setLang(it.dataset.lang); document.getElementById('lang-menu').hidden = true; });
     document.addEventListener('click', () => {
@@ -3020,6 +3078,9 @@
     };
     document.getElementById('gm-close').onclick = () => closeGroupModal();
     document.getElementById('gm-backdrop').onclick = () => closeGroupModal();
+    document.getElementById('qr-close').onclick = () => closeQR();
+    document.getElementById('qr-backdrop').onclick = () => closeQR();
+    document.getElementById('qr-copy').onclick = () => { if (_qrLink) { try { navigator.clipboard.writeText(_qrLink); showToast(tr('fr_link_copied')); } catch (e) { showToast(_qrLink); } } };
    let pendingNav = null;
     if (navDate && navTime && navMensa) {
         currentDate = new Date(+navDate.slice(0,4), +navDate.slice(4,6)-1, +navDate.slice(6,8));
@@ -3044,7 +3105,7 @@
     applyI18n();
     render();
     /* ===== Kick off Firebase live sync ===== */
-    ensureAuth().finally(() => startFirebaseSync());
+    ensureAuth().finally(() => { startFirebaseSync(); if (inviteToken) redeemInvite(inviteToken); });
     </script>
 </body>
 </html>
