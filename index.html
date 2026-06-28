@@ -1399,6 +1399,7 @@
         // Subscribe: friends + incoming requests (per current user)
         onValue(ref(fbDb, `rooms/${roomId}/friends/${currentUser.id}`), (snap) => {
             state.friends = snap.val() || {};
+            friendsReady = true;
             renderFriends();
             render();
             if (pendingNav) {
@@ -1429,6 +1430,7 @@
     let currentDate = new Date(); currentDate.setHours(0,0,0,0);
     let weekStart = startOfWeek(new Date());
     let selectedTime = null;
+    let friendsReady = !FIREBASE_READY;
     let selectedMensa = null;
     let detailGroupKey = null; // `${mensa}|${start}`
     /* ===== Helpers ===== */
@@ -1755,7 +1757,7 @@
             }
         }
         const groups = getDayGroups(isoDate(currentDate));
-        if (groups.length === 0) {
+        if (groups.length === 0 && friendsReady) {
             const empty = document.createElement('div');
             empty.className = 'empty-state';
             const _noFr = !Object.keys(state.friends || {}).length;
@@ -2144,7 +2146,7 @@
         const di = isoDate(currentDate);
         const list = document.getElementById('bib-list');
         list.innerHTML = '';
-        if (!Object.keys(state.friends || {}).length) { list.appendChild(friendsHintEl()); }
+        if (friendsReady && !Object.keys(state.friends || {}).length) { list.appendChild(friendsHintEl()); }
         const mine = bibFindMine(di);
         const _extra = BIBS_MORE.filter(b => bibPeople(di, b.id).length > 0);
         [...BIBS, ..._extra].forEach(b => {
