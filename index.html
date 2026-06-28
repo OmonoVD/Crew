@@ -604,6 +604,7 @@
         .menu-cur { font-size:13px; color:var(--hint); }
         .menu-chev { color:var(--hint); font-size:17px; }
         .menu-badge { min-width:18px; height:18px; padding:0 5px; border-radius:9px; background:var(--accent); color:#fff; font-size:11px; font-weight:700; display:flex; align-items:center; justify-content:center; }
+        .menu-badge[hidden] { display: none; }
         .fr-actions { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:6px 0 14px; }
         .fr-btn { display:flex; align-items:center; justify-content:center; gap:8px; padding:13px; border-radius:var(--radius-md); font-size:14px; font-weight:700; cursor:pointer; border:none; font-family:inherit; }
         .fr-btn.primary { background:var(--accent); color:#fff; }
@@ -619,6 +620,7 @@
         .fr-iconbtn.ok { background:rgba(29,158,117,0.18); color:#1d9e75; }
         .fr-iconbtn svg { width:18px; height:18px; }
         .fr-empty { text-align:center; color:var(--hint); font-size:13px; padding:18px 10px; }
+        #fr-search { margin: 2px 0 10px; }
         /* ===== Bib mode accent ===== */
         body.bib-mode { --accent: #2563eb; --accent-soft: rgba(37,99,235,0.12); --accent-softer: rgba(37,99,235,0.06); }
         /* ===== Bib library cards ===== */
@@ -876,6 +878,7 @@
             <div id="fr-reqs"></div>
         </div>
         <div class="fr-sec" id="fr-friends-label">МОИ ДРУЗЬЯ</div>
+        <input class="aud-search" id="fr-search" type="text" placeholder="Поиск друзей…" autocomplete="off">
         <div id="fr-list"></div>
     </div>
     <!-- Sheet: audience -->
@@ -1001,7 +1004,7 @@
     else if (spParts[1]) { startMode = 'mensa'; navDate = spParts[1]; navTime = spParts[2]; navMensa = spParts[3]; }
     /* ===== i18n (EN / DE / RU) ===== */
     const STRINGS = {
-        ru: { soon:'Скоро', menu_lang:'Язык', menu_friends:'Друзья', friends_title:'Друзья', friends_sub:'контакты видны только взаимным друзьям', fr_invite:'Пригласить', fr_qr:'QR-код', fr_requests:'ЗАЯВКИ', fr_my:'МОИ ДРУЗЬЯ', fr_empty:'Пригласи друзей по ссылке или QR', fr_remove_confirm:'Удалить {name} из друзей?', fr_removed:'Удалён из друзей', today:'Сегодня', tomorrow:'Завтра', yesterday:'Вчера', week:'Неделя', add_group:'＋ Группа',
+        ru: { soon:'Скоро', menu_lang:'Язык', menu_friends:'Друзья', friends_title:'Друзья', friends_sub:'контакты видны только взаимным друзьям', fr_invite:'Пригласить', fr_qr:'QR-код', fr_requests:'ЗАЯВКИ', fr_my:'МОИ ДРУЗЬЯ', fr_empty:'Пригласи друзей по ссылке или QR', fr_remove_confirm:'Удалить {name} из друзей?', fr_removed:'Удалён из друзей', fr_search:'Поиск друзей…', fr_nofound:'Никого не найдено', today:'Сегодня', tomorrow:'Завтра', yesterday:'Вчера', week:'Неделя', add_group:'＋ Группа',
             tab_day:'День', tab_week:'Неделя', back_today:'↺ Вернуться к сегодня',
             create_title:'Во сколько идёшь в столовку?', sec_time:'Время', sec_where:'Куда идёшь',
             exact_time:'Точное время', until_opt:'До скольки (по желанию)', btn_book:'Записаться',
@@ -1032,7 +1035,7 @@
             n_b_change:'меняет — {place} с {from}{until} ({day})', n_b_new:'идёт в {place} с {from}{until} ({day})', n_b_leave:'уходит из {place} ({day})',
             n_self_moved:'✏️ Вы перенесли — {old} → {new} · {place} ({day})', n_self_booked:'✅ Вы записаны — {start} · {place} ({day})',
             n_self_left_m:'❌ Вы вышли — {old} · {place} ({day})', n_self_bib:'✅ Вы в {place} с {from}{until} ({day})', n_self_left_b:'❌ Вы ушли из {place} ({day})' },
-        en: { soon:'Soon', menu_lang:'Language', menu_friends:'Friends', friends_title:'Friends', friends_sub:'contacts visible only to mutual friends', fr_invite:'Invite', fr_qr:'QR code', fr_requests:'REQUESTS', fr_my:'MY FRIENDS', fr_empty:'Invite friends via link or QR', fr_remove_confirm:'Remove {name} from friends?', fr_removed:'Removed from friends', today:'Today', tomorrow:'Tomorrow', yesterday:'Yesterday', week:'Week', add_group:'＋ Group',
+        en: { soon:'Soon', menu_lang:'Language', menu_friends:'Friends', friends_title:'Friends', friends_sub:'contacts visible only to mutual friends', fr_invite:'Invite', fr_qr:'QR code', fr_requests:'REQUESTS', fr_my:'MY FRIENDS', fr_empty:'Invite friends via link or QR', fr_remove_confirm:'Remove {name} from friends?', fr_removed:'Removed from friends', fr_search:'Search friends…', fr_nofound:'Nobody found', today:'Today', tomorrow:'Tomorrow', yesterday:'Yesterday', week:'Week', add_group:'＋ Group',
             tab_day:'Day', tab_week:'Week', back_today:'↺ Back to today',
             create_title:'When are you going to the canteen?', sec_time:'Time', sec_where:'Where to',
             exact_time:'Exact time', until_opt:'Until (optional)', btn_book:'Book',
@@ -1063,7 +1066,7 @@
             n_b_change:'changes — {place} from {from}{until} ({day})', n_b_new:'is going to {place} from {from}{until} ({day})', n_b_leave:'is leaving {place} ({day})',
             n_self_moved:'✏️ You moved — {old} → {new} · {place} ({day})', n_self_booked:"✅ You're booked — {start} · {place} ({day})",
             n_self_left_m:'❌ You left — {old} · {place} ({day})', n_self_bib:"✅ You're at {place} from {from}{until} ({day})", n_self_left_b:'❌ You left {place} ({day})' },
-        de: { soon:'Bald', menu_lang:'Sprache', menu_friends:'Freunde', friends_title:'Freunde', friends_sub:'Kontakte nur für gegenseitige Freunde', fr_invite:'Einladen', fr_qr:'QR-Code', fr_requests:'ANFRAGEN', fr_my:'MEINE FREUNDE', fr_empty:'Lade Freunde per Link oder QR ein', fr_remove_confirm:'{name} aus Freunden entfernen?', fr_removed:'Aus Freunden entfernt', today:'Heute', tomorrow:'Morgen', yesterday:'Gestern', week:'Woche', add_group:'＋ Gruppe',
+        de: { soon:'Bald', menu_lang:'Sprache', menu_friends:'Freunde', friends_title:'Freunde', friends_sub:'Kontakte nur für gegenseitige Freunde', fr_invite:'Einladen', fr_qr:'QR-Code', fr_requests:'ANFRAGEN', fr_my:'MEINE FREUNDE', fr_empty:'Lade Freunde per Link oder QR ein', fr_remove_confirm:'{name} aus Freunden entfernen?', fr_removed:'Aus Freunden entfernt', fr_search:'Freunde suchen…', fr_nofound:'Niemand gefunden', today:'Heute', tomorrow:'Morgen', yesterday:'Gestern', week:'Woche', add_group:'＋ Gruppe',
             tab_day:'Tag', tab_week:'Woche', back_today:'↺ Zurück zu heute',
             create_title:'Wann gehst du in die Mensa?', sec_time:'Zeit', sec_where:'Wohin',
             exact_time:'Genaue Zeit', until_opt:'Bis wann (optional)', btn_book:'Eintragen',
@@ -1139,7 +1142,7 @@
         setT('#aud-edit-label', 'edit_group_default');
         setT('#menu-lang-label', 'menu_lang'); setT('#menu-friends-label', 'menu_friends');
         setT('#friends-title', 'friends_title'); setT('#friends-sub', 'friends_sub');
-        setT('#fr-invite-label', 'fr_invite'); setT('#fr-qr-label', 'fr_qr');
+        setT('#fr-invite-label', 'fr_invite'); setT('#fr-qr-label', 'fr_qr'); setP('#fr-search', 'fr_search');
     }
     function setLang(l) {
         if (!STRINGS[l]) return;
@@ -1371,6 +1374,7 @@
         onValue(ref(fbDb, `rooms/${roomId}/friends/${currentUser.id}`), (snap) => {
             state.friends = snap.val() || {};
             renderFriends();
+            render();
         });
         onValue(ref(fbDb, `rooms/${roomId}/friend_requests/${currentUser.id}`), (snap) => {
             state.friendReqs = snap.val() || {};
@@ -1461,8 +1465,10 @@
         if (aud.mode === 'except') return ids.indexOf(id) === -1;
         return true;
     }
+    function isFriend(uid) { return !!(state.friends && state.friends[uid]); }
     function canSee(uid, e) {
         if (uid === currentUser.id) return true;
+        if (!isFriend(uid)) return false;
         const a = e && e.audience;
         if (!a || a.mode === 'all') return true;
         const ids = audIds(a);
@@ -1495,8 +1501,8 @@
                 if (uid !== currentUser.id && e && e.bib === myb) bump(uid);
             });
         });
-        const members = Object.keys(state.members || {}).filter(id => id !== currentUser.id);
-        Object.keys(entryProfiles).forEach(id => { if (id !== currentUser.id && members.indexOf(id) === -1) members.push(id); });
+        const members = Object.keys(state.members || {}).filter(id => id !== currentUser.id && isFriend(id));
+        Object.keys(entryProfiles).forEach(id => { if (id !== currentUser.id && isFriend(id) && members.indexOf(id) === -1) members.push(id); });
         const lastSeen = (id) => (state.members && state.members[id] && state.members[id].lastSeen) || 0;
         members.sort((a, b) => {
             const d = (co[b] || 0) - (co[a] || 0);
@@ -1531,7 +1537,7 @@
     function notify(text, link, audience, btnKey) {
         if (!FIREBASE_READY || !NOTIFY_URL.startsWith('http')) return;
         let recipients = Object.keys(state.members || {})
-            .filter(id => id !== currentUser.id && state.members[id]?.notify !== false);
+            .filter(id => id !== currentUser.id && isFriend(id) && state.members[id]?.notify !== false);
         if (audience && audience.mode === 'only') { const s = audIds(audience); recipients = recipients.filter(id => s.indexOf(id) !== -1); }
         else if (audience && audience.mode === 'except') { const s = audIds(audience); recipients = recipients.filter(id => s.indexOf(id) === -1); }
         recipients = recipients.filter(id => {
@@ -2426,6 +2432,7 @@
         if (backButtonOwner === 'audience') detachBackButton();
     }
     function openFriends() {
+        const _se = document.getElementById('fr-search'); if (_se) _se.value = '';
         renderFriends();
         document.getElementById('sheet-friends').hidden = false;
         document.getElementById('sheet-backdrop').classList.add('show');
@@ -2451,14 +2458,15 @@
         const meta = document.createElement('div'); meta.className = 'fr-meta';
         const nm = document.createElement('div'); nm.className = 'fr-name'; nm.textContent = u.name || tr('guest');
         meta.appendChild(nm);
-        if (kind === 'friend' && u.username) { const sub = document.createElement('div'); sub.className = 'fr-sub'; sub.textContent = '@' + u.username; meta.appendChild(sub); }
         row.appendChild(av); row.appendChild(meta);
         if (kind === 'req') {
-            const ok = document.createElement('button'); ok.className = 'fr-iconbtn ok'; ok.innerHTML = _FR_SVG.ok; ok.onclick = () => { haptic('light'); showToast(tr('soon')); };
-            const no = document.createElement('button'); no.className = 'fr-iconbtn'; no.innerHTML = _FR_SVG.no; no.onclick = () => { haptic('light'); showToast(tr('soon')); };
+            const ok = document.createElement('button'); ok.className = 'fr-iconbtn ok'; ok.innerHTML = _FR_SVG.ok; ok.onclick = (e) => { e.stopPropagation(); haptic('light'); showToast(tr('soon')); };
+            const no = document.createElement('button'); no.className = 'fr-iconbtn'; no.innerHTML = _FR_SVG.no; no.onclick = (e) => { e.stopPropagation(); haptic('light'); showToast(tr('soon')); };
             row.appendChild(ok); row.appendChild(no);
         } else {
-            const rm = document.createElement('button'); rm.className = 'fr-iconbtn'; rm.innerHTML = _FR_SVG.rm; rm.onclick = () => friendRemove(id, u.name || tr('guest'));
+            row.style.cursor = 'pointer';
+            row.onclick = () => openUserChat(u);
+            const rm = document.createElement('button'); rm.className = 'fr-iconbtn'; rm.innerHTML = _FR_SVG.rm; rm.onclick = (e) => { e.stopPropagation(); friendRemove(id, u.name || tr('guest')); };
             row.appendChild(rm);
         }
         return row;
@@ -2474,11 +2482,12 @@
         if (tg?.showConfirm) tg.showConfirm(msg, (ok) => { if (ok) go(); });
         else if (confirm(msg)) go();
     }
-    function renderFriends() {
+    function renderFriends(filter) {
+        if (filter == null) { const _se = document.getElementById('fr-search'); filter = _se ? _se.value : ''; }
         const reqs = state.friendReqs || {};
         const friends = state.friends || {};
         const reqIds = Object.keys(reqs);
-        const frIds = Object.keys(friends);
+        let frIds = Object.keys(friends);
         const badge = document.getElementById('fr-badge');
         if (badge) { badge.hidden = reqIds.length === 0; badge.textContent = reqIds.length; }
         const reqSec = document.getElementById('fr-reqs-sec');
@@ -2490,9 +2499,11 @@
             reqIds.forEach(id => reqWrap.appendChild(friendRow(id, 'req')));
         } else { reqSec.hidden = true; }
         document.getElementById('fr-friends-label').textContent = tr('fr_my') + ' · ' + frIds.length;
+        const f = (filter || '').trim().toLowerCase();
+        if (f) frIds = frIds.filter(id => (getUserInfo(id).name || '').toLowerCase().indexOf(f) !== -1);
         const list = document.getElementById('fr-list');
         list.innerHTML = '';
-        if (!frIds.length) { const e = document.createElement('div'); e.className = 'fr-empty'; e.textContent = tr('fr_empty'); list.appendChild(e); }
+        if (!frIds.length) { const e = document.createElement('div'); e.className = 'fr-empty'; e.textContent = (f ? tr('fr_nofound') : tr('fr_empty')); list.appendChild(e); }
         else { frIds.forEach(id => list.appendChild(friendRow(id, 'friend'))); }
     }
     function closeAllSheets() { closeCreateSheet(); closeDetailSheet(); closeBibCreate(); closeBibDetail(); closeAudience(); closeGroupModal(); closeFriends(); }
@@ -2746,10 +2757,10 @@
         const di = p.dateIso;
         if (p.type === 'mensa') {
             const g = getDayGroups(di).find(x => x.start === p.start && x.mensa === p.mensa);
-            return (g ? g.users : []).filter(u => u !== currentUser.id);
+            return (g ? g.users : []).filter(u => u !== currentUser.id && isFriend(u));
         }
         if (p.type === 'bib') {
-            return bibPeople(di, p.bib).map(x => x.uid).filter(u => u !== currentUser.id);
+            return bibPeople(di, p.bib).map(x => x.uid).filter(u => u !== currentUser.id && isFriend(u));
         }
         return [];
     }
@@ -2941,6 +2952,7 @@
     document.getElementById('menu-friends').onclick = (e) => { e.stopPropagation(); document.getElementById('main-menu').hidden = true; openFriends(); };
     document.getElementById('fr-invite').onclick = () => { haptic('light'); showToast(tr('soon')); };
     document.getElementById('fr-qr').onclick = () => { haptic('light'); showToast(tr('soon')); };
+    document.getElementById('fr-search').oninput = (e) => renderFriends(e.target.value);
     document.querySelectorAll('#lang-menu .mode-item').forEach(it => it.onclick = () => { setLang(it.dataset.lang); document.getElementById('lang-menu').hidden = true; });
     document.addEventListener('click', () => {
         const mm = document.getElementById('mode-menu');
