@@ -626,6 +626,10 @@
         .fr-iconbtn.danger { background:rgba(239,68,68,0.15); color:#ef4444; }
         .fr-iconbtn svg { width:18px; height:18px; }
         .fr-empty { text-align:center; color:var(--hint); font-size:13px; padding:18px 10px; }
+        .fr-hint { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 16px; margin: 8px 20px 16px; text-align: center; }
+        .fr-hint-txt { font-size: 14px; color: var(--text); margin-bottom: 12px; line-height: 1.4; }
+        .fr-hint-btn { background: var(--accent); color: #fff; border: none; border-radius: 10px; padding: 10px 20px; font-size: 14px; font-weight: 700; font-family: inherit; cursor: pointer; }
+        .fr-hint-btn:active { transform: scale(0.98); }
         #fr-search { margin: 2px 0 10px; }
         /* ===== Bib mode accent ===== */
         body.bib-mode { --accent: #2563eb; --accent-soft: rgba(37,99,235,0.12); --accent-softer: rgba(37,99,235,0.06); }
@@ -1024,10 +1028,10 @@
     else if (spParts[1]) { startMode = 'mensa'; navDate = spParts[1]; navTime = spParts[2]; navMensa = spParts[3]; }
     /* ===== i18n (EN / DE / RU) ===== */
     const STRINGS = {
-        ru: { soon:'Скоро', menu_lang:'Язык', menu_friends:'Друзья', friends_title:'Друзья', friends_sub:'контакты видны только взаимным друзьям', fr_invite:'Пригласить', fr_qr:'QR-код', fr_requests:'ЗАЯВКИ', fr_my:'МОИ ДРУЗЬЯ', fr_empty:'Пригласи друзей по ссылке или QR', fr_remove_confirm:'Удалить {name} из друзей?', fr_removed:'Удалён из друзей', fr_search:'Поиск друзей…', fr_nofound:'Никого не найдено', fr_invite_text:'Быть друзьями с {name} в Campus Meet 👋', fr_req_sent:'Заявка отправлена {name}', fr_req_already:'Вы уже отправили запрос {name}', fr_already_friends:'Вы уже друзья с {name}', fr_req_declined:'Заявка отклонена', fr_link_copied:'Ссылка скопирована', fr_qr_fail:'Не удалось показать QR', fr_added:'Теперь вы друзья 🎉', fr_added_name:'Теперь вы друзья 🎉 с {name}', qr_title:'Пригласить в друзья', qr_hint:'Друг сканирует код — и вы в друзьях', qr_copy:'Скопировать ссылку', today:'Сегодня', tomorrow:'Завтра', yesterday:'Вчера', week:'Неделя', add_group:'＋ Группа',
+        ru: { soon:'Скоро', menu_lang:'Язык', menu_friends:'Друзья', friends_title:'Друзья', friends_sub:'контакты видны только взаимным друзьям', fr_invite:'Пригласить', fr_qr:'QR-код', fr_requests:'ЗАЯВКИ', fr_my:'МОИ ДРУЗЬЯ', fr_empty:'Пригласи друзей по ссылке или QR', board_no_friends_title:'Добавь друзей', board_no_friends:'Добавь друзей, чтобы видеть, кто в столовке и библиотеке', fr_remove_confirm:'Удалить {name} из друзей?', fr_removed:'Удалён из друзей', fr_search:'Поиск друзей…', fr_nofound:'Никого не найдено', fr_invite_text:'Быть друзьями с {name} в Campus Meet 👋', fr_req_sent:'Заявка отправлена {name}', fr_req_already:'Вы уже отправили запрос {name}', fr_already_friends:'Вы уже друзья с {name}', fr_req_declined:'Заявка отклонена', fr_link_copied:'Ссылка скопирована', fr_qr_fail:'Не удалось показать QR', fr_added:'Теперь вы друзья 🎉', fr_added_name:'Теперь вы друзья 🎉 с {name}', qr_title:'Пригласить в друзья', qr_hint:'Друг сканирует код — и вы в друзьях', qr_copy:'Скопировать ссылку', today:'Сегодня', tomorrow:'Завтра', yesterday:'Вчера', week:'Неделя', add_group:'＋ Группа',
             tab_day:'День', tab_week:'Неделя', back_today:'↺ Вернуться к сегодня',
             create_title:'Во сколько идёшь в столовку?', sec_time:'Время', sec_where:'Куда идёшь',
-            exact_time:'Точное время', now_btn:'Сейчас', until_opt:'До скольки (по желанию)', btn_book:'Записаться',
+            exact_time:'Точное время', now_btn:'Сейчас', until_at:'до {t}', until_opt:'До скольки (по желанию)', btn_book:'Записаться',
             btn_change_time:'Изменить время', bibcreate_title:'Куда идёшь заниматься?', sec_library:'Библиотека',
             sec_when_come:'Во сколько придёшь', btn_i_come:'Я приду', mode_only:'Только…', mode_except:'Кроме…',
             ph_search:'Поиск людей…', ph_group_name:'Название группы…', btn_cancel:'Отмена', btn_save:'Сохранить',
@@ -1055,10 +1059,10 @@
             n_b_change:'меняет — {place} с {from}{until} ({day})', n_b_new:'идёт в {place} с {from}{until} ({day})', n_b_leave:'уходит из {place} ({day})',
             n_self_moved:'✏️ Вы перенесли — {old} → {new} · {place} ({day})', n_self_booked:'✅ Вы записаны — {start} · {place} ({day})',
             n_self_left_m:'❌ Вы вышли — {old} · {place} ({day})', n_self_bib:'✅ Вы в {place} с {from}{until} ({day})', n_self_left_b:'❌ Вы ушли из {place} ({day})' },
-        en: { soon:'Soon', menu_lang:'Language', menu_friends:'Friends', friends_title:'Friends', friends_sub:'contacts visible only to mutual friends', fr_invite:'Invite', fr_qr:'QR code', fr_requests:'REQUESTS', fr_my:'MY FRIENDS', fr_empty:'Invite friends via link or QR', fr_remove_confirm:'Remove {name} from friends?', fr_removed:'Removed from friends', fr_search:'Search friends…', fr_nofound:'Nobody found', fr_invite_text:'Be friends with {name} on Campus Meet 👋', fr_req_sent:'Request sent to {name}', fr_req_already:'You already sent a request to {name}', fr_already_friends:"You're already friends with {name}", fr_req_declined:'Request declined', fr_link_copied:'Link copied', fr_qr_fail:"Couldn't show QR", fr_added:"You're now friends 🎉", fr_added_name:"You're now friends 🎉 with {name}", qr_title:'Invite a friend', qr_hint:'Friend scans the code to connect', qr_copy:'Copy link', today:'Today', tomorrow:'Tomorrow', yesterday:'Yesterday', week:'Week', add_group:'＋ Group',
+        en: { soon:'Soon', menu_lang:'Language', menu_friends:'Friends', friends_title:'Friends', friends_sub:'contacts visible only to mutual friends', fr_invite:'Invite', fr_qr:'QR code', fr_requests:'REQUESTS', fr_my:'MY FRIENDS', fr_empty:'Invite friends via link or QR', board_no_friends_title:'Add friends', board_no_friends:"Add friends to see who's at the canteen and library", fr_remove_confirm:'Remove {name} from friends?', fr_removed:'Removed from friends', fr_search:'Search friends…', fr_nofound:'Nobody found', fr_invite_text:'Be friends with {name} on Campus Meet 👋', fr_req_sent:'Request sent to {name}', fr_req_already:'You already sent a request to {name}', fr_already_friends:"You're already friends with {name}", fr_req_declined:'Request declined', fr_link_copied:'Link copied', fr_qr_fail:"Couldn't show QR", fr_added:"You're now friends 🎉", fr_added_name:"You're now friends 🎉 with {name}", qr_title:'Invite a friend', qr_hint:'Friend scans the code to connect', qr_copy:'Copy link', today:'Today', tomorrow:'Tomorrow', yesterday:'Yesterday', week:'Week', add_group:'＋ Group',
             tab_day:'Day', tab_week:'Week', back_today:'↺ Back to today',
             create_title:'When are you going to the canteen?', sec_time:'Time', sec_where:'Where to',
-            exact_time:'Exact time', now_btn:'Now', until_opt:'Until (optional)', btn_book:'Book',
+            exact_time:'Exact time', now_btn:'Now', until_at:'until {t}', until_opt:'Until (optional)', btn_book:'Book',
             btn_change_time:'Change time', bibcreate_title:'Where are you studying?', sec_library:'Library',
             sec_when_come:'When will you arrive?', btn_i_come:"I'll come", mode_only:'Only…', mode_except:'Except…',
             ph_search:'Search people…', ph_group_name:'Group name…', btn_cancel:'Cancel', btn_save:'Save',
@@ -1086,10 +1090,10 @@
             n_b_change:'changes — {place} from {from}{until} ({day})', n_b_new:'is going to {place} from {from}{until} ({day})', n_b_leave:'is leaving {place} ({day})',
             n_self_moved:'✏️ You moved — {old} → {new} · {place} ({day})', n_self_booked:"✅ You're booked — {start} · {place} ({day})",
             n_self_left_m:'❌ You left — {old} · {place} ({day})', n_self_bib:"✅ You're at {place} from {from}{until} ({day})", n_self_left_b:'❌ You left {place} ({day})' },
-        de: { soon:'Bald', menu_lang:'Sprache', menu_friends:'Freunde', friends_title:'Freunde', friends_sub:'Kontakte nur für gegenseitige Freunde', fr_invite:'Einladen', fr_qr:'QR-Code', fr_requests:'ANFRAGEN', fr_my:'MEINE FREUNDE', fr_empty:'Lade Freunde per Link oder QR ein', fr_remove_confirm:'{name} aus Freunden entfernen?', fr_removed:'Aus Freunden entfernt', fr_search:'Freunde suchen…', fr_nofound:'Niemand gefunden', fr_invite_text:'Mit {name} befreundet sein bei Campus Meet 👋', fr_req_sent:'Anfrage an {name} gesendet', fr_req_already:'Anfrage an {name} läuft bereits', fr_already_friends:'Ihr seid schon Freunde mit {name}', fr_req_declined:'Anfrage abgelehnt', fr_link_copied:'Link kopiert', fr_qr_fail:'QR fehlgeschlagen', fr_added:'Ihr seid jetzt Freunde 🎉', fr_added_name:'Ihr seid jetzt Freunde 🎉 mit {name}', qr_title:'Freund einladen', qr_hint:'Freund scannt den Code', qr_copy:'Link kopieren', today:'Heute', tomorrow:'Morgen', yesterday:'Gestern', week:'Woche', add_group:'＋ Gruppe',
+        de: { soon:'Bald', menu_lang:'Sprache', menu_friends:'Freunde', friends_title:'Freunde', friends_sub:'Kontakte nur für gegenseitige Freunde', fr_invite:'Einladen', fr_qr:'QR-Code', fr_requests:'ANFRAGEN', fr_my:'MEINE FREUNDE', fr_empty:'Lade Freunde per Link oder QR ein', board_no_friends_title:'Freunde hinzufügen', board_no_friends:'Füge Freunde hinzu, um zu sehen, wer in Mensa und Bib ist', fr_remove_confirm:'{name} aus Freunden entfernen?', fr_removed:'Aus Freunden entfernt', fr_search:'Freunde suchen…', fr_nofound:'Niemand gefunden', fr_invite_text:'Mit {name} befreundet sein bei Campus Meet 👋', fr_req_sent:'Anfrage an {name} gesendet', fr_req_already:'Anfrage an {name} läuft bereits', fr_already_friends:'Ihr seid schon Freunde mit {name}', fr_req_declined:'Anfrage abgelehnt', fr_link_copied:'Link kopiert', fr_qr_fail:'QR fehlgeschlagen', fr_added:'Ihr seid jetzt Freunde 🎉', fr_added_name:'Ihr seid jetzt Freunde 🎉 mit {name}', qr_title:'Freund einladen', qr_hint:'Freund scannt den Code', qr_copy:'Link kopieren', today:'Heute', tomorrow:'Morgen', yesterday:'Gestern', week:'Woche', add_group:'＋ Gruppe',
             tab_day:'Tag', tab_week:'Woche', back_today:'↺ Zurück zu heute',
             create_title:'Wann gehst du in die Mensa?', sec_time:'Zeit', sec_where:'Wohin',
-            exact_time:'Genaue Zeit', now_btn:'Jetzt', until_opt:'Bis wann (optional)', btn_book:'Eintragen',
+            exact_time:'Genaue Zeit', now_btn:'Jetzt', until_at:'bis {t}', until_opt:'Bis wann (optional)', btn_book:'Eintragen',
             btn_change_time:'Zeit ändern', bibcreate_title:'Wo lernst du?', sec_library:'Bibliothek',
             sec_when_come:'Wann kommst du?', btn_i_come:'Ich komme', mode_only:'Nur…', mode_except:'Außer…',
             ph_search:'Leute suchen…', ph_group_name:'Gruppenname…', btn_cancel:'Abbrechen', btn_save:'Speichern',
@@ -1710,6 +1714,12 @@
         const isToday = isoDate(currentDate) === isoDate(new Date());
         document.getElementById('today-btn').hidden = isToday;
     }
+    function friendsHintEl() {
+        const w = document.createElement('div'); w.className = 'fr-hint';
+        const t = document.createElement('div'); t.className = 'fr-hint-txt'; t.textContent = tr('board_no_friends');
+        const b = document.createElement('button'); b.className = 'fr-hint-btn'; b.type = 'button'; b.textContent = tr('menu_friends'); b.onclick = () => { haptic('light'); openFriends(); };
+        w.appendChild(t); w.appendChild(b); return w;
+    }
     function renderTimeline() {
         const wrap = document.getElementById('timeline-wrap');
         wrap.innerHTML = '';
@@ -1748,11 +1758,13 @@
         if (groups.length === 0) {
             const empty = document.createElement('div');
             empty.className = 'empty-state';
+            const _noFr = !Object.keys(state.friends || {}).length;
             empty.innerHTML = `
                 <div class="icon">🍽️</div>
-                <div class="title">${tr('empty_title')}</div>
-                <div class="desc">${tr('empty_desc')}</div>
+                <div class="title">${_noFr ? tr('board_no_friends_title') : tr('empty_title')}</div>
+                <div class="desc">${_noFr ? tr('board_no_friends') : tr('empty_desc')}</div>
             `;
+            if (_noFr) { const _fb = document.createElement('button'); _fb.className = 'fr-hint-btn'; _fb.type = 'button'; _fb.style.marginTop = '14px'; _fb.textContent = tr('menu_friends'); _fb.onclick = () => { haptic('light'); openFriends(); }; empty.appendChild(_fb); }
             empty.style.position = 'absolute';
             empty.style.left = '0';
             empty.style.right = '0';
@@ -2068,7 +2080,7 @@
             const name = document.createElement('span');
             name.className = 'user-name';
             const _uUntil = ((state.entries[dateIso] || {})[u.id] || {}).until;
-            name.textContent = (u.isMe ? 'Вы' : u.name) + (_uUntil ? (' · до ' + _uUntil) : '');
+            name.textContent = (u.isMe ? tr('you') : (u.name || tr('guest'))) + (_uUntil ? (' · ' + tr('until_at', { t: _uUntil })) : '');
             chip.appendChild(av); chip.appendChild(name);
             chip.onclick = () => openUserChat(u);
             usersDiv.appendChild(chip);
@@ -2132,6 +2144,7 @@
         const di = isoDate(currentDate);
         const list = document.getElementById('bib-list');
         list.innerHTML = '';
+        if (!Object.keys(state.friends || {}).length) { list.appendChild(friendsHintEl()); }
         const mine = bibFindMine(di);
         const _extra = BIBS_MORE.filter(b => bibPeople(di, b.id).length > 0);
         [...BIBS, ..._extra].forEach(b => {
