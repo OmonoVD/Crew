@@ -739,7 +739,6 @@
         <div class="menu-row" id="menu-lang">
             <span class="menu-ic">文A</span>
             <span class="menu-label" id="menu-lang-label">Язык</span>
-            <span class="menu-cur" id="menu-lang-cur">Русский</span>
             <span class="menu-chev">›</span>
         </div>
         <div class="menu-row" id="menu-friends">
@@ -1120,9 +1119,6 @@
     function dayTxtL(L) { return `${currentDate.getDate()} ${L_MONTHS_SHORT[L][currentDate.getMonth()]}`; }
     function applyI18n() {
         document.querySelectorAll('#lang-menu .mode-item').forEach(it => it.classList.toggle('active', it.dataset.lang === lang));
-        const _lc = document.querySelector('#lang-menu .mode-item[data-lang="' + lang + '"]');
-        const _cur = document.getElementById('menu-lang-cur');
-        if (_cur && _lc) _cur.textContent = _lc.textContent;
         const setT = (sel, key) => { const el = document.querySelector(sel); if (el) el.textContent = tr(key); };
         const setP = (sel, key) => { const el = document.querySelector(sel); if (el) el.setAttribute('placeholder', tr(key)); };
         setT('.tab[data-view="day"]', 'tab_day'); setT('.tab[data-view="week"]', 'tab_week');
@@ -1370,6 +1366,15 @@
                 const di = isoDate(currentDate);
                 if (bibPeople(di, pendingBibNav.bib).length) { openBibDetail(pendingBibNav.bib); pendingBibNav = null; }
             }
+        });
+        // Subscribe: friends + incoming requests (per current user)
+        onValue(ref(fbDb, `rooms/${roomId}/friends/${currentUser.id}`), (snap) => {
+            state.friends = snap.val() || {};
+            renderFriends();
+        });
+        onValue(ref(fbDb, `rooms/${roomId}/friend_requests/${currentUser.id}`), (snap) => {
+            state.friendReqs = snap.val() || {};
+            renderFriends();
         });
         // Announce/refresh self profile
         update(ref(fbDb, `rooms/${roomId}/members/${currentUser.id}`), {
