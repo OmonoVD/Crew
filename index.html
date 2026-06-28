@@ -946,7 +946,7 @@
        ===================================================================== */
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js';
     import {
-        getDatabase, ref, onValue, set, remove, update, serverTimestamp
+        getDatabase, ref, onValue, get, set, remove, update, serverTimestamp
     } from 'https://www.gstatic.com/firebasejs/10.13.2/firebase-database.js';
     import { getAuth, signInWithCustomToken } from 'https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js';
     const firebaseConfig = {
@@ -1402,6 +1402,7 @@
             photo_url: currentUser.photo_url || null,
             lastSeen: serverTimestamp(),
         }).catch(e => console.error('member update failed', e));
+        update(ref(fbDb, `rooms/${roomId}/users_private/${currentUser.id}`), { username: currentUser.username || null }).catch(() => {});
     }
     /* ===== UI state ===== */
     let view = 'day';
@@ -1656,12 +1657,17 @@
         showToast(tr('toast_left'));
         render();
     }
-    function openUserChat(user) {
+    async function openUserChat(user) {
         if (user.isMe) { showToast(tr('toast_its_you')); return; }
         haptic('light');
-        if (user.username) {
-            if (tg) tg.openTelegramLink(`https://t.me/${user.username}`);
-            else window.open(`https://t.me/${user.username}`, '_blank');
+        let uname = null;
+        if (FIREBASE_READY && fbDb && isFriend(user.id)) {
+            try { const snap = await get(ref(fbDb, `rooms/${roomId}/users_private/${user.id}`)); const v = snap.val(); uname = (v && v.username) || null; } catch (e) {}
+        }
+        if (!uname) uname = user.username || null;
+        if (uname) {
+            if (tg) tg.openTelegramLink(`https://t.me/${uname}`);
+            else window.open(`https://t.me/${uname}`, '_blank');
         } else if (tg) {
             tg.openTelegramLink(`tg://user?id=${user.id}`);
         } else showToast(tr('toast_no_username'));
