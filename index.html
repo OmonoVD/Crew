@@ -605,8 +605,6 @@
         .menu-ic svg { width:16px; height:16px; }
         #menu-lang .menu-ic { background:rgba(37,99,235,0.16); color:#2563eb; }
         #menu-friends .menu-ic { background:rgba(22,163,74,0.16); color:#16a34a; }
-        #bell-mute .menu-ic { background:rgba(245,158,11,0.16); color:#f59e0b; }
-        #bell-settings .menu-ic { background:rgba(99,102,241,0.16); color:#6366f1; }
         .menu-label { flex:1; font-size:15px; font-weight:700; color:var(--text); }
         .menu-cur { font-size:13px; color:var(--hint); }
         .menu-chev { color:var(--hint); font-size:17px; }
@@ -762,17 +760,6 @@
             <span class="menu-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 19c0-3 2.6-5 5.5-5s5.5 2 5.5 5"/><path d="M16 5.4a3 3 0 0 1 0 5.2"/><path d="M17.5 14.3c2 .6 3.4 2.3 3.4 4.7"/></svg></span>
             <span class="menu-label" id="menu-friends-label">Друзья</span>
             <span class="menu-badge" id="fr-badge" hidden>0</span>
-            <span class="menu-chev">›</span>
-        </div>
-    </div>
-    <div class="lang-menu" id="bell-menu" hidden>
-        <div class="menu-row" id="bell-mute">
-            <span class="menu-ic" id="bell-mute-ic">🔔</span>
-            <span class="menu-label" id="bell-mute-label">Отключить</span>
-        </div>
-        <div class="menu-row" id="bell-settings">
-            <span class="menu-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/><circle cx="9" cy="6" r="2" fill="currentColor"/><circle cx="15" cy="12" r="2" fill="currentColor"/><circle cx="8" cy="18" r="2" fill="currentColor"/></svg></span>
-            <span class="menu-label" id="bell-settings-label">Настройки</span>
             <span class="menu-chev">›</span>
         </div>
     </div>
@@ -1061,7 +1048,7 @@
             toast_its_you:'Это вы 🙂', toast_no_username:'У пользователя нет @username', toast_no_past:'Нельзя записаться задним числом',
             toast_until_before:'Уйти можно только позже прихода', toast_time_passed:'Это время уже прошло', toast_cancelled:'Эта запись отменена', toast_setting_saved:'Настройка сохранена',
             toast_pick_in_list:'Сначала отметь людей в списке', toast_pick_for_group:'Отметь людей для группы', toast_enter_name:'Введи название', toast_none_selected:'Никто не выбран',
-            notif_on_title:'Уведомления включены', notif_off_title:'Уведомления выключены', bell_off_action:'Отключить', bell_on_action:'Включить', bell_settings:'Настройки', toast_notif_on:'Уведомления включены 🔔', toast_notif_off:'Уведомления выключены 🔕',
+            notif_on_title:'Уведомления включены', notif_off_title:'Уведомления выключены', toast_notif_on:'Уведомления включены 🔔', toast_notif_off:'Уведомления выключены 🔕',
             toast_group_saved:'Группа «{name}» сохранена', toast_group_updated:'Группа «{name}» обновлена', confirm_delete_group:'Удалить группу «{name}»?',
             gm_title:'Группа «{name}»', gm_empty:'В группе пока никого',
             empty_count:'пусто', n_today:'{p} сегодня', edit_group_hint:'Отметь, кто в группе «{name}», и нажми «Сохранить изменения»',
@@ -1092,7 +1079,7 @@
             toast_its_you:"That's you 🙂", toast_no_username:'User has no @username', toast_no_past:"Can't book in the past",
             toast_until_before:'Leave time must be after arrival', toast_time_passed:'That time has passed', toast_cancelled:'This entry was cancelled', toast_setting_saved:'Setting saved',
             toast_pick_in_list:'First select people in the list', toast_pick_for_group:'Select people for the group', toast_enter_name:'Enter a name', toast_none_selected:'Nobody selected',
-            notif_on_title:'Notifications on', notif_off_title:'Notifications off', bell_off_action:'Mute', bell_on_action:'Unmute', bell_settings:'Settings', toast_notif_on:'Notifications on 🔔', toast_notif_off:'Notifications off 🔕',
+            notif_on_title:'Notifications on', notif_off_title:'Notifications off', toast_notif_on:'Notifications on 🔔', toast_notif_off:'Notifications off 🔕',
             toast_group_saved:'Group "{name}" saved', toast_group_updated:'Group "{name}" updated', confirm_delete_group:'Delete group "{name}"?',
             gm_title:'Group "{name}"', gm_empty:'No one in this group yet',
             empty_count:'empty', n_today:'{p} today', edit_group_hint:'Select who is in "{name}", then tap "Save changes"',
@@ -1123,7 +1110,7 @@
             toast_its_you:'Das bist du 🙂', toast_no_username:'Nutzer hat keinen @username', toast_no_past:'Kein Eintrag rückwirkend',
             toast_until_before:'Endzeit muss nach Ankunft liegen', toast_time_passed:'Diese Zeit ist vorbei', toast_cancelled:'Dieser Eintrag wurde storniert', toast_setting_saved:'Einstellung gespeichert',
             toast_pick_in_list:'Wähle zuerst Leute aus der Liste', toast_pick_for_group:'Wähle Leute für die Gruppe', toast_enter_name:'Gib einen Namen ein', toast_none_selected:'Niemand ausgewählt',
-            notif_on_title:'Benachrichtigungen an', notif_off_title:'Benachrichtigungen aus', bell_off_action:'Deaktivieren', bell_on_action:'Aktivieren', bell_settings:'Einstellungen', toast_notif_on:'Benachrichtigungen an 🔔', toast_notif_off:'Benachrichtigungen aus 🔕',
+            notif_on_title:'Benachrichtigungen an', notif_off_title:'Benachrichtigungen aus', toast_notif_on:'Benachrichtigungen an 🔔', toast_notif_off:'Benachrichtigungen aus 🔕',
             toast_group_saved:'Gruppe „{name}" gespeichert', toast_group_updated:'Gruppe „{name}" aktualisiert', confirm_delete_group:'Gruppe „{name}" löschen?',
             gm_title:'Gruppe „{name}"', gm_empty:'Noch niemand in der Gruppe',
             empty_count:'leer', n_today:'{p} heute', edit_group_hint:'Wähle, wer in „{name}" ist, dann „Änderungen speichern"',
@@ -1178,7 +1165,7 @@
         setT('#aud-edit-cancel', 'btn_cancel'); setT('#aud-edit-save', 'btn_save_changes');
         setT('#gm-update', 'btn_edit_members'); setT('#gm-delete', 'btn_delete'); setT('#gm-close', 'btn_close');
         setT('#aud-edit-label', 'edit_group_default');
-        setT('#menu-lang-label', 'menu_lang'); setT('#menu-friends-label', 'menu_friends'); setT('#bell-settings-label', 'bell_settings');
+        setT('#menu-lang-label', 'menu_lang'); setT('#menu-friends-label', 'menu_friends');
         setT('#friends-title', 'friends_title'); setT('#friends-sub', 'friends_sub');
         setT('#fr-invite-label', 'fr_invite'); setT('#fr-qr-label', 'fr_qr'); setP('#fr-search', 'fr_search');
         setT('#qr-title', 'qr_title'); setT('#qr-hint', 'qr_hint'); setT('#qr-close', 'btn_close');
@@ -2494,34 +2481,10 @@
         if (backButtonOwner === 'bibdetail') detachBackButton();
     }
     function closeAudience() {
-        inboundStandalone = false;
         document.getElementById('sheet-audience').classList.remove('show');
         document.getElementById('sheet-backdrop').classList.remove('show');
         setTimeout(() => document.getElementById('sheet-audience').hidden = true, 280);
         if (backButtonOwner === 'audience') detachBackButton();
-    }
-    function openInbound() {
-        pendingBooking = null;
-        inboundStandalone = true;
-        const _audSheet = document.getElementById('sheet-audience');
-        _audSheet.style.removeProperty('--accent'); _audSheet.style.removeProperty('--accent-soft'); _audSheet.style.removeProperty('--accent-softer');
-        const ib = loadInbound();
-        audMode = ib.mode; audSel = {}; (ib.ids || []).forEach(id => { audSel[id] = true; });
-        audView = 'inbound';
-        _seedModeSel();
-        activeGroupId = null; editingGroupId = null;
-        document.getElementById('aud-groupedit').hidden = true; closeGroupSave();
-        const s = document.getElementById('aud-search'); if (s) s.value = '';
-        document.getElementById('aud-people-wrap').hidden = false;
-        document.querySelectorAll('#aud-modes .aud-mode').forEach(b => b.classList.toggle('active', b.dataset.amode === audMode));
-        applyAudView();
-        renderAudGroups();
-        renderAudPeople('');
-        _audSheet.hidden = false;
-        document.getElementById('sheet-backdrop').classList.add('show');
-        requestAnimationFrame(() => _audSheet.classList.add('show'));
-        attachBackButton('audience', closeAudience);
-        haptic('light');
     }
     function openFriends() {
         const _se = document.getElementById('fr-search'); if (_se) _se.value = '';
@@ -2692,7 +2655,6 @@
     let audSel = {};
     let activeGroupId = null;
     let audView = 'audience';
-    let inboundStandalone = false;
     let _savedAud = null;
     let _modeSel = { only: {}, except: {} };
     function loadLastAudience() {
@@ -2716,8 +2678,7 @@
     function applyAudView() {
         const inb = audView === 'inbound';
         document.getElementById('aud-title').textContent = inb ? tr('inbound_title') : tr('audience_title');
-        const _gear = document.getElementById('aud-gear');
-        if (_gear) { _gear.style.display = inboundStandalone ? 'none' : ''; _gear.classList.toggle('active', inb); }
+        document.getElementById('aud-gear').classList.toggle('active', inb);
         document.getElementById('aud-confirm').textContent = inb ? tr('btn_save') : tr('btn_done');
         const _allBtn = document.querySelector('#aud-modes .aud-mode[data-amode="all"]');
         if (_allBtn) _allBtn.textContent = inb ? tr('all_recv') : tr('all_show');
@@ -2935,7 +2896,6 @@
         document.querySelectorAll('#aud-modes .aud-mode').forEach(b => b.classList.toggle('active', b.dataset.amode === audMode));
         document.getElementById('aud-people-wrap').hidden = false;
         document.getElementById('aud-sub').textContent = audActiveLabel();
-        inboundStandalone = false;
         audView = 'audience';
         applyAudView();
         _seedModeSel();
@@ -3028,26 +2988,7 @@
         const b = document.getElementById('bell-btn');
         if (b) { b.textContent = on ? '🔔' : '🔕'; b.title = on ? tr('notif_on_title') : tr('notif_off_title'); }
     }
-    function renderBellMenu() {
-        const on = state.members?.[currentUser.id]?.notify !== false;
-        const lbl = document.getElementById('bell-mute-label');
-        const ic = document.getElementById('bell-mute-ic');
-        if (lbl) lbl.textContent = on ? tr('bell_off_action') : tr('bell_on_action');
-        if (ic) ic.textContent = on ? '🔔' : '🔕';
-    }
-    document.getElementById('bell-btn').onclick = (e) => {
-        e.stopPropagation();
-        haptic('light');
-        document.getElementById('main-menu').hidden = true;
-        document.getElementById('lang-menu').hidden = true;
-        document.getElementById('mode-menu').hidden = true;
-        const bm = document.getElementById('bell-menu');
-        renderBellMenu();
-        bm.hidden = !bm.hidden;
-    };
-    document.getElementById('bell-mute').onclick = (e) => {
-        e.stopPropagation();
-        document.getElementById('bell-menu').hidden = true;
+    document.getElementById('bell-btn').onclick = () => {
         haptic('light');
         const on = state.members?.[currentUser.id]?.notify !== false;
         const next = !on;
@@ -3061,12 +3002,6 @@
             if (tg) tg.openTelegramLink(url); else window.open(url, '_blank');
         }
         renderBell();
-    };
-    document.getElementById('bell-settings').onclick = (e) => {
-        e.stopPropagation();
-        document.getElementById('bell-menu').hidden = true;
-        haptic('light');
-        openInbound();
     };
     document.getElementById('fab').onclick = () => { haptic('light'); if (isPastDate()) { showToast(tr('toast_no_past')); return; } if (mode === 'bib') openBibCreate(); else openCreateSheet(); };
     document.getElementById('credit').onclick = () => {
@@ -3127,7 +3062,7 @@
         render();
         haptic('light');
     });
-    document.getElementById('menu-btn').onclick = (e) => { e.stopPropagation(); document.getElementById('lang-menu').hidden = true; document.getElementById('bell-menu').hidden = true; const m = document.getElementById('main-menu'); m.hidden = !m.hidden; };
+    document.getElementById('menu-btn').onclick = (e) => { e.stopPropagation(); document.getElementById('lang-menu').hidden = true; const m = document.getElementById('main-menu'); m.hidden = !m.hidden; };
     document.getElementById('menu-lang').onclick = (e) => { e.stopPropagation(); document.getElementById('main-menu').hidden = true; document.getElementById('lang-menu').hidden = false; };
     document.getElementById('menu-friends').onclick = (e) => { e.stopPropagation(); document.getElementById('main-menu').hidden = true; openFriends(); };
     document.getElementById('fr-invite').onclick = () => { haptic('light'); friendInvite('share'); };
@@ -3141,8 +3076,6 @@
         if (lm && !lm.hidden) lm.hidden = true;
         const xm = document.getElementById('main-menu');
         if (xm && !xm.hidden) xm.hidden = true;
-        const bem = document.getElementById('bell-menu');
-        if (bem && !bem.hidden) bem.hidden = true;
     });
     document.getElementById('bib-prev-day').onclick = () => { currentDate = addDays(currentDate, -1); render(); haptic('light'); };
     document.getElementById('bib-next-day').onclick = () => { currentDate = addDays(currentDate, +1); render(); haptic('light'); };
@@ -3204,17 +3137,7 @@
         haptic('light');
     });
     document.getElementById('aud-search').oninput = (e) => renderAudPeople(e.target.value);
-    document.getElementById('aud-confirm').onclick = () => {
-        if (audView === 'inbound') {
-            if (inboundStandalone) {
-                const ids = Object.keys(audSel).filter(x => audSel[x]);
-                saveInbound({ mode: audMode, ids: (audMode === 'all') ? [] : ids });
-                showToast(tr('toast_setting_saved'));
-                inboundStandalone = false;
-                closeAudience();
-            } else { exitInbound(true); }
-        } else { confirmAudience(); }
-    };
+    document.getElementById('aud-confirm').onclick = () => { if (audView === 'inbound') exitInbound(true); else confirmAudience(); };
     document.getElementById('aud-gear').onclick = () => { if (audView === 'audience') enterInbound(); else exitInbound(false); };
     document.getElementById('aud-group-confirm').onclick = () => confirmGroupSave();
     document.getElementById('aud-group-cancel').onclick = () => closeGroupSave();
