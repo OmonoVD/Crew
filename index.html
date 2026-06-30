@@ -3127,7 +3127,7 @@
         render();
         haptic('light');
     });
-    document.getElementById('menu-btn').onclick = (e) => { e.stopPropagation(); document.getElementById('lang-menu').hidden = true; const m = document.getElementById('main-menu'); m.hidden = !m.hidden; };
+    document.getElementById('menu-btn').onclick = (e) => { e.stopPropagation(); document.getElementById('lang-menu').hidden = true; document.getElementById('bell-menu').hidden = true; const m = document.getElementById('main-menu'); m.hidden = !m.hidden; };
     document.getElementById('menu-lang').onclick = (e) => { e.stopPropagation(); document.getElementById('main-menu').hidden = true; document.getElementById('lang-menu').hidden = false; };
     document.getElementById('menu-friends').onclick = (e) => { e.stopPropagation(); document.getElementById('main-menu').hidden = true; openFriends(); };
     document.getElementById('fr-invite').onclick = () => { haptic('light'); friendInvite('share'); };
