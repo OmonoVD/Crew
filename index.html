@@ -914,6 +914,7 @@
         <div class="sheet-handle"></div>
         <div class="aud-head">
             <div class="sheet-title" id="aud-title">Кому показать?</div>
+            <button class="aud-gear" id="aud-gear" type="button" title="От кого получать">⚙️</button>
         </div>
         <div class="sheet-subtitle" id="aud-sub">Запись увидят все в твоём круге</div>
         <div class="aud-modes" id="aud-modes">
@@ -2715,6 +2716,8 @@
     function applyAudView() {
         const inb = audView === 'inbound';
         document.getElementById('aud-title').textContent = inb ? tr('inbound_title') : tr('audience_title');
+        const _gear = document.getElementById('aud-gear');
+        if (_gear) { _gear.style.display = inboundStandalone ? 'none' : ''; _gear.classList.toggle('active', inb); }
         document.getElementById('aud-confirm').textContent = inb ? tr('btn_save') : tr('btn_done');
         const _allBtn = document.querySelector('#aud-modes .aud-mode[data-amode="all"]');
         if (_allBtn) _allBtn.textContent = inb ? tr('all_recv') : tr('all_show');
@@ -2932,6 +2935,7 @@
         document.querySelectorAll('#aud-modes .aud-mode').forEach(b => b.classList.toggle('active', b.dataset.amode === audMode));
         document.getElementById('aud-people-wrap').hidden = false;
         document.getElementById('aud-sub').textContent = audActiveLabel();
+        inboundStandalone = false;
         audView = 'audience';
         applyAudView();
         _seedModeSel();
@@ -3211,6 +3215,7 @@
             } else { exitInbound(true); }
         } else { confirmAudience(); }
     };
+    document.getElementById('aud-gear').onclick = () => { if (audView === 'audience') enterInbound(); else exitInbound(false); };
     document.getElementById('aud-group-confirm').onclick = () => confirmGroupSave();
     document.getElementById('aud-group-cancel').onclick = () => closeGroupSave();
     document.getElementById('aud-edit-save').onclick = () => saveGroupEdit();
