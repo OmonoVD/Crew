@@ -1385,6 +1385,9 @@
         // Subscribe: members
         onValue(ref(fbDb, `rooms/${roomId}/members`), (snap) => {
             state.members = snap.val() || {};
+            recomputeFriends();
+            friendsReady = true;
+            renderFriends();
             render();
         });
         // Subscribe: bib
@@ -1396,9 +1399,10 @@
                 if (bibPeople(di, pendingBibNav.bib).length) { openBibDetail(pendingBibNav.bib); pendingBibNav = null; }
             }
         });
-        // Subscribe: friends + incoming requests (per current user)
-        onValue(ref(fbDb, `rooms/${roomId}/friends/${currentUser.id}`), (snap) => {
-            state.friends = snap.val() || {};
+        // Subscribe: removed blocklist (friend = any member not in removed)
+        onValue(ref(fbDb, `rooms/${roomId}/removed/${currentUser.id}`), (snap) => {
+            state.removed = snap.val() || {};
+            recomputeFriends();
             friendsReady = true;
             renderFriends();
             render();
@@ -1502,6 +1506,13 @@
         if (aud.mode === 'except') return ids.indexOf(id) === -1;
         return true;
     }
+    function recomputeFriends() {
+        const out = {};
+        const mem = state.members || {};
+        const rm = state.removed || {};
+        Object.keys(mem).forEach(uid => { if (uid !== currentUser.id && !rm[uid]) out[uid] = true; });
+        state.friends = out;
+    }
     function isFriend(uid) { return !!(state.friends && state.friends[uid]); }
     function canSee(uid, e) {
         if (uid === currentUser.id) return true;
@@ -1556,15 +1567,13 @@
     async function ensureAuth() {
         if (!FIREBASE_READY || !fbAuth || !tg?.initData) return;
         try {
-            const _needSeed = !localStorage.getItem('cm_seeded_v1');
             const r = await fetch(AUTH_URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ initData: tg.initData, seed: _needSeed }),
+                body: JSON.stringify({ initData: tg.initData }),
             });
             const d = await r.json();
             if (d && d.token) await signInWithCustomToken(fbAuth, d.token);
-            if (d && d.seeded) { try { localStorage.setItem('cm_seeded_v1', '1'); } catch (e) {} }
         } catch (e) { console.error('auth failed', e); }
     }
     const esc = s => String(s).replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
