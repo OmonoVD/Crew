@@ -23,6 +23,10 @@
             --accent-text: #ffffff;
             --danger: #ef4444;
             --now-line: #ef4444;
+            --good: #16a34a;
+            --good-soft: rgba(22, 163, 74, 0.12);
+            --warn: #d97706;
+            --warn-soft: rgba(217, 119, 6, 0.12);
             --radius-lg: 16px;
             --radius-md: 12px;
             --radius-sm: 8px;
@@ -650,6 +654,65 @@
         .bib-pchip { font-size: 12px; font-weight: 600; background: var(--surface-alt); color: var(--text); padding: 4px 9px; border-radius: 8px; }
         .bib-pchip.gone { background: transparent; border: 1px dashed var(--border); color: var(--hint); opacity: 0.7; }
         .bib-pchip.gone .pchip-tag { font-size: 9px; font-weight: 800; opacity: 0.8; margin-left: 4px; }
+        /* ===== Статистика (Bib) ===== */
+        .st-nums { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .st-num { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 13px 12px 12px; }
+        .st-num .st-cap { font-size: 11.5px; font-weight: 700; color: var(--hint); display: flex; align-items: center; gap: 5px; }
+        .st-num .st-big { font-size: 26px; font-weight: 800; letter-spacing: -0.02em; margin-top: 7px; font-variant-numeric: tabular-nums; }
+        .st-num .st-sub { font-size: 10.5px; color: var(--hint); margin-top: 3px; line-height: 1.35; }
+        .st-num.flex { border-color: var(--accent); background: var(--accent-softer); cursor: pointer; }
+        .st-num.flex .st-cap { color: var(--accent); }
+        .st-num.off { border-style: dashed; background: var(--surface-alt); opacity: 0.75; cursor: pointer; }
+        .st-num.off .st-big { color: var(--hint); }
+        .st-badge-ok { display: inline-flex; align-items: center; gap: 3px; font-size: 10px; font-weight: 800; color: var(--good); background: var(--good-soft); border-radius: 999px; padding: 2px 7px; vertical-align: middle; }
+        .st-sec { font-size: 12px; font-weight: 700; color: var(--hint); text-transform: uppercase; letter-spacing: 0.04em; margin: 14px 4px 8px; }
+        .st-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 14px; }
+        .st-chart { display: flex; align-items: flex-end; justify-content: space-between; gap: 7px; height: 116px; margin-top: 6px; }
+        .st-bar-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; height: 100%; }
+        .st-bar-col { width: 100%; flex: 1; display: flex; align-items: flex-end; }
+        .st-bar { width: 100%; background: var(--accent-soft); border-radius: 6px 6px 3px 3px; position: relative; }
+        .st-bar.on { background: var(--accent); }
+        .st-bar .st-h { position: absolute; top: -15px; left: 0; right: 0; text-align: center; font-size: 9px; font-weight: 700; color: var(--hint); }
+        .st-bar-day { font-size: 10.5px; font-weight: 600; color: var(--hint); }
+        .st-bar-day.on { color: var(--accent); }
+        .st-facts { display: flex; gap: 8px; margin-top: 10px; }
+        .st-fact { flex: 1; background: var(--surface-alt); border-radius: var(--radius-sm); padding: 9px 10px; font-size: 11.5px; color: var(--hint); }
+        .st-fact b { display: block; font-size: 15px; font-weight: 800; margin-bottom: 1px; color: var(--text); }
+        .st-cta { background: var(--accent-softer); border: 1px solid var(--accent-soft); border-radius: var(--radius-md); padding: 14px; text-align: center; margin-top: 14px; }
+        .st-cta .st-em { font-size: 24px; }
+        .st-cta .st-ct { font-size: 13px; font-weight: 700; margin: 6px 0 2px; }
+        .st-cta .st-cs { font-size: 11.5px; color: var(--hint); line-height: 1.45; }
+        .st-btn { background: var(--accent); color: #fff; border: none; font-family: inherit; font-weight: 700; font-size: 13.5px; padding: 11px 16px; border-radius: 10px; cursor: pointer; margin-top: 11px; width: 100%; }
+        .st-trow { display: flex; align-items: center; gap: 12px; }
+        .st-trow .st-tx { flex: 1; min-width: 0; }
+        .st-trow .st-t1 { font-size: 14px; font-weight: 700; }
+        .st-trow .st-t2 { font-size: 11.5px; color: var(--hint); margin-top: 2px; }
+        .st-sw { width: 46px; height: 28px; border-radius: 999px; background: var(--surface-alt); border: 1px solid var(--border); position: relative; flex: none; cursor: pointer; transition: background 0.18s; }
+        .st-sw::after { content: ""; position: absolute; top: 2px; left: 2px; width: 22px; height: 22px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.25); transition: transform 0.18s; }
+        .st-sw.on { background: var(--good); border-color: var(--good); }
+        .st-sw.on::after { transform: translateX(18px); }
+        .st-state { font-size: 12.5px; font-weight: 700; margin-top: 9px; display: flex; align-items: center; gap: 6px; }
+        .st-state.ok { color: var(--good); }
+        .st-state.off { color: var(--hint); }
+        .st-note { font-size: 11.5px; color: var(--hint); line-height: 1.55; }
+        .st-note b { color: var(--text); }
+        .st-ses { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 13px; margin-top: 10px; }
+        .st-ses .st-sh { display: flex; align-items: center; justify-content: space-between; }
+        .st-ses .st-sp { font-size: 14px; font-weight: 800; display: flex; align-items: center; gap: 6px; }
+        .st-ses .st-sd { font-size: 11px; color: var(--hint); font-weight: 600; }
+        .st-tl { display: flex; align-items: center; gap: 8px; font-size: 12px; margin-top: 9px; }
+        .st-tl .st-lb { width: 64px; color: var(--hint); font-weight: 600; flex: none; }
+        .st-tl .st-vl { font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
+        .st-track { height: 7px; border-radius: 4px; background: var(--surface-alt); position: relative; flex: 1; overflow: hidden; }
+        .st-track .st-fill { position: absolute; top: 0; bottom: 0; border-radius: 4px; }
+        .st-fill.said { background: var(--accent-soft); }
+        .st-fill.geo { background: var(--accent); }
+        .st-verdict { margin-top: 11px; border-radius: var(--radius-sm); padding: 9px 10px; font-size: 11.5px; font-weight: 700; line-height: 1.45; }
+        .st-verdict.ok { background: var(--good-soft); color: var(--good); }
+        .st-verdict.no { background: var(--warn-soft); color: var(--warn); }
+        .st-verdict .st-cnt { display: block; color: var(--text); font-weight: 600; margin-top: 3px; opacity: 0.85; }
+        .st-empty { font-size: 12.5px; color: var(--hint); text-align: center; padding: 18px 8px; }
+        #menu-stats .menu-ic { background: rgba(37,99,235,0.16); }
         .bib-card { padding: 15px 15px; }
         .bib-name { font-size: 16px; }
         #bib-lib-grid .mensa-chip { min-height: 54px; font-size: 15px; padding: 14px 14px; }
@@ -762,6 +825,11 @@
             <span class="menu-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 19c0-3 2.6-5 5.5-5s5.5 2 5.5 5"/><path d="M16 5.4a3 3 0 0 1 0 5.2"/><path d="M17.5 14.3c2 .6 3.4 2.3 3.4 4.7"/></svg></span>
             <span class="menu-label" id="menu-friends-label">Друзья</span>
             <span class="menu-badge" id="fr-badge" hidden>0</span>
+            <span class="menu-chev">›</span>
+        </div>
+        <div class="menu-row" id="menu-stats">
+            <span class="menu-ic">📊</span>
+            <span class="menu-label" id="menu-stats-label">Статистика</span>
             <span class="menu-chev">›</span>
         </div>
     </div>
@@ -882,6 +950,16 @@
         <button class="sheet-action" id="bib-detail-action">Я приду сюда</button>
     </div>
     <!-- Sheet: friends -->
+    <div class="sheet" id="sheet-stats" hidden>
+        <div class="sheet-handle"></div>
+        <div class="sheet-title">Статистика</div>
+        <div id="st-body"></div>
+    </div>
+    <div class="sheet" id="sheet-stats-geo" hidden>
+        <div class="sheet-handle"></div>
+        <div class="sheet-title">Геолокация</div>
+        <div id="st-geo-body"></div>
+    </div>
     <div class="sheet" id="sheet-friends" hidden>
         <div class="sheet-handle"></div>
         <div class="sheet-title" id="friends-title">Друзья</div>
@@ -1060,7 +1138,18 @@
             n_m_join:'присоединяется — {start} · {place} ({day})', n_m_cancel:'отменяет — {old} · {place} ({day})',
             n_b_change:'меняет — {place} с {from}{until} ({day})', n_b_new:'идёт в {place} с {from}{until} ({day})', n_b_leave:'уходит из {place} ({day})',
             n_self_moved:'✏️ Вы перенесли — {old} → {new} · {place} ({day})', n_self_booked:'✅ Вы записаны — {start} · {place} ({day})',
-            n_self_left_m:'❌ Вы вышли — {old} · {place} ({day})', n_self_bib:'✅ Вы в {place} с {from}{until} ({day})', n_self_left_b:'❌ Вы ушли из {place} ({day})' },
+            n_self_left_m:'❌ Вы вышли — {old} · {place} ({day})', n_self_bib:'✅ Вы в {place} с {from}{until} ({day})', n_self_left_b:'❌ Вы ушли из {place} ({day})',
+            menu_stats:'Статистика', st_title:'📊 Статистика', st_personal:'🔒 Личное', st_personal_sub:'всё твоё время · видишь только ты',
+            st_geo:'📍 Гео', st_geo_badge:'✓ гео', st_geo_sub_on:'подтверждено · идёт в рейтинг', st_geo_need:'🔒 нужна геолокация',
+            st_last7:'Последние 7 дней', st_fav:'любимая', st_avg:'в среднем', st_h:'ч', st_min:'мин',
+            st_cta_title:'Включи геолокацию — и флексь часами', st_cta_sub:'Личная статистика уже работает. Для рейтинга нужны гео-подтверждённые часы.', st_cta_btn:'Включить геолокацию',
+            st_geo_head:'📍 Геолокация', st_geo_toggle:'Геолокация', st_geo_toggle_sub:'Разрешаешь один раз — дальше апп сверяет присутствие сам, только когда открыт',
+            st_state_on:'✓ Разрешено', st_state_on_near:'✓ Разрешено · {place} в радиусе {m} м', st_state_off:'○ Выключено · время не идёт в рейтинг, личное работает', st_state_denied:'⚠ Нет доступа — разреши геолокацию боту в Telegram',
+            st_note_bg_b:'В фоне не отслеживаем.', st_note_bg:'Координаты читаются, только когда апп открыт, и не сохраняются — храним лишь факт «был в радиусе библы: да/нет».',
+            st_note_how_t:'Как подтверждается сессия', st_note_how:'Отмечаешь приход и уход как обычно. Гео тихо сверяет их с реальным присутствием. Расхождение в пределах допуска (1,5 ч) — сессия идёт в рейтинг. Больше — только в личную статистику.',
+            st_sessions:'Мои сессии', st_marked:'Отмечено', st_geo_line:'Гео',
+            st_v_ok:'✓ Подтверждено · расхождение {d}', st_v_no:'⚠ Не подтверждено · расхождение {d} > 1,5 ч', st_v_nopings:'⚠ Не подтверждено · нет гео-точек', st_v_nocoords:'⚠ Для этой библиотеки гео пока не настроено', st_v_wait:'⏳ Нет времени ухода — не засчитано', st_v_live:'⏳ Сессия ещё идёт',
+            st_v_counts:'В Гео: {g} · В личное: {p}', st_empty:'Пока пусто — отметься в библиотеке, и здесь появится статистика' },
         en: { soon:'Soon', menu_lang:'Language', menu_friends:'Friends', friends_title:'Friends', friends_sub:'entries visible only to mutual friends', fr_invite:'Invite', fr_qr:'QR code', fr_requests:'REQUESTS', fr_my:'MY FRIENDS', fr_empty:'Invite friends via link or QR', board_no_friends_title:'Add friends', board_no_friends:"Add friends to see who's at the canteen and library", fr_remove_confirm:'Remove {name} from friends?', fr_removed:'Removed from friends', fr_search:'Search friends…', fr_nofound:'Nobody found', fr_invite_text:'Be friends on Campus Meet 👋', fr_req_sent:'Request sent to {name}', fr_req_already:'You already sent a request to {name}', fr_already_friends:"You're already on Campus Meet", fr_req_declined:'Request declined', fr_link_copied:'Link copied', fr_qr_fail:"Couldn't show QR", fr_added:"You're now friends on Campus Meet 🎉", welcome_msg:"Welcome to Campus Meet 👋", fr_added_name:"You're now friends 🎉 with {name}", qr_title:'Invite a friend', qr_hint:'Friend scans the code to connect', qr_copy:'Copy link', today:'Today', tomorrow:'Tomorrow', yesterday:'Yesterday', week:'Week', add_group:'＋ Group',
             tab_day:'Day', tab_week:'Week', back_today:'↺ Back to today',
             create_title:'When are you going to the canteen?', sec_time:'Time', sec_where:'Where to',
@@ -1091,7 +1180,18 @@
             n_m_join:'joins — {start} · {place} ({day})', n_m_cancel:'cancels — {old} · {place} ({day})',
             n_b_change:'changes — {place} from {from}{until} ({day})', n_b_new:'is going to {place} from {from}{until} ({day})', n_b_leave:'is leaving {place} ({day})',
             n_self_moved:'✏️ You moved — {old} → {new} · {place} ({day})', n_self_booked:"✅ You're booked — {start} · {place} ({day})",
-            n_self_left_m:'❌ You left — {old} · {place} ({day})', n_self_bib:"✅ You're at {place} from {from}{until} ({day})", n_self_left_b:'❌ You left {place} ({day})' },
+            n_self_left_m:'❌ You left — {old} · {place} ({day})', n_self_bib:"✅ You're at {place} from {from}{until} ({day})", n_self_left_b:'❌ You left {place} ({day})',
+            menu_stats:'Statistics', st_title:'📊 Statistics', st_personal:'🔒 Personal', st_personal_sub:'all your time · visible only to you',
+            st_geo:'📍 Geo', st_geo_badge:'✓ geo', st_geo_sub_on:'verified · counts for the leaderboard', st_geo_need:'🔒 location needed',
+            st_last7:'Last 7 days', st_fav:'favorite', st_avg:'on average', st_h:'h', st_min:'min',
+            st_cta_title:'Turn on location — and flex your hours', st_cta_sub:'Personal stats already work. The Hustle leaderboard counts only geo-verified hours.', st_cta_btn:'Enable location',
+            st_geo_head:'📍 Location', st_geo_toggle:'Location', st_geo_toggle_sub:'Allow once — the app then checks presence itself, only while open',
+            st_state_on:'✓ Allowed', st_state_on_near:'✓ Allowed · {place} within {m} m', st_state_off:"○ Off · time doesn't count for the leaderboard, personal stats still work", st_state_denied:'⚠ No access — allow location for the bot in Telegram',
+            st_note_bg_b:'No background tracking.', st_note_bg:'Coordinates are read only while the app is open and never stored — we only keep the fact "was within the library radius: yes/no".',
+            st_note_how_t:'How a session gets verified', st_note_how:'Mark arrival and leaving as usual. Geo quietly checks them against your real presence. A gap within the tolerance (1.5 h) — the session counts for the leaderboard. More — personal stats only.',
+            st_sessions:'My sessions', st_marked:'Marked', st_geo_line:'Geo',
+            st_v_ok:'✓ Verified · gap {d}', st_v_no:'⚠ Not verified · gap {d} > 1.5 h', st_v_nopings:'⚠ Not verified · no geo points', st_v_nocoords:"⚠ Geo isn't set up for this library yet", st_v_wait:'⏳ No leave time — not counted', st_v_live:'⏳ Session still running',
+            st_v_counts:'Geo: {g} · Personal: {p}', st_empty:'Nothing yet — check in at a library and stats will appear' },
         de: { soon:'Bald', menu_lang:'Sprache', menu_friends:'Freunde', friends_title:'Freunde', friends_sub:'Einträge nur für gegenseitige Freunde', fr_invite:'Einladen', fr_qr:'QR-Code', fr_requests:'ANFRAGEN', fr_my:'MEINE FREUNDE', fr_empty:'Lade Freunde per Link oder QR ein', board_no_friends_title:'Freunde hinzufügen', board_no_friends:'Füge Freunde hinzu, um zu sehen, wer in Mensa und Bib ist', fr_remove_confirm:'{name} aus Freunden entfernen?', fr_removed:'Aus Freunden entfernt', fr_search:'Freunde suchen…', fr_nofound:'Niemand gefunden', fr_invite_text:'Befreundet sein bei Campus Meet 👋', fr_req_sent:'Anfrage an {name} gesendet', fr_req_already:'Anfrage an {name} läuft bereits', fr_already_friends:'Du bist schon bei Campus Meet', fr_req_declined:'Anfrage abgelehnt', fr_link_copied:'Link kopiert', fr_qr_fail:'QR fehlgeschlagen', fr_added:'Ihr seid jetzt Freunde bei Campus Meet 🎉', welcome_msg:'Willkommen bei Campus Meet 👋', fr_added_name:'Ihr seid jetzt Freunde 🎉 mit {name}', qr_title:'Freund einladen', qr_hint:'Freund scannt den Code', qr_copy:'Link kopieren', today:'Heute', tomorrow:'Morgen', yesterday:'Gestern', week:'Woche', add_group:'＋ Gruppe',
             tab_day:'Tag', tab_week:'Woche', back_today:'↺ Zurück zu heute',
             create_title:'Wann gehst du in die Mensa?', sec_time:'Zeit', sec_where:'Wohin',
@@ -1122,7 +1222,18 @@
             n_m_join:'macht mit — {start} · {place} ({day})', n_m_cancel:'sagt ab — {old} · {place} ({day})',
             n_b_change:'ändert — {place} ab {from}{until} ({day})', n_b_new:'geht in {place} ab {from}{until} ({day})', n_b_leave:'verlässt {place} ({day})',
             n_self_moved:'✏️ Du hast verschoben — {old} → {new} · {place} ({day})', n_self_booked:'✅ Du bist eingetragen — {start} · {place} ({day})',
-            n_self_left_m:'❌ Du hast dich ausgetragen — {old} · {place} ({day})', n_self_bib:'✅ Du bist in {place} ab {from}{until} ({day})', n_self_left_b:'❌ Du hast {place} verlassen ({day})' },
+            n_self_left_m:'❌ Du hast dich ausgetragen — {old} · {place} ({day})', n_self_bib:'✅ Du bist in {place} ab {from}{until} ({day})', n_self_left_b:'❌ Du hast {place} verlassen ({day})',
+            menu_stats:'Statistik', st_title:'📊 Statistik', st_personal:'🔒 Persönlich', st_personal_sub:'deine gesamte Zeit · nur für dich sichtbar',
+            st_geo:'📍 Geo', st_geo_badge:'✓ Geo', st_geo_sub_on:'bestätigt · zählt fürs Ranking', st_geo_need:'🔒 Standort nötig',
+            st_last7:'Letzte 7 Tage', st_fav:'Favoritin', st_avg:'im Schnitt', st_h:'Std.', st_min:'Min.',
+            st_cta_title:'Standort aktivieren — und mit Stunden flexen', st_cta_sub:'Persönliche Statistik läuft schon. Fürs Hustle-Ranking zählen nur geo-bestätigte Stunden.', st_cta_btn:'Standort aktivieren',
+            st_geo_head:'📍 Standort', st_geo_toggle:'Standort', st_geo_toggle_sub:'Einmal erlauben — danach prüft die App die Anwesenheit selbst, nur solange sie offen ist',
+            st_state_on:'✓ Erlaubt', st_state_on_near:'✓ Erlaubt · {place} im Umkreis von {m} m', st_state_off:'○ Aus · Zeit zählt nicht fürs Ranking, Persönliches läuft weiter', st_state_denied:'⚠ Kein Zugriff — erlaube dem Bot den Standort in Telegram',
+            st_note_bg_b:'Kein Tracking im Hintergrund.', st_note_bg:'Koordinaten werden nur gelesen, wenn die App offen ist, und nie gespeichert — wir merken uns nur „im Radius der Bib: ja/nein“.',
+            st_note_how_t:'So wird eine Session bestätigt', st_note_how:'Kommen und Gehen wie gewohnt eintragen. Geo gleicht sie still mit deiner echten Anwesenheit ab. Abweichung innerhalb der Toleranz (1,5 Std.) — Session zählt fürs Ranking. Mehr — nur persönliche Statistik.',
+            st_sessions:'Meine Sessions', st_marked:'Eingetragen', st_geo_line:'Geo',
+            st_v_ok:'✓ Bestätigt · Abweichung {d}', st_v_no:'⚠ Nicht bestätigt · Abweichung {d} > 1,5 Std.', st_v_nopings:'⚠ Nicht bestätigt · keine Geo-Punkte', st_v_nocoords:'⚠ Geo ist für diese Bibliothek noch nicht eingerichtet', st_v_wait:'⏳ Keine Gehzeit — nicht gezählt', st_v_live:'⏳ Session läuft noch',
+            st_v_counts:'Geo: {g} · Persönlich: {p}', st_empty:'Noch leer — trag dich in einer Bib ein, dann erscheint hier Statistik' },
     };
     function detectLang() {
         try { const sv = localStorage.getItem('app_lang'); if (sv && STRINGS[sv]) return sv; } catch (e) {}
@@ -1167,7 +1278,9 @@
         setT('#aud-edit-cancel', 'btn_cancel'); setT('#aud-edit-save', 'btn_save_changes');
         setT('#gm-update', 'btn_edit_members'); setT('#gm-delete', 'btn_delete'); setT('#gm-close', 'btn_close');
         setT('#aud-edit-label', 'edit_group_default');
-        setT('#menu-lang-label', 'menu_lang'); setT('#menu-friends-label', 'menu_friends');
+        setT('#menu-lang-label', 'menu_lang'); setT('#menu-friends-label', 'menu_friends'); setT('#menu-stats-label', 'menu_stats');
+        if (!document.getElementById('sheet-stats').hidden) renderStats();
+        if (!document.getElementById('sheet-stats-geo').hidden) renderStatsGeo();
         setT('#friends-title', 'friends_title'); setT('#friends-sub', 'friends_sub');
         setT('#fr-invite-label', 'fr_invite'); setT('#fr-qr-label', 'fr_qr'); setP('#fr-search', 'fr_search');
         setT('#qr-title', 'qr_title'); setT('#qr-hint', 'qr_hint'); setT('#qr-close', 'btn_close');
@@ -2138,6 +2251,22 @@
     ];
     const ALL_BIBS = [...BIBS, ...BIBS_MORE];
     const BIB_BY_ID = Object.fromEntries(ALL_BIBS.map(b => [b.id, b]));
+    /* ===== Статистика: гео-конфиг (подбираемые числа) ===== */
+    const BIB_GEO_RADIUS_M = 150;   // радиус библы, м — indoor-GPS ±50–100 м, не жать узко
+    const BIB_GEO_TOL_MIN = 90;     // допуск (Abweichung), мин = 1.5 ч
+    const BIB_COORDS = {            // [lat, lon]; haw/hsba/chemie/biologie — TODO координаты (гео пока не работает для них)
+        wiwi:  [53.56548, 9.98375], // Von-Melle-Park 5
+        stabi: [53.56425, 9.98520], // Von-Melle-Park 3
+        recht: [53.56692, 9.98754], // Rothenbaumchaussee 33
+        phil:  [53.56719, 9.98544], // Von-Melle-Park 6
+        min:   [53.56870, 9.97440], // ≈ MIN-Forum, Bundesstraße 56a — уточнить
+    };
+    function geoDistM(lat1, lon1, lat2, lon2) {
+        const R = 6371000, toR = Math.PI / 180;
+        const dLat = (lat2 - lat1) * toR, dLon = (lon2 - lon1) * toR;
+        const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(lat1 * toR) * Math.cos(lat2 * toR) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+        return 2 * R * Math.asin(Math.sqrt(a));
+    }
     function bibHexA(hex, a) { const n = parseInt(hex.slice(1),16); return `rgba(${(n>>16)&255},${(n>>8)&255},${n&255},${a})`; }
     const BIB_TIME_OPTIONS = (() => { const out=[]; for (let h=8; h<=23; h++) out.push(h + ':00'); return out; })();
     let bibSel = { bib:null, time:null, custom:false };
@@ -2417,6 +2546,7 @@
                 await set(ref(fbDb, `rooms/${roomId}/bib/${dateIso}/${currentUser.id}`), { bib, from, until: until || null, name: currentUser.name, photo_url: currentUser.photo_url || null, audience: audience || { mode: 'all', ids: [] }, updatedAt: serverTimestamp(), ...(_prev.length ? { prev: _prev } : {}) });
                 haptic('medium');
                 showToast(`${lib.name} · ${from}`);
+                geoPing();
                 const changed = oldE && (oldE.bib !== bib || oldE.from !== from || (oldE.until || null) !== (until || null));
                 const roomKeySafe = roomKey || 'crew';
                 const dl = `https://t.me/mensacrew_bot/Mensa_Crew?startapp=${roomKeySafe}__b__${dateIso.replace(/-/g,'')}__${bib}__${from.replace(':','')}`;
@@ -2445,6 +2575,7 @@
     }
     async function removeMyBib(dateIso, audience) {
         const oldE = bibFindMine(dateIso);
+        geoPing();
         const dayTxt = `${currentDate.getDate()} ${L_MONTHS_SHORT[lang][currentDate.getMonth()]}`;
         if (FIREBASE_READY && fbDb) {
             try {
@@ -2467,6 +2598,266 @@
         if (_started) { _e.until = bibNowHM(); _e.status = 'left'; state.bib[dateIso] = day; }
         else { delete day[currentUser.id]; if (Object.keys(day).length === 0) delete state.bib[dateIso]; else state.bib[dateIso] = day; }
         saveLocalState(); haptic('medium'); showToast(tr('toast_left_bib')); render();
+    }
+    /* ===== Статистика (Bib): экран, гео-верификация, «Мои сессии» ===== */
+    function fmtHM(min) { min = Math.max(0, Math.round(min)); return Math.floor(min / 60) + ':' + String(min % 60).padStart(2, '0'); }
+    function fmtDiff(min) { return min < 60 ? (Math.round(min) + ' ' + tr('st_min')) : fmtHM(min); }
+    function nDaysRow(n) {
+        if (lang === 'en') return n === 1 ? 'day in a row' : 'days in a row';
+        if (lang === 'de') return n === 1 ? 'Tag in Folge' : 'Tage in Folge';
+        return pluralRu(n, ['день', 'дня', 'дней']) + ' подряд';
+    }
+    function nowMin() { const d = new Date(); return d.getHours() * 60 + d.getMinutes(); }
+    function statSessionsFor(dateIso) {
+        const e = (state.bib[dateIso] || {})[currentUser.id];
+        if (!e) return [];
+        const out = [];
+        (Array.isArray(e.prev) ? e.prev : []).forEach(p => { if (p && p.bib && p.from) out.push({ bib: p.bib, from: p.from, until: p.until || null, open: false }); });
+        out.push({ bib: e.bib, from: e.from, until: e.until || null, open: !bibIsLeft(e) && !e.until });
+        return out;
+    }
+    function statSesMinutes(dateIso, s) {
+        const f = bibTmin(s.from);
+        const today = dateIso === isoDate(new Date());
+        let end;
+        if (s.until) end = today ? Math.min(nowMin(), bibTmin(s.until)) : bibTmin(s.until);
+        else if (s.open && today) end = nowMin();
+        else return 0;
+        return Math.max(0, end - f);
+    }
+    function statDayMinutes(dateIso) { let m = 0; statSessionsFor(dateIso).forEach(x => { m += statSesMinutes(dateIso, x); }); return m; }
+    function statTotals() {
+        let totalMin = 0, daysActive = 0;
+        const perBib = {};
+        Object.keys(state.bib || {}).forEach(di => {
+            let dm = 0;
+            statSessionsFor(di).forEach(x => { const m = statSesMinutes(di, x); dm += m; perBib[x.bib] = (perBib[x.bib] || 0) + m; });
+            if (dm > 0) { totalMin += dm; daysActive++; }
+        });
+        let favBib = null;
+        Object.keys(perBib).forEach(b => { if (perBib[b] > 0 && (!favBib || perBib[b] > perBib[favBib])) favBib = b; });
+        let streak = 0;
+        for (let i = 0; i < 400; i++) {
+            const m = statDayMinutes(isoDate(addDays(new Date(), -i)));
+            if (m > 0) streak++;
+            else if (i === 0) continue;
+            else break;
+        }
+        const avgH = daysActive ? (Math.round(totalMin / daysActive / 60 * 10) / 10) : 0;
+        return { totalMin, daysActive, favBib, streak, avgH };
+    }
+    /* --- гео-пинги: rooms/<room>/bib_geo/<uid>/<date>/<t> = { t, in } (без координат) --- */
+    let geoPingsCache = null;
+    let geoDenied = false;
+    let geoLastNear = null; // { bibId, d } — ближайшая библа в радиусе (для строки состояния)
+    async function loadMyGeoPings() {
+        if (!FIREBASE_READY || !fbDb) { geoPingsCache = geoPingsCache || {}; return geoPingsCache; }
+        try {
+            const snap = await get(ref(fbDb, `rooms/${roomId}/bib_geo/${currentUser.id}`));
+            const v = snap.val() || {};
+            const out = {};
+            Object.keys(v).forEach(d => { out[d] = Object.values(v[d] || {}).filter(p => p && p.t).sort((a, b) => a.t - b.t); });
+            geoPingsCache = out;
+        } catch (e) { console.error('loadMyGeoPings failed', e); geoPingsCache = geoPingsCache || {}; }
+        return geoPingsCache;
+    }
+    function pingMinOfDay(t) { const d = new Date(t); return d.getHours() * 60 + d.getMinutes(); }
+    function statVerdict(dateIso, s) {
+        const f = bibTmin(s.from);
+        if (!s.until) return { kind: (s.open && dateIso === isoDate(new Date())) ? 'live' : 'wait', geoMin: 0, geoEndMin: f, diffMin: 0 };
+        const u = bibTmin(s.until);
+        if (!BIB_COORDS[s.bib]) return { kind: 'nocoords', geoMin: 0, geoEndMin: f, diffMin: Math.max(0, u - f) };
+        const pings = ((geoPingsCache || {})[dateIso] || []).filter(p => p.in);
+        let goodEnd = f, has = false;
+        for (const p of pings) {
+            let pm = pingMinOfDay(p.t);
+            if (pm < f - BIB_GEO_TOL_MIN) continue;
+            if (pm < f) pm = f;
+            if (pm > u) pm = u;
+            if (pm - goodEnd <= BIB_GEO_TOL_MIN) { if (pm > goodEnd) goodEnd = pm; has = true; }
+            else break;
+        }
+        if (!has) return { kind: 'nopings', geoMin: 0, geoEndMin: f, diffMin: Math.max(0, u - f) };
+        const diff = Math.max(0, u - goodEnd);
+        if (diff <= BIB_GEO_TOL_MIN) return { kind: 'ok', geoMin: Math.max(0, u - f), geoEndMin: goodEnd, diffMin: diff };
+        return { kind: 'no', geoMin: 0, geoEndMin: goodEnd, diffMin: diff };
+    }
+    function statGeoTotalMin() {
+        let sum = 0;
+        Object.keys(state.bib || {}).forEach(di => { statSessionsFor(di).forEach(x => { sum += statVerdict(di, x).geoMin; }); });
+        return sum;
+    }
+    function geoOptedIn() { return !!(state.members && state.members[currentUser.id] && state.members[currentUser.id].geo === true); }
+    function _geoLM() { return (tg && tg.LocationManager && tg.isVersionAtLeast && tg.isVersionAtLeast('8.0')) ? tg.LocationManager : null; }
+    function geoPing() {
+        if (!FIREBASE_READY || !fbDb || !geoOptedIn()) return;
+        const lm = _geoLM();
+        if (!lm) return;
+        const run = () => {
+            if (!lm.isLocationAvailable) return;
+            lm.getLocation((loc) => {
+                if (!loc) { geoDenied = true; refreshGeoUI(); return; }
+                geoDenied = false;
+                let best = null;
+                Object.keys(BIB_COORDS).forEach(id => {
+                    const c = BIB_COORDS[id];
+                    const d = geoDistM(loc.latitude, loc.longitude, c[0], c[1]);
+                    if (!best || d < best.d) best = { bibId: id, d };
+                });
+                geoLastNear = (best && best.d <= BIB_GEO_RADIUS_M) ? best : null;
+                refreshGeoUI();
+                const di = isoDate(new Date());
+                const e = (state.bib[di] || {})[currentUser.id];
+                if (!e || bibIsLeft(e) || !BIB_COORDS[e.bib]) return;
+                const c = BIB_COORDS[e.bib];
+                const inR = geoDistM(loc.latitude, loc.longitude, c[0], c[1]) <= BIB_GEO_RADIUS_M;
+                const t = Date.now();
+                set(ref(fbDb, `rooms/${roomId}/bib_geo/${currentUser.id}/${di}/${t}`), { t, in: inR }).then(() => {
+                    if (geoPingsCache) (geoPingsCache[di] = geoPingsCache[di] || []).push({ t, in: inR });
+                }).catch((err) => console.error('geoPing write failed', err));
+            });
+        };
+        if (lm.isInited) run(); else lm.init(run);
+    }
+    function geoSetOptIn(next) {
+        if (!FIREBASE_READY || !fbDb) { showToast(tr('toast_fail')); return; }
+        update(ref(fbDb, `rooms/${roomId}/members/${currentUser.id}`), { geo: next }).catch(() => {});
+        if (state.members && state.members[currentUser.id]) state.members[currentUser.id].geo = next;
+        if (next) {
+            const lm = _geoLM();
+            if (lm) {
+                const ask = () => lm.getLocation((loc) => { geoDenied = !loc; refreshGeoUI(); if (loc) geoPing(); });
+                if (lm.isInited) ask(); else lm.init(ask);
+            }
+        }
+        haptic('light');
+        refreshGeoUI();
+    }
+    function refreshGeoUI() {
+        if (!document.getElementById('sheet-stats-geo').hidden) renderStatsGeo();
+        else if (!document.getElementById('sheet-stats').hidden) renderStats();
+    }
+    function _stAccent(sh) {
+        sh.style.setProperty('--accent', '#2563eb');
+        sh.style.setProperty('--accent-soft', 'rgba(37,99,235,0.12)');
+        sh.style.setProperty('--accent-softer', 'rgba(37,99,235,0.06)');
+    }
+    function renderStats() {
+        document.querySelector('#sheet-stats .sheet-title').textContent = tr('st_title');
+        const body = document.getElementById('st-body');
+        const totals = statTotals();
+        const geoOn = geoOptedIn();
+        let h = '<div class="st-nums">';
+        h += `<div class="st-num"><div class="st-cap">${tr('st_personal')}</div><div class="st-big">${fmtHM(totals.totalMin)}</div><div class="st-sub">${tr('st_personal_sub')}</div></div>`;
+        if (geoOn) h += `<div class="st-num flex" id="st-geo-card"><div class="st-cap">${tr('st_geo')}</div><div class="st-big">${fmtHM(statGeoTotalMin())} <span class="st-badge-ok">${tr('st_geo_badge')}</span></div><div class="st-sub">${tr('st_geo_sub_on')}</div></div>`;
+        else h += `<div class="st-num off" id="st-geo-card"><div class="st-cap">${tr('st_geo')}</div><div class="st-big">—</div><div class="st-sub">${tr('st_geo_need')}</div></div>`;
+        h += '</div>';
+        const days = [];
+        for (let i = 6; i >= 0; i--) { const d = addDays(new Date(), -i); days.push({ d, min: statDayMinutes(isoDate(d)) }); }
+        const mx = Math.max(60, ...days.map(x => x.min));
+        h += `<div class="st-sec">${tr('st_last7')}</div><div class="st-card"><div class="st-chart">`;
+        days.forEach((x, idx) => {
+            const pct = x.min > 0 ? Math.max(8, Math.round(x.min / mx * 100)) : 6;
+            const on = idx === 6 ? ' on' : '';
+            h += `<div class="st-bar-wrap"><div class="st-bar-col"><div class="st-bar${on}" style="height:${pct}%">${x.min > 0 ? `<span class="st-h">${fmtHM(x.min)}</span>` : ''}</div></div><span class="st-bar-day${on}">${L_DAYS_SHORT[lang][x.d.getDay()]}</span></div>`;
+        });
+        h += '</div>';
+        const favB = totals.favBib ? BIB_BY_ID[totals.favBib] : null;
+        h += '<div class="st-facts">';
+        h += `<div class="st-fact"><b>🔥 ${totals.streak}</b>${nDaysRow(totals.streak)}</div>`;
+        h += `<div class="st-fact"><b>${favB ? esc(favB.name) : '—'}</b>${tr('st_fav')}</div>`;
+        h += `<div class="st-fact"><b>${totals.avgH} ${tr('st_h')}</b>${tr('st_avg')}</div>`;
+        h += '</div></div>';
+        if (!geoOn) h += `<div class="st-cta"><div class="st-em">🏆</div><div class="st-ct">${tr('st_cta_title')}</div><div class="st-cs">${tr('st_cta_sub')}</div><button class="st-btn" id="st-cta-btn">${tr('st_cta_btn')}</button></div>`;
+        if (totals.totalMin === 0) h += `<div class="st-empty">${tr('st_empty')}</div>`;
+        body.innerHTML = h;
+        const gc = document.getElementById('st-geo-card');
+        if (gc) gc.onclick = () => openStatsGeo();
+        const cb = document.getElementById('st-cta-btn');
+        if (cb) cb.onclick = () => openStatsGeo();
+    }
+    function renderStatsGeo() {
+        document.querySelector('#sheet-stats-geo .sheet-title').textContent = tr('st_geo_head');
+        const body = document.getElementById('st-geo-body');
+        const on = geoOptedIn();
+        let stateTxt, stateCls;
+        if (!on) { stateTxt = tr('st_state_off'); stateCls = 'off'; }
+        else if (geoDenied) { stateTxt = tr('st_state_denied'); stateCls = 'off'; }
+        else if (geoLastNear && BIB_BY_ID[geoLastNear.bibId]) { stateTxt = tr('st_state_on_near', { place: BIB_BY_ID[geoLastNear.bibId].name, m: Math.round(geoLastNear.d) }); stateCls = 'ok'; }
+        else { stateTxt = tr('st_state_on'); stateCls = 'ok'; }
+        let h = `<div class="st-card"><div class="st-trow"><div class="st-tx"><div class="st-t1">${tr('st_geo_toggle')}</div><div class="st-t2">${tr('st_geo_toggle_sub')}</div></div><div class="st-sw${on ? ' on' : ''}" id="st-geo-sw"></div></div><div class="st-state ${stateCls}">${stateTxt}</div></div>`;
+        h += `<div class="st-card" style="margin-top:10px"><div class="st-note"><b>${tr('st_note_bg_b')}</b> ${tr('st_note_bg')}</div></div>`;
+        h += `<div class="st-sec">${tr('st_note_how_t')}</div><div class="st-card"><div class="st-note">${tr('st_note_how')}</div></div>`;
+        h += `<div class="st-sec">${tr('st_sessions')}</div>`;
+        const items = [];
+        for (let i = 0; i < 14; i++) {
+            const d = addDays(new Date(), -i);
+            const di = isoDate(d);
+            statSessionsFor(di).slice().reverse().forEach(x => items.push({ di, d, x }));
+        }
+        if (!items.length) h += `<div class="st-empty">${tr('st_empty')}</div>`;
+        items.slice(0, 20).forEach(it => {
+            const lib = BIB_BY_ID[it.x.bib];
+            if (!lib) return;
+            const v = statVerdict(it.di, it.x);
+            const f = bibTmin(it.x.from);
+            const u = it.x.until ? bibTmin(it.x.until) : null;
+            const dayTxt = `${L_DAYS_SHORT[lang][it.d.getDay()]}, ${it.d.getDate()} ${L_MONTHS_SHORT[lang][it.d.getMonth()]}`;
+            const saidTxt = u !== null ? `${it.x.from}–${it.x.until}` : `${it.x.from} → …`;
+            const pTxt = fmtHM(statSesMinutes(it.di, it.x));
+            let geoPct = 0;
+            if (u !== null && u > f) geoPct = Math.max(0, Math.min(100, Math.round((v.geoEndMin - f) / (u - f) * 100)));
+            let verdict;
+            if (v.kind === 'ok') verdict = `<div class="st-verdict ok">${tr('st_v_ok', { d: fmtDiff(v.diffMin) })}<span class="st-cnt">${tr('st_v_counts', { g: fmtHM(v.geoMin), p: pTxt })}</span></div>`;
+            else if (v.kind === 'no') verdict = `<div class="st-verdict no">${tr('st_v_no', { d: fmtDiff(v.diffMin) })}<span class="st-cnt">${tr('st_v_counts', { g: '0:00', p: pTxt })}</span></div>`;
+            else if (v.kind === 'nopings') verdict = `<div class="st-verdict no">${tr('st_v_nopings')}<span class="st-cnt">${tr('st_v_counts', { g: '0:00', p: pTxt })}</span></div>`;
+            else if (v.kind === 'nocoords') verdict = `<div class="st-verdict no">${tr('st_v_nocoords')}<span class="st-cnt">${tr('st_v_counts', { g: '0:00', p: pTxt })}</span></div>`;
+            else if (v.kind === 'live') verdict = `<div class="st-verdict no">${tr('st_v_live')}</div>`;
+            else verdict = `<div class="st-verdict no">${tr('st_v_wait')}</div>`;
+            const geoLine = (u !== null && v.kind !== 'nocoords') ? `<div class="st-tl"><span class="st-lb">${tr('st_geo_line')}</span><span class="st-track"><span class="st-fill geo" style="left:0;width:${geoPct}%"></span></span><span class="st-vl">${geoPct > 0 ? (it.x.from + '–' + fmtHM(v.geoEndMin)) : '—'}</span></div>` : '';
+            h += `<div class="st-ses"><div class="st-sh"><span class="st-sp">${lib.emoji} ${esc(lib.name)}</span><span class="st-sd">${dayTxt}</span></div><div class="st-tl"><span class="st-lb">${tr('st_marked')}</span><span class="st-track"><span class="st-fill said" style="left:0;width:100%"></span></span><span class="st-vl">${saidTxt}</span></div>${geoLine}${verdict}</div>`;
+        });
+        body.innerHTML = h;
+        const sw = document.getElementById('st-geo-sw');
+        if (sw) sw.onclick = () => geoSetOptIn(!geoOptedIn());
+    }
+    function openStats() {
+        const sh = document.getElementById('sheet-stats');
+        _stAccent(sh);
+        renderStats();
+        sh.hidden = false;
+        document.getElementById('sheet-backdrop').classList.add('show');
+        requestAnimationFrame(() => sh.classList.add('show'));
+        attachBackButton('stats', closeStats);
+        loadMyGeoPings().then(() => { if (!sh.hidden) renderStats(); });
+        geoPing();
+    }
+    function closeStats() {
+        const sh = document.getElementById('sheet-stats');
+        sh.classList.remove('show');
+        document.getElementById('sheet-backdrop').classList.remove('show');
+        setTimeout(() => { sh.hidden = true; }, 280);
+        if (backButtonOwner === 'stats') detachBackButton();
+    }
+    function openStatsGeo() {
+        const sh = document.getElementById('sheet-stats-geo');
+        _stAccent(sh);
+        renderStatsGeo();
+        sh.hidden = false;
+        document.getElementById('sheet-backdrop').classList.add('show');
+        requestAnimationFrame(() => sh.classList.add('show'));
+        attachBackButton('statsgeo', closeStatsGeo);
+        geoPing();
+    }
+    function closeStatsGeo() {
+        const sh = document.getElementById('sheet-stats-geo');
+        sh.classList.remove('show');
+        setTimeout(() => { sh.hidden = true; }, 280);
+        if (!document.getElementById('sheet-stats').hidden) { renderStats(); attachBackButton('stats', closeStats); }
+        else {
+            document.getElementById('sheet-backdrop').classList.remove('show');
+            if (backButtonOwner === 'statsgeo') detachBackButton();
+        }
     }
     function openBibDetail(bibId) {
         bibDetailId = bibId;
@@ -2662,7 +3053,7 @@
         if (!frIds.length) { const e = document.createElement('div'); e.className = 'fr-empty'; e.textContent = (f ? tr('fr_nofound') : tr('fr_empty')); list.appendChild(e); }
         else { frIds.forEach(id => list.appendChild(friendRow(id, 'friend'))); }
     }
-    function closeAllSheets() { closeCreateSheet(); closeDetailSheet(); closeBibCreate(); closeBibDetail(); closeAudience(); closeGroupModal(); closeFriends(); }
+    function closeAllSheets() { closeCreateSheet(); closeDetailSheet(); closeBibCreate(); closeBibDetail(); closeAudience(); closeGroupModal(); closeFriends(); closeStatsGeo(); closeStats(); }
     function makeSheetDraggable(sheet, closeFn) {
         if (!sheet) return;
         let startY = 0, dy = 0, dragging = false, armed = false;
@@ -3072,7 +3463,7 @@
         if (tg?.openLink) tg.openLink(u); else window.open(u, '_blank');
     };
     document.getElementById('sheet-backdrop').onclick = () => { closeAllSheets(); };
-    [['sheet-create', closeCreateSheet], ['sheet-detail', closeDetailSheet], ['sheet-bib-create', closeBibCreate], ['sheet-bib-detail', closeBibDetail], ['sheet-audience', closeAudience], ['sheet-friends', closeFriends]].forEach(([id, fn]) => makeSheetDraggable(document.getElementById(id), fn));
+    [['sheet-create', closeCreateSheet], ['sheet-detail', closeDetailSheet], ['sheet-bib-create', closeBibCreate], ['sheet-bib-detail', closeBibDetail], ['sheet-audience', closeAudience], ['sheet-friends', closeFriends], ['sheet-stats', closeStats], ['sheet-stats-geo', closeStatsGeo]].forEach(([id, fn]) => makeSheetDraggable(document.getElementById(id), fn));
     document.getElementById('sheet-confirm').onclick = () => {
         if (selectedTime && selectedMensa) {
             if (isPastTimeToday(selectedTime)) { showToast(tr('toast_time_passed')); return; }
@@ -3128,6 +3519,7 @@
     document.getElementById('menu-btn').onclick = (e) => { e.stopPropagation(); document.getElementById('lang-menu').hidden = true; const m = document.getElementById('main-menu'); m.hidden = !m.hidden; };
     document.getElementById('menu-lang').onclick = (e) => { e.stopPropagation(); document.getElementById('main-menu').hidden = true; document.getElementById('lang-menu').hidden = false; };
     document.getElementById('menu-friends').onclick = (e) => { e.stopPropagation(); document.getElementById('main-menu').hidden = true; openFriends(); };
+    document.getElementById('menu-stats').onclick = (e) => { e.stopPropagation(); document.getElementById('main-menu').hidden = true; openStats(); };
     document.getElementById('fr-invite').onclick = () => { haptic('light'); friendInvite('share'); };
     document.getElementById('fr-qr').onclick = () => { haptic('light'); friendInvite('qr'); };
     document.getElementById('fr-search').oninput = (e) => renderFriends(e.target.value);
@@ -3242,7 +3634,7 @@
     applyI18n();
     render();
     /* ===== Kick off Firebase live sync ===== */
-    ensureAuth().finally(() => { startFirebaseSync(); firstRunOnboarding(); if (inviteToken) redeemInvite(inviteToken); });
+    ensureAuth().finally(() => { startFirebaseSync(); firstRunOnboarding(); if (inviteToken) redeemInvite(inviteToken); setTimeout(geoPing, 4000); setInterval(geoPing, 10 * 60 * 1000); });
     </script>
 </body>
 </html>
