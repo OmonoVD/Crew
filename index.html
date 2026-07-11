@@ -671,7 +671,8 @@
         .st-bar-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; height: 100%; }
         .st-bar-col { width: 100%; flex: 1; display: flex; align-items: flex-end; }
         .st-bar { width: 100%; background: var(--accent-soft); border-radius: 6px 6px 3px 3px; position: relative; }
-        .st-bar.on { background: var(--accent); }
+        .st-bar.on { box-shadow: inset 0 0 0 1.5px var(--accent); }
+        .st-bar-geo { position: absolute; left: 0; right: 0; bottom: 0; background: var(--accent); border-radius: 2px 2px 3px 3px; }
         .st-bar .st-h { position: absolute; top: -15px; left: 0; right: 0; text-align: center; font-size: 9px; font-weight: 700; color: var(--hint); }
         .st-bar-day { font-size: 10.5px; font-weight: 600; color: var(--hint); }
         .st-bar-day.on { color: var(--accent); }
@@ -736,6 +737,20 @@
         .st-utr.me { background: var(--accent-softer); border-radius: var(--radius-sm); margin: 0 -4px; padding: 11px 6px; }
         .st-utr.me .st-nm { color: var(--accent); }
         .st-utr.nogeo .conf { display: none; }
+        .st-utr { cursor: pointer; }
+        .st-dev { font-size: 11px; color: var(--hint); text-align: center; margin-top: 16px; }
+        .st-cbanner { background: var(--warn-soft); border: 1px solid var(--warn-soft); border-radius: var(--radius-md); padding: 11px 12px; display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+        .st-cbanner .st-cb-em { font-size: 20px; }
+        .st-cbanner .st-cb-m { flex: 1; min-width: 0; }
+        .st-cbanner .st-cb-a { font-size: 13px; font-weight: 800; }
+        .st-cbanner .st-cb-b { font-size: 11px; color: var(--hint); margin-top: 1px; }
+        .st-btn-warn { background: var(--warn); color: #fff; border: none; font-family: inherit; font-weight: 700; font-size: 12px; padding: 9px 12px; border-radius: 9px; cursor: pointer; flex: none; }
+        .bib-hours { font-size: 10px; font-weight: 700; color: var(--hint); background: var(--surface-alt); border-radius: 6px; padding: 2px 7px; margin-left: 2px; white-space: nowrap; flex: none; }
+        .bib-hours.closed { color: var(--warn); background: var(--warn-soft); }
+        .bib-hinfo { position: relative; display: inline-flex; align-items: center; justify-content: center; width: 16px; height: 16px; border-radius: 50%; background: var(--surface-alt); color: var(--hint); font-size: 10px; font-weight: 800; font-style: italic; cursor: pointer; margin-left: 4px; flex: none; }
+        .bib-hpop { position: absolute; top: 135%; left: 50%; transform: translateX(-50%); background: var(--text); color: var(--bg); font-size: 10.5px; font-weight: 700; font-style: normal; white-space: nowrap; padding: 4px 8px; border-radius: 6px; display: none; z-index: 5; }
+        .bib-hinfo.open .bib-hpop { display: block; }
+        .bib-closed-note { font-size: 11px; color: var(--warn); font-weight: 600; background: var(--warn-soft); border-radius: 8px; padding: 8px 10px; margin-top: 10px; line-height: 1.45; }
         #menu-stats .menu-ic { background: rgba(37,99,235,0.16); }
         .bib-card { padding: 15px 15px; }
         .bib-name { font-size: 16px; }
@@ -984,6 +999,11 @@
         <div class="sheet-title">Геолокация</div>
         <div id="st-geo-body"></div>
     </div>
+    <div class="sheet" id="sheet-stats-user" hidden>
+        <div class="sheet-handle"></div>
+        <div class="sheet-title">·</div>
+        <div id="st-user-body"></div>
+    </div>
     <div class="sheet" id="sheet-friends" hidden>
         <div class="sheet-handle"></div>
         <div class="sheet-title" id="friends-title">Друзья</div>
@@ -1176,7 +1196,13 @@
             st_v_counts:'В Гео: {g} · В личное: {p}', st_empty:'Пока пусто — отметься в библиотеке, и здесь появится статистика',
             st_rank:'Hustle-рейтинг', st_rank_toggle:'Показывать меня в рейтинге', st_rank_toggle_sub:'В рейтинг идут только гео-подтверждённые часы',
             st_p_week:'Неделя', st_p_all:'Всё время', st_s_geo:'✓ по гео', st_s_claim:'по заявленным',
-            st_r_in:'в {place}', st_r_nogeo:'гео выкл', st_rank_none:'Пока пусто — гео-часы появятся после подтверждённых сессий' },
+            st_r_in:'в {place}', st_r_nogeo:'гео выкл', st_rank_none:'Пока пусто — гео-часы появятся после подтверждённых сессий',
+            st_dev:'👨‍🍳 Diyor is cooking…', st_p_today:'Сегодня', st_now_count:'{n} сейчас',
+            st_closed:'закрыта · {t}', st_closed_until:'закрыта · до {t}', st_closed_plain:'закрыта',
+            st_here_t:'{place} закрывается в {t}', st_here_sub:'Ты ещё здесь? Отметься — вечер зачтётся в гео', st_here_btn:'Тут я', st_here_done:'✓ Отмечено',
+            st_closed_note:'🌙 Закрылась в {t} — не забудь отметить уход, иначе сессия не идёт в статистику',
+            st_mf:'Пн–Пт', st_sa:'Сб', st_su:'Вс', st_sasu:'Сб–Вс',
+            st_u_claimed:'заявлено', st_u_geo:'по гео', st_u_hidden:'🔒 {h} · скрытые записи', st_u_none:'Нет сессий за этот период' },
         en: { soon:'Soon', menu_lang:'Language', menu_friends:'Friends', friends_title:'Friends', friends_sub:'entries visible only to mutual friends', fr_invite:'Invite', fr_qr:'QR code', fr_requests:'REQUESTS', fr_my:'MY FRIENDS', fr_empty:'Invite friends via link or QR', board_no_friends_title:'Add friends', board_no_friends:"Add friends to see who's at the canteen and library", fr_remove_confirm:'Remove {name} from friends?', fr_removed:'Removed from friends', fr_search:'Search friends…', fr_nofound:'Nobody found', fr_invite_text:'Be friends on Campus Meet 👋', fr_req_sent:'Request sent to {name}', fr_req_already:'You already sent a request to {name}', fr_already_friends:"You're already on Campus Meet", fr_req_declined:'Request declined', fr_link_copied:'Link copied', fr_qr_fail:"Couldn't show QR", fr_added:"You're now friends on Campus Meet 🎉", welcome_msg:"Welcome to Campus Meet 👋", fr_added_name:"You're now friends 🎉 with {name}", qr_title:'Invite a friend', qr_hint:'Friend scans the code to connect', qr_copy:'Copy link', today:'Today', tomorrow:'Tomorrow', yesterday:'Yesterday', week:'Week', add_group:'＋ Group',
             tab_day:'Day', tab_week:'Week', back_today:'↺ Back to today',
             create_title:'When are you going to the canteen?', sec_time:'Time', sec_where:'Where to',
@@ -1221,7 +1247,13 @@
             st_v_counts:'Geo: {g} · Personal: {p}', st_empty:'Nothing yet — check in at a library and stats will appear',
             st_rank:'Hustle leaderboard', st_rank_toggle:'Show me on the leaderboard', st_rank_toggle_sub:'Only geo-verified hours count for the leaderboard',
             st_p_week:'Week', st_p_all:'All time', st_s_geo:'✓ by geo', st_s_claim:'by claimed',
-            st_r_in:'at {place}', st_r_nogeo:'geo off', st_rank_none:'Empty so far — geo hours appear after verified sessions' },
+            st_r_in:'at {place}', st_r_nogeo:'geo off', st_rank_none:'Empty so far — geo hours appear after verified sessions',
+            st_dev:'👨‍🍳 Diyor is cooking…', st_p_today:'Today', st_now_count:'{n} now',
+            st_closed:'closed · {t}', st_closed_until:'closed · until {t}', st_closed_plain:'closed',
+            st_here_t:'{place} closes at {t}', st_here_sub:'Still here? Check in — the evening counts for geo', st_here_btn:"I'm here", st_here_done:'✓ Checked in',
+            st_closed_note:"🌙 Closed at {t} — remember to mark leaving, otherwise the session won't count",
+            st_mf:'Mon–Fri', st_sa:'Sat', st_su:'Sun', st_sasu:'Sat–Sun',
+            st_u_claimed:'claimed', st_u_geo:'by geo', st_u_hidden:'🔒 {h} · hidden entries', st_u_none:'No sessions in this period' },
         de: { soon:'Bald', menu_lang:'Sprache', menu_friends:'Freunde', friends_title:'Freunde', friends_sub:'Einträge nur für gegenseitige Freunde', fr_invite:'Einladen', fr_qr:'QR-Code', fr_requests:'ANFRAGEN', fr_my:'MEINE FREUNDE', fr_empty:'Lade Freunde per Link oder QR ein', board_no_friends_title:'Freunde hinzufügen', board_no_friends:'Füge Freunde hinzu, um zu sehen, wer in Mensa und Bib ist', fr_remove_confirm:'{name} aus Freunden entfernen?', fr_removed:'Aus Freunden entfernt', fr_search:'Freunde suchen…', fr_nofound:'Niemand gefunden', fr_invite_text:'Befreundet sein bei Campus Meet 👋', fr_req_sent:'Anfrage an {name} gesendet', fr_req_already:'Anfrage an {name} läuft bereits', fr_already_friends:'Du bist schon bei Campus Meet', fr_req_declined:'Anfrage abgelehnt', fr_link_copied:'Link kopiert', fr_qr_fail:'QR fehlgeschlagen', fr_added:'Ihr seid jetzt Freunde bei Campus Meet 🎉', welcome_msg:'Willkommen bei Campus Meet 👋', fr_added_name:'Ihr seid jetzt Freunde 🎉 mit {name}', qr_title:'Freund einladen', qr_hint:'Freund scannt den Code', qr_copy:'Link kopieren', today:'Heute', tomorrow:'Morgen', yesterday:'Gestern', week:'Woche', add_group:'＋ Gruppe',
             tab_day:'Tag', tab_week:'Woche', back_today:'↺ Zurück zu heute',
             create_title:'Wann gehst du in die Mensa?', sec_time:'Zeit', sec_where:'Wohin',
@@ -1266,7 +1298,13 @@
             st_v_counts:'Geo: {g} · Persönlich: {p}', st_empty:'Noch leer — trag dich in einer Bib ein, dann erscheint hier Statistik',
             st_rank:'Hustle-Ranking', st_rank_toggle:'Mich im Ranking zeigen', st_rank_toggle_sub:'Fürs Ranking zählen nur geo-bestätigte Stunden',
             st_p_week:'Woche', st_p_all:'Gesamt', st_s_geo:'✓ nach Geo', st_s_claim:'nach Angabe',
-            st_r_in:'in {place}', st_r_nogeo:'Geo aus', st_rank_none:'Noch leer — Geo-Stunden erscheinen nach bestätigten Sessions' },
+            st_r_in:'in {place}', st_r_nogeo:'Geo aus', st_rank_none:'Noch leer — Geo-Stunden erscheinen nach bestätigten Sessions',
+            st_dev:'👨‍🍳 Diyor is cooking…', st_p_today:'Heute', st_now_count:'{n} jetzt',
+            st_closed:'geschlossen · {t}', st_closed_until:'geschlossen · bis {t}', st_closed_plain:'geschlossen',
+            st_here_t:'{place} schließt um {t}', st_here_sub:'Noch da? Melde dich — der Abend zählt für Geo', st_here_btn:'Bin hier', st_here_done:'✓ Vermerkt',
+            st_closed_note:'🌙 Um {t} geschlossen — vergiss nicht, dein Gehen einzutragen, sonst zählt die Session nicht',
+            st_mf:'Mo–Fr', st_sa:'Sa', st_su:'So', st_sasu:'Sa–So',
+            st_u_claimed:'eingetragen', st_u_geo:'per Geo', st_u_hidden:'🔒 {h} · versteckte Einträge', st_u_none:'Keine Sessions in diesem Zeitraum' },
     };
     function detectLang() {
         try { const sv = localStorage.getItem('app_lang'); if (sv && STRINGS[sv]) return sv; } catch (e) {}
@@ -1314,6 +1352,7 @@
         setT('#menu-lang-label', 'menu_lang'); setT('#menu-friends-label', 'menu_friends'); setT('#menu-stats-label', 'menu_stats');
         if (!document.getElementById('sheet-stats').hidden) renderStats();
         if (!document.getElementById('sheet-stats-geo').hidden) renderStatsGeo();
+        if (!document.getElementById('sheet-stats-user').hidden) renderStatsUser();
         setT('#friends-title', 'friends_title'); setT('#friends-sub', 'friends_sub');
         setT('#fr-invite-label', 'fr_invite'); setT('#fr-qr-label', 'fr_qr'); setP('#fr-search', 'fr_search');
         setT('#qr-title', 'qr_title'); setT('#qr-hint', 'qr_hint'); setT('#qr-close', 'btn_close');
@@ -2295,6 +2334,19 @@
         phil:  [53.56719, 9.98544], // Von-Melle-Park 6
         min:   [53.56870, 9.97440], // ≈ MIN-Forum, Bundesstraße 56a — уточнить
     };
+    const BIB_HOURS = {             // часы работы, минуты от полуночи; recht/phil/min ≈ уточнить; BIBS_MORE — TODO
+        wiwi:  { mf: [540, 1260], sa: [600, 1080], su: [600, 1080] },
+        stabi: { mf: [540, 1440], sa: [600, 1440], su: [600, 1440] },
+        recht: { mf: [480, 1440], sa: [600, 1200], su: [600, 1200], approx: true },
+        phil:  { mf: [540, 1260], sa: [600, 1080], approx: true },
+        min:   { mf: [540, 1320], sa: [600, 1080], approx: true },
+    };
+    function bibHoursFor(bibId, d) {
+        const h = BIB_HOURS[bibId];
+        if (!h) return null;
+        const dow = d.getDay();
+        return (dow === 0 ? h.su : (dow === 6 ? h.sa : h.mf)) || null;
+    }
     function geoDistM(lat1, lon1, lat2, lon2) {
         const R = 6371000, toR = Math.PI / 180;
         const dLat = (lat2 - lat1) * toR, dLon = (lon2 - lon1) * toR;
@@ -2332,6 +2384,20 @@
         const list = document.getElementById('bib-list');
         list.innerHTML = '';
         if (friendsReady && !Object.keys(state.friends || {}).length) { list.appendChild(friendsHintEl()); }
+        if (di === isoDate(new Date()) && bibCloseBannerDay !== di) {
+            const _mB = bibFindMine(di);
+            const _hB = _mB ? bibHoursFor(_mB.bib, new Date()) : null;
+            if (_mB && _hB && geoOptedIn() && _geoLM() && BIB_BY_ID[_mB.bib]) {
+                const _nmB = nowMin();
+                if (_nmB >= _hB[1] - 45 && _nmB < _hB[1]) {
+                    const bn = document.createElement('div');
+                    bn.className = 'st-cbanner';
+                    bn.innerHTML = `<span class="st-cb-em">🌙</span><div class="st-cb-m"><div class="st-cb-a">${tr('st_here_t', { place: esc(BIB_BY_ID[_mB.bib].name), t: fmtHM(_hB[1]) })}</div><div class="st-cb-b">${tr('st_here_sub')}</div></div><button class="st-btn-warn" id="bib-here-btn">${tr('st_here_btn')}</button>`;
+                    list.appendChild(bn);
+                    bn.querySelector('#bib-here-btn').onclick = () => { haptic('medium'); geoPing(); bibCloseBannerDay = di; showToast(tr('st_here_done')); renderBibDay(); };
+                }
+            }
+        }
         const mine = bibFindMine(di);
         const _extra = BIBS_MORE.filter(b => bibPeople(di, b.id).length > 0 || bibPeopleLeft(di, b.id).length > 0);
         [...BIBS, ..._extra].forEach(b => {
@@ -2348,13 +2414,39 @@
             const nm = document.createElement('div');
             nm.className = 'bib-name';
             nm.innerHTML = `<span>${b.emoji}</span> ${b.name}`;
+            const _isToday = di === isoDate(new Date());
+            const _hrs = BIB_HOURS[b.id] ? bibHoursFor(b.id, currentDate) : null;
+            const _closedNow = _isToday && BIB_HOURS[b.id] && (!_hrs || nowMin() < _hrs[0] || nowMin() >= _hrs[1]);
+            if (_closedNow) {
+                const hc = document.createElement('span');
+                hc.className = 'bib-hours closed';
+                hc.textContent = !_hrs ? tr('st_closed_plain') : (nowMin() < _hrs[0] ? tr('st_closed_until', { t: fmtHM(_hrs[0]) }) : tr('st_closed', { t: fmtHM(_hrs[1]) }));
+                nm.appendChild(hc);
+            }
+            if (BIB_HOURS[b.id]) {
+                const hi = document.createElement('span');
+                hi.className = 'bib-hinfo';
+                hi.textContent = 'i';
+                const hp = document.createElement('span');
+                hp.className = 'bib-hpop';
+                hp.textContent = bibHoursTxt(b.id);
+                hi.appendChild(hp);
+                hi.onclick = (e) => { e.stopPropagation(); hi.classList.toggle('open'); haptic('light'); };
+                nm.appendChild(hi);
+            }
             top.appendChild(nm);
-            if (ppl.length > 0) {
+            if (ppl.length > 0 || (_isToday && bibPeopleLeft(di, b.id).length > 0)) {
                 const cnt = document.createElement('div');
                 cnt.className = 'bib-count';
-                cnt.style.color = b.color;
-                cnt.style.background = bibHexA(b.color, 0.18);
-                cnt.textContent = nPeople(ppl.length);
+                if (_isToday) {
+                    const _n2 = nowMin();
+                    const nowN = ppl.filter(p => bibTmin(p.from) <= _n2 && (!p.until || bibTmin(p.until) >= _n2)).length;
+                    cnt.textContent = tr('st_now_count', { n: nowN });
+                } else {
+                    cnt.textContent = nPeople(ppl.length);
+                }
+                if (_closedNow) { cnt.style.color = 'var(--warn)'; cnt.style.background = 'var(--warn-soft)'; }
+                else { cnt.style.color = b.color; cnt.style.background = bibHexA(b.color, 0.18); }
                 top.appendChild(cnt);
             } else {
                 const e = document.createElement('div');
@@ -2387,6 +2479,12 @@
                     chips.appendChild(chip);
                 });
                 card.appendChild(chips);
+            }
+            if (_closedNow && _hrs && mine && mine.bib === b.id && !mine.until) {
+                const cn = document.createElement('div');
+                cn.className = 'bib-closed-note';
+                cn.textContent = tr('st_closed_note', { t: fmtHM(_hrs[1]) });
+                card.appendChild(cn);
             }
             card.onclick = () => openBibDetail(b.id);
             list.appendChild(card);
@@ -2636,6 +2734,20 @@
     /* ===== Статистика (Bib): экран, гео-верификация, «Мои сессии» ===== */
     function fmtHM(min) { min = Math.max(0, Math.round(min)); return Math.floor(min / 60) + ':' + String(min % 60).padStart(2, '0'); }
     function fmtDiff(min) { return min < 60 ? (Math.round(min) + ' ' + tr('st_min')) : fmtHM(min); }
+    function fmtHour(min) { return String(Math.floor(min / 60)).padStart(2, '0'); }
+    function bibHoursTxt(bibId) {
+        const h = BIB_HOURS[bibId];
+        if (!h) return '';
+        const seg = (a) => fmtHour(a[0]) + '–' + fmtHour(a[1]);
+        const parts = [tr('st_mf') + ' ' + seg(h.mf)];
+        if (h.sa && h.su && h.sa[0] === h.su[0] && h.sa[1] === h.su[1]) parts.push(tr('st_sasu') + ' ' + seg(h.sa));
+        else {
+            if (h.sa) parts.push(tr('st_sa') + ' ' + seg(h.sa));
+            if (h.su) parts.push(tr('st_su') + ' ' + seg(h.su));
+        }
+        return (h.approx ? '≈ ' : '') + parts.join(' · ');
+    }
+    let bibCloseBannerDay = null;
     function nDaysRow(n) {
         if (lang === 'en') return n === 1 ? 'day in a row' : 'days in a row';
         if (lang === 'de') return n === 1 ? 'Tag in Folge' : 'Tage in Folge';
@@ -2717,13 +2829,14 @@
         if (diff <= BIB_GEO_TOL_MIN) return { kind: 'ok', geoMin: Math.max(0, u - f), geoEndMin: goodEnd, diffMin: diff };
         return { kind: 'no', geoMin: 0, geoEndMin: goodEnd, diffMin: diff };
     }
+    function statDayGeoMin(dateIso, uid, pingsMap) {
+        let g = 0;
+        statSessionsFor(dateIso, uid).forEach(x => { g += statVerdict(dateIso, x, pingsMap).geoMin; });
+        return Math.min(STAT_DAY_CAP_MIN, g);
+    }
     function statGeoTotalMin() {
         let sum = 0;
-        Object.keys(state.bib || {}).forEach(di => {
-            let g = 0;
-            statSessionsFor(di).forEach(x => { g += statVerdict(di, x).geoMin; });
-            sum += Math.min(STAT_DAY_CAP_MIN, g);
-        });
+        Object.keys(state.bib || {}).forEach(di => { sum += statDayGeoMin(di); });
         return sum;
     }
     function geoOptedIn() { return !!(state.members && state.members[currentUser.id] && state.members[currentUser.id].geo === true); }
@@ -2792,13 +2905,14 @@
         else h += `<div class="st-num off" id="st-geo-card"><div class="st-cap">${tr('st_geo')}</div><div class="st-big">—</div><div class="st-sub">${tr('st_geo_need')}</div></div>`;
         h += '</div>';
         const days = [];
-        for (let i = 6; i >= 0; i--) { const d = addDays(new Date(), -i); days.push({ d, min: statDayMinutes(isoDate(d)) }); }
+        for (let i = 6; i >= 0; i--) { const d = addDays(new Date(), -i); const di2 = isoDate(d); days.push({ d, min: statDayMinutes(di2), geo: statDayGeoMin(di2) }); }
         const mx = Math.max(60, ...days.map(x => x.min));
         h += `<div class="st-sec">${tr('st_last7')}</div><div class="st-card"><div class="st-chart">`;
         days.forEach((x, idx) => {
             const pct = x.min > 0 ? Math.max(8, Math.round(x.min / mx * 100)) : 6;
             const on = idx === 6 ? ' on' : '';
-            h += `<div class="st-bar-wrap"><div class="st-bar-col"><div class="st-bar${on}" style="height:${pct}%">${x.min > 0 ? `<span class="st-h">${fmtHM(x.min)}</span>` : ''}</div></div><span class="st-bar-day${on}">${L_DAYS_SHORT[lang][x.d.getDay()]}</span></div>`;
+            const gPct = (x.min > 0 && x.geo > 0) ? Math.min(100, Math.round(x.geo / x.min * 100)) : 0;
+            h += `<div class="st-bar-wrap"><div class="st-bar-col"><div class="st-bar${on}" style="height:${pct}%">${x.min > 0 ? `<span class="st-h">${fmtHM(x.min)}</span>` : ''}${gPct > 0 ? `<div class="st-bar-geo" style="height:${gPct}%"></div>` : ''}</div></div><span class="st-bar-day${on}">${L_DAYS_SHORT[lang][x.d.getDay()]}</span></div>`;
         });
         h += '</div>';
         const favB = totals.favBib ? BIB_BY_ID[totals.favBib] : null;
@@ -2814,12 +2928,13 @@
             const flexOn = flexOptedIn(currentUser.id);
             h += `<div class="st-card"><div class="st-trow"><div class="st-tx"><div class="st-t1">${tr('st_rank_toggle')}</div><div class="st-t2">${tr('st_rank_toggle_sub')}</div></div><div class="st-sw${flexOn ? ' on' : ''}" id="st-flex-sw"></div></div>`;
             if (flexOn) {
-                h += `<div class="st-segs"><div class="st-seg" id="st-seg-period"><span data-p="week"${rankPeriod === 'week' ? ' class="on"' : ''}>${tr('st_p_week')}</span><span data-p="all"${rankPeriod === 'all' ? ' class="on"' : ''}>${tr('st_p_all')}</span></div><div class="st-seg" id="st-seg-sort"><span data-k="conf"${rankSort === 'conf' ? ' class="on"' : ''}>${tr('st_s_geo')}</span><span data-k="claim"${rankSort === 'claim' ? ' class="on"' : ''}>${tr('st_s_claim')}</span></div></div>`;
+                h += `<div class="st-segs"><div class="st-seg" id="st-seg-period"><span data-p="day"${rankPeriod === 'day' ? ' class="on"' : ''}>${tr('st_p_today')}</span><span data-p="week"${rankPeriod === 'week' ? ' class="on"' : ''}>${tr('st_p_week')}</span><span data-p="all"${rankPeriod === 'all' ? ' class="on"' : ''}>${tr('st_p_all')}</span></div><div class="st-seg" id="st-seg-sort"><span data-k="conf"${rankSort === 'conf' ? ' class="on"' : ''}>${tr('st_s_geo')}</span><span data-k="claim"${rankSort === 'claim' ? ' class="on"' : ''}>${tr('st_s_claim')}</span></div></div>`;
                 h += `<div id="st-rank-list">${rankListHtml()}</div>`;
             }
             h += '</div>';
         }
         if (totals.totalMin === 0) h += `<div class="st-empty">${tr('st_empty')}</div>`;
+        h += `<div class="st-dev">${tr('st_dev')}</div>`;
         body.innerHTML = h;
         const gc = document.getElementById('st-geo-card');
         if (gc) gc.onclick = () => openStatsGeo();
@@ -2829,6 +2944,7 @@
         if (fsw) fsw.onclick = () => flexSetOptIn(!flexOptedIn(currentUser.id));
         document.querySelectorAll('#st-seg-period span').forEach(sp => { sp.onclick = () => { rankPeriod = sp.dataset.p; haptic('light'); renderStats(); }; });
         document.querySelectorAll('#st-seg-sort span').forEach(sp => { sp.onclick = () => { rankSort = sp.dataset.k; haptic('light'); renderStats(); }; });
+        document.querySelectorAll('#st-rank-list .st-utr').forEach(el => { el.onclick = () => openStatsUser(el.dataset.uid); });
     }
     function renderStatsGeo() {
         document.querySelector('#sheet-stats-geo .sheet-title').textContent = tr('st_geo_head');
@@ -2877,7 +2993,7 @@
     }
     /* ===== Hustle-рейтинг (шаг 4) ===== */
     let rankGeoCache = null, rankGeoLoading = false;
-    let rankPeriod = 'week', rankSort = 'conf';
+    let rankPeriod = 'day', rankSort = 'conf';
     function flexOptedIn(uid) { const m = state.members && state.members[uid]; return !(m && m.flex === false); }
     function flexSetOptIn(next) {
         if (!FIREBASE_READY || !fbDb) { showToast(tr('toast_fail')); return; }
@@ -2887,6 +3003,7 @@
         if (!document.getElementById('sheet-stats').hidden) renderStats();
     }
     function rankDates() {
+        if (rankPeriod === 'day') return [isoDate(new Date())];
         if (rankPeriod === 'week') {
             const out = [], ws = startOfWeek(new Date());
             for (let i = 0; i < 7; i++) out.push(isoDate(addDays(ws, i)));
@@ -2905,11 +3022,7 @@
         const pingsMap = (rankGeoCache || {})[uid] || null;
         dates.forEach(di => {
             claim += statDayMinutes(di, uid);
-            if (geoOk && pingsMap) {
-                let g = 0;
-                statSessionsFor(di, uid).forEach(x => { g += statVerdict(di, x, pingsMap).geoMin; });
-                conf += Math.min(STAT_DAY_CAP_MIN, g);
-            }
+            if (geoOk && pingsMap) conf += statDayGeoMin(di, uid, pingsMap);
         });
         return { uid, claim, conf, nogeo: !geoOk };
     }
@@ -2957,9 +3070,73 @@
                 ? `<span class="st-av" style="background-image:url(${esc(u.photo_url)})"></span>`
                 : `<span class="st-av"${me ? '' : ` style="background-color:${colorFor(r.uid)};color:#fff"`}>${esc(userInitials(u))}</span>`;
             const cf = r.nogeo ? '✓—' : ('✓' + fmtHM(r.conf));
-            h += `<div class="st-utr${me ? ' me' : ''}${r.nogeo ? ' nogeo' : ''}"><span class="st-rk">${i + 1}</span>${av}<div class="st-who"><div class="st-top"><span class="st-nm">${me ? tr('you') : esc(u.name || tr('guest'))} ${rankStatusHtml(r.uid, r.nogeo)}</span><span class="st-vals"><span class="cl">${fmtHM(r.claim)}</span> · <span class="cf">${cf}</span></span></div><div class="st-dual"><div class="claim" style="width:${Math.min(100, Math.round(r.claim / mx * 100))}%"></div><div class="conf" style="width:${Math.min(100, Math.round(r.conf / mx * 100))}%"></div></div></div></div>`;
+            h += `<div class="st-utr${me ? ' me' : ''}${r.nogeo ? ' nogeo' : ''}" data-uid="${esc(r.uid)}"><span class="st-rk">${i + 1}</span>${av}<div class="st-who"><div class="st-top"><span class="st-nm">${me ? tr('you') : esc(u.name || tr('guest'))} ${rankStatusHtml(r.uid, r.nogeo)}</span><span class="st-vals"><span class="cl">${fmtHM(r.claim)}</span> · <span class="cf">${cf}</span></span></div><div class="st-dual"><div class="claim" style="width:${Math.min(100, Math.round(r.claim / mx * 100))}%"></div><div class="conf" style="width:${Math.min(100, Math.round(r.conf / mx * 100))}%"></div></div></div></div>`;
         });
         return h;
+    }
+    let stUserId = null;
+    function openStatsUser(uid) {
+        if (!uid) return;
+        stUserId = uid;
+        const sh = document.getElementById('sheet-stats-user');
+        _stAccent(sh);
+        renderStatsUser();
+        sh.hidden = false;
+        document.getElementById('sheet-backdrop').classList.add('show');
+        requestAnimationFrame(() => sh.classList.add('show'));
+        attachBackButton('statsuser', closeStatsUser);
+        haptic('light');
+    }
+    function closeStatsUser() {
+        const sh = document.getElementById('sheet-stats-user');
+        sh.classList.remove('show');
+        setTimeout(() => { sh.hidden = true; }, 280);
+        if (!document.getElementById('sheet-stats').hidden) attachBackButton('stats', closeStats);
+        else {
+            document.getElementById('sheet-backdrop').classList.remove('show');
+            if (backButtonOwner === 'statsuser') detachBackButton();
+        }
+    }
+    function renderStatsUser() {
+        const uid = stUserId;
+        if (!uid) return;
+        const u = getUserInfo(uid);
+        const me = uid === currentUser.id;
+        document.querySelector('#sheet-stats-user .sheet-title').textContent = me ? tr('you') : (u.name || tr('guest'));
+        const body = document.getElementById('st-user-body');
+        const dates = rankDates();
+        const geoOk = !!(state.members && state.members[uid] && state.members[uid].geo === true);
+        const pingsMap = me ? geoPingsCache : ((rankGeoCache || {})[uid] || null);
+        let claim = 0, conf = 0, hiddenMin = 0;
+        const rows = [];
+        dates.forEach(di => {
+            claim += statDayMinutes(di, uid);
+            if (geoOk && pingsMap) conf += statDayGeoMin(di, uid, pingsMap);
+            const e = (state.bib[di] || {})[uid];
+            if (!e) return;
+            const vis = canSee(uid, e);
+            const d = new Date(+di.slice(0, 4), +di.slice(5, 7) - 1, +di.slice(8, 10));
+            statSessionsFor(di, uid).forEach(x => {
+                if (!vis) { hiddenMin += statSesMinutes(di, x); return; }
+                rows.push({ di, d, x });
+            });
+        });
+        rows.reverse();
+        const periodKey = rankPeriod === 'day' ? 'st_p_today' : (rankPeriod === 'week' ? 'st_p_week' : 'st_p_all');
+        let h = `<div class="st-sec">${tr(periodKey)}</div>`;
+        h += `<div class="st-card"><div class="st-note"><b>${fmtHM(claim)}</b> ${tr('st_u_claimed')} · <b>✓ ${geoOk ? fmtHM(conf) : '—'}</b> ${tr('st_u_geo')}</div></div>`;
+        if (!rows.length && hiddenMin === 0) h += `<div class="st-empty">${tr('st_u_none')}</div>`;
+        rows.slice(0, 30).forEach(it => {
+            const lib = BIB_BY_ID[it.x.bib];
+            if (!lib) return;
+            const v = statVerdict(it.di, it.x, pingsMap);
+            const dayTxt = `${L_DAYS_SHORT[lang][it.d.getDay()]}, ${it.d.getDate()} ${L_MONTHS_SHORT[lang][it.d.getMonth()]}`;
+            const iv = it.x.until ? `${it.x.from}–${it.x.until}` : `${it.x.from} → …`;
+            const okB = (geoOk && v.kind === 'ok') ? ` <span class="st-badge-ok">${tr('st_geo_badge')}</span>` : '';
+            h += `<div class="st-ses"><div class="st-sh"><span class="st-sp">${lib.emoji} ${esc(lib.name)}</span><span class="st-sd">${dayTxt}</span></div><div class="st-tl"><span class="st-vl">${iv}</span>${okB}</div></div>`;
+        });
+        if (hiddenMin > 0) h += `<div class="st-empty">${tr('st_u_hidden', { h: fmtHM(hiddenMin) })}</div>`;
+        body.innerHTML = h;
     }
     function openStats() {
         const sh = document.getElementById('sheet-stats');
@@ -3194,7 +3371,7 @@
         if (!frIds.length) { const e = document.createElement('div'); e.className = 'fr-empty'; e.textContent = (f ? tr('fr_nofound') : tr('fr_empty')); list.appendChild(e); }
         else { frIds.forEach(id => list.appendChild(friendRow(id, 'friend'))); }
     }
-    function closeAllSheets() { closeCreateSheet(); closeDetailSheet(); closeBibCreate(); closeBibDetail(); closeAudience(); closeGroupModal(); closeFriends(); closeStatsGeo(); closeStats(); }
+    function closeAllSheets() { closeCreateSheet(); closeDetailSheet(); closeBibCreate(); closeBibDetail(); closeAudience(); closeGroupModal(); closeFriends(); closeStatsUser(); closeStatsGeo(); closeStats(); }
     function makeSheetDraggable(sheet, closeFn) {
         if (!sheet) return;
         let startY = 0, dy = 0, dragging = false, armed = false;
@@ -3604,7 +3781,7 @@
         if (tg?.openLink) tg.openLink(u); else window.open(u, '_blank');
     };
     document.getElementById('sheet-backdrop').onclick = () => { closeAllSheets(); };
-    [['sheet-create', closeCreateSheet], ['sheet-detail', closeDetailSheet], ['sheet-bib-create', closeBibCreate], ['sheet-bib-detail', closeBibDetail], ['sheet-audience', closeAudience], ['sheet-friends', closeFriends], ['sheet-stats', closeStats], ['sheet-stats-geo', closeStatsGeo]].forEach(([id, fn]) => makeSheetDraggable(document.getElementById(id), fn));
+    [['sheet-create', closeCreateSheet], ['sheet-detail', closeDetailSheet], ['sheet-bib-create', closeBibCreate], ['sheet-bib-detail', closeBibDetail], ['sheet-audience', closeAudience], ['sheet-friends', closeFriends], ['sheet-stats', closeStats], ['sheet-stats-geo', closeStatsGeo], ['sheet-stats-user', closeStatsUser]].forEach(([id, fn]) => makeSheetDraggable(document.getElementById(id), fn));
     document.getElementById('sheet-confirm').onclick = () => {
         if (selectedTime && selectedMensa) {
             if (isPastTimeToday(selectedTime)) { showToast(tr('toast_time_passed')); return; }
@@ -3775,7 +3952,7 @@
     applyI18n();
     render();
     /* ===== Kick off Firebase live sync ===== */
-    ensureAuth().finally(() => { startFirebaseSync(); firstRunOnboarding(); if (inviteToken) redeemInvite(inviteToken); setTimeout(geoPing, 4000); setInterval(geoPing, 10 * 60 * 1000); });
+    ensureAuth().finally(() => { startFirebaseSync(); firstRunOnboarding(); if (inviteToken) redeemInvite(inviteToken); setTimeout(geoPing, 4000); setInterval(geoPing, 10 * 60 * 1000); setInterval(() => { if (mode === 'bib' && view === 'day' && isoDate(currentDate) === isoDate(new Date())) renderBibDay(); }, 5 * 60 * 1000); });
     </script>
 </body>
 </html>
