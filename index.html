@@ -648,6 +648,8 @@
         .bib-empty-txt { font-size: 12px; color: var(--hint); }
         .bib-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
         .bib-pchip { font-size: 12px; font-weight: 600; background: var(--surface-alt); color: var(--text); padding: 4px 9px; border-radius: 8px; }
+        .bib-pchip.gone { background: transparent; border: 1px dashed var(--border); color: var(--hint); opacity: 0.7; }
+        .bib-pchip.gone .pchip-tag { font-size: 9px; font-weight: 800; opacity: 0.8; margin-left: 4px; }
         .bib-card { padding: 15px 15px; }
         .bib-name { font-size: 16px; }
         #bib-lib-grid .mensa-chip { min-height: 54px; font-size: 15px; padding: 14px 14px; }
@@ -1044,7 +1046,7 @@
             more_libs:'Ещё бибки', create_sub_today:'Сегодня · выбери время и куда идёшь',
             lbl_in_only:'Получать только от выбранных', lbl_in_none:'Ни от кого', lbl_in_except:'Получать от всех, кроме выбранных', lbl_in_all:'Получать сообщения от всех',
             lbl_only:'Увидят только выбранные', lbl_none:'Никто не увидит', lbl_except:'Увидят все, кроме выбранных', lbl_all:'Запись увидят все в твоём круге',
-            toast_left:'Вы вышли', toast_left_bib:'Вы ушли', toast_fail:'Не удалось', toast_save_fail:'Не удалось сохранить',
+            toast_left:'Вы вышли', toast_left_bib:'Вы ушли', bib_left_tag:'ушёл/ушла', toast_fail:'Не удалось', toast_save_fail:'Не удалось сохранить',
             toast_its_you:'Это вы 🙂', toast_no_username:'У пользователя нет @username', toast_no_past:'Нельзя записаться задним числом',
             toast_until_before:'Уйти можно только позже прихода', toast_time_passed:'Это время уже прошло', toast_cancelled:'Эта запись отменена', toast_setting_saved:'Настройка сохранена',
             toast_pick_in_list:'Сначала отметь людей в списке', toast_pick_for_group:'Отметь людей для группы', toast_enter_name:'Введи название', toast_none_selected:'Никто не выбран',
@@ -1075,7 +1077,7 @@
             more_libs:'More libraries', create_sub_today:'Today · pick a time and place',
             lbl_in_only:'Only from selected', lbl_in_none:'From nobody', lbl_in_except:'From everyone except selected', lbl_in_all:'Receive from everyone',
             lbl_only:'Only selected will see', lbl_none:'Nobody will see', lbl_except:'Everyone except selected will see', lbl_all:'Everyone in your circle will see',
-            toast_left:'You left', toast_left_bib:'You left', toast_fail:'Failed', toast_save_fail:"Couldn't save",
+            toast_left:'You left', toast_left_bib:'You left', bib_left_tag:'left', toast_fail:'Failed', toast_save_fail:"Couldn't save",
             toast_its_you:"That's you 🙂", toast_no_username:'User has no @username', toast_no_past:"Can't book in the past",
             toast_until_before:'Leave time must be after arrival', toast_time_passed:'That time has passed', toast_cancelled:'This entry was cancelled', toast_setting_saved:'Setting saved',
             toast_pick_in_list:'First select people in the list', toast_pick_for_group:'Select people for the group', toast_enter_name:'Enter a name', toast_none_selected:'Nobody selected',
@@ -1106,7 +1108,7 @@
             more_libs:'Weitere Bibliotheken', create_sub_today:'Heute · wähle Zeit und Ort',
             lbl_in_only:'Nur von Ausgewählten', lbl_in_none:'Von niemandem', lbl_in_except:'Von allen außer Ausgewählten', lbl_in_all:'Von allen empfangen',
             lbl_only:'Nur Ausgewählte sehen es', lbl_none:'Niemand sieht es', lbl_except:'Alle außer Ausgewählten sehen es', lbl_all:'Alle in deinem Kreis sehen es',
-            toast_left:'Du hast dich ausgetragen', toast_left_bib:'Du bist gegangen', toast_fail:'Fehlgeschlagen', toast_save_fail:'Speichern fehlgeschlagen',
+            toast_left:'Du hast dich ausgetragen', toast_left_bib:'Du bist gegangen', bib_left_tag:'weg', toast_fail:'Fehlgeschlagen', toast_save_fail:'Speichern fehlgeschlagen',
             toast_its_you:'Das bist du 🙂', toast_no_username:'Nutzer hat keinen @username', toast_no_past:'Kein Eintrag rückwirkend',
             toast_until_before:'Endzeit muss nach Ankunft liegen', toast_time_passed:'Diese Zeit ist vorbei', toast_cancelled:'Dieser Eintrag wurde storniert', toast_setting_saved:'Einstellung gespeichert',
             toast_pick_in_list:'Wähle zuerst Leute aus der Liste', toast_pick_for_group:'Wähle Leute für die Gruppe', toast_enter_name:'Gib einen Namen ein', toast_none_selected:'Niemand ausgewählt',
@@ -2142,14 +2144,23 @@
     let bibDetailId = null;
     function bibTmin(t){ if(!t) return 0; const p=String(t).split(':'); return (+p[0])*60 + (+(p[1]||0)); }
     function bibTo24(t){ if(!t) return ''; const p=String(t).split(':'); return String(p[0]).padStart(2,'0') + ':' + (p[1]||'00'); }
-    function bibFindMine(dateIso) { return (state.bib[dateIso] || {})[currentUser.id] || null; }
+    function bibIsLeft(e) { return !!(e && e.status === 'left'); }
+    function bibMineRaw(dateIso) { return (state.bib[dateIso] || {})[currentUser.id] || null; }
+    function bibFindMine(dateIso) { const e = bibMineRaw(dateIso); return (e && !bibIsLeft(e)) ? e : null; }
+    function bibNowHM() { const d = new Date(); return d.getHours() + ':' + String(d.getMinutes()).padStart(2, '0'); }
     function bibPeople(dateIso, bibId) {
         const day = state.bib[dateIso] || {};
         const arr = [];
-        Object.keys(day).forEach(uid => { const e = day[uid]; if (e && e.bib === bibId && canSee(uid, e)) arr.push({ uid, from: e.from, until: e.until || null }); });
+        Object.keys(day).forEach(uid => { const e = day[uid]; if (e && e.bib === bibId && !bibIsLeft(e) && canSee(uid, e)) arr.push({ uid, from: e.from, until: e.until || null }); });
         return arr.sort((a,b) => bibTmin(a.from) - bibTmin(b.from));
     }
-    function bibDayCount(dateIso) { const day = state.bib[dateIso] || {}; return Object.keys(day).filter(uid => canSee(uid, day[uid])).length; }
+    function bibPeopleLeft(dateIso, bibId) {
+        const day = state.bib[dateIso] || {};
+        const arr = [];
+        Object.keys(day).forEach(uid => { const e = day[uid]; if (e && e.bib === bibId && bibIsLeft(e) && canSee(uid, e)) arr.push({ uid, from: e.from, until: e.until || null }); });
+        return arr.sort((a,b) => bibTmin(a.from) - bibTmin(b.from));
+    }
+    function bibDayCount(dateIso) { const day = state.bib[dateIso] || {}; return Object.keys(day).filter(uid => day[uid] && !bibIsLeft(day[uid]) && canSee(uid, day[uid])).length; }
     function renderBibDay() {
         document.getElementById('bib-day-label').textContent = formatDayLabel(currentDate);
         document.getElementById('bib-day-hint').textContent = formatDayHint(currentDate);
@@ -2159,7 +2170,7 @@
         list.innerHTML = '';
         if (friendsReady && !Object.keys(state.friends || {}).length) { list.appendChild(friendsHintEl()); }
         const mine = bibFindMine(di);
-        const _extra = BIBS_MORE.filter(b => bibPeople(di, b.id).length > 0);
+        const _extra = BIBS_MORE.filter(b => bibPeople(di, b.id).length > 0 || bibPeopleLeft(di, b.id).length > 0);
         [...BIBS, ..._extra].forEach(b => {
             const ppl = bibPeople(di, b.id);
             const mineHere = mine && mine.bib === b.id;
@@ -2189,7 +2200,8 @@
                 top.appendChild(e);
             }
             card.appendChild(top);
-            if (ppl.length > 0) {
+            const gone = bibPeopleLeft(di, b.id);
+            if (ppl.length > 0 || gone.length > 0) {
                 const chips = document.createElement('div');
                 chips.className = 'bib-chips';
                 ppl.forEach(p => {
@@ -2198,6 +2210,17 @@
                     chip.className = 'bib-pchip';
                     if (u.isMe) { chip.style.background = b.color; chip.style.color = '#fff'; }
                     chip.textContent = (u.isMe ? tr('you') : (u.name || tr('guest'))) + ' · ' + p.from + (p.until ? (' → ' + p.until) : '');
+                    chips.appendChild(chip);
+                });
+                gone.forEach(p => {
+                    const u = getUserInfo(p.uid);
+                    const chip = document.createElement('span');
+                    chip.className = 'bib-pchip gone';
+                    chip.appendChild(document.createTextNode((u.isMe ? tr('you') : (u.name || tr('guest'))) + ' · ' + p.from + (p.until ? ('–' + p.until) : '') + ' '));
+                    const tag = document.createElement('span');
+                    tag.className = 'pchip-tag';
+                    tag.textContent = tr('bib_left_tag');
+                    chip.appendChild(tag);
                     chips.appendChild(chip);
                 });
                 card.appendChild(chips);
@@ -2388,7 +2411,10 @@
         const untilTxt = until ? tr('n_until', {t: until}) : '';
         if (FIREBASE_READY && fbDb) {
             try {
-                await set(ref(fbDb, `rooms/${roomId}/bib/${dateIso}/${currentUser.id}`), { bib, from, until: until || null, name: currentUser.name, photo_url: currentUser.photo_url || null, audience: audience || { mode: 'all', ids: [] }, updatedAt: serverTimestamp() });
+                const _raw = bibMineRaw(dateIso);
+                const _prev = (_raw && Array.isArray(_raw.prev)) ? _raw.prev.slice() : [];
+                if (_raw && bibIsLeft(_raw)) _prev.push({ bib: _raw.bib, from: _raw.from, until: _raw.until || null });
+                await set(ref(fbDb, `rooms/${roomId}/bib/${dateIso}/${currentUser.id}`), { bib, from, until: until || null, name: currentUser.name, photo_url: currentUser.photo_url || null, audience: audience || { mode: 'all', ids: [] }, updatedAt: serverTimestamp(), ...(_prev.length ? { prev: _prev } : {}) });
                 haptic('medium');
                 showToast(`${lib.name} · ${from}`);
                 const changed = oldE && (oldE.bib !== bib || oldE.from !== from || (oldE.until || null) !== (until || null));
@@ -2411,7 +2437,10 @@
             return;
         }
         if (!state.bib[dateIso]) state.bib[dateIso] = {};
-        state.bib[dateIso][currentUser.id] = { bib, from, until: until || null, audience: audience || { mode: 'all', ids: [] } };
+        const _rawL = state.bib[dateIso][currentUser.id];
+        const _prevL = (_rawL && Array.isArray(_rawL.prev)) ? _rawL.prev.slice() : [];
+        if (_rawL && bibIsLeft(_rawL)) _prevL.push({ bib: _rawL.bib, from: _rawL.from, until: _rawL.until || null });
+        state.bib[dateIso][currentUser.id] = { bib, from, until: until || null, audience: audience || { mode: 'all', ids: [] }, ...(_prevL.length ? { prev: _prevL } : {}) };
         saveLocalState(); haptic('medium'); showToast(`${lib.name} · ${from}`); render();
     }
     async function removeMyBib(dateIso, audience) {
@@ -2419,7 +2448,9 @@
         const dayTxt = `${currentDate.getDate()} ${L_MONTHS_SHORT[lang][currentDate.getMonth()]}`;
         if (FIREBASE_READY && fbDb) {
             try {
-                await remove(ref(fbDb, `rooms/${roomId}/bib/${dateIso}/${currentUser.id}`));
+                const _started = oldE && dateIso === isoDate(new Date()) && bibTmin(bibNowHM()) >= bibTmin(oldE.from);
+                if (_started) await update(ref(fbDb, `rooms/${roomId}/bib/${dateIso}/${currentUser.id}`), { until: bibNowHM(), status: 'left', updatedAt: serverTimestamp() });
+                else if (oldE) await remove(ref(fbDb, `rooms/${roomId}/bib/${dateIso}/${currentUser.id}`));
                 haptic('medium'); showToast(tr('toast_left_bib'));
                 if (oldE) {
                     const lib = BIB_BY_ID[oldE.bib];
@@ -2431,8 +2462,10 @@
             return;
         }
         const day = state.bib[dateIso] || {};
-        delete day[currentUser.id];
-        if (Object.keys(day).length === 0) delete state.bib[dateIso]; else state.bib[dateIso] = day;
+        const _e = day[currentUser.id];
+        const _started = _e && !bibIsLeft(_e) && dateIso === isoDate(new Date()) && bibTmin(bibNowHM()) >= bibTmin(_e.from);
+        if (_started) { _e.until = bibNowHM(); _e.status = 'left'; state.bib[dateIso] = day; }
+        else { delete day[currentUser.id]; if (Object.keys(day).length === 0) delete state.bib[dateIso]; else state.bib[dateIso] = day; }
         saveLocalState(); haptic('medium'); showToast(tr('toast_left_bib')); render();
     }
     function openBibDetail(bibId) {
