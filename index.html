@@ -747,7 +747,9 @@
         .st-btn-warn { background: var(--warn); color: #fff; border: none; font-family: inherit; font-weight: 700; font-size: 12px; padding: 9px 12px; border-radius: 9px; cursor: pointer; flex: none; }
         .bib-hours { font-size: 10px; font-weight: 700; color: var(--hint); background: var(--surface-alt); border-radius: 6px; padding: 2px 7px; margin-left: 2px; white-space: nowrap; flex: none; }
         .bib-hours.closed { color: var(--warn); background: var(--warn-soft); }
-        .bib-hinfo { position: relative; display: inline-flex; align-items: center; justify-content: center; width: 16px; height: 16px; border-radius: 50%; background: var(--surface-alt); color: var(--hint); font-size: 10px; font-weight: 800; font-style: italic; cursor: pointer; margin-left: 4px; flex: none; }
+        .bib-hinfo { position: relative; display: inline-flex; align-items: center; justify-content: center; width: 16px; height: 16px; border-radius: 50%; background: var(--surface-alt); color: var(--hint); font-size: 10px; font-weight: 800; cursor: pointer; margin-left: 4px; flex: none; }
+        #bib-detail-name { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
+        #bib-detail-name .bib-hours { margin-left: auto; }
         .bib-hpop { position: absolute; top: 135%; left: 50%; transform: translateX(-50%); background: var(--text); color: var(--bg); font-size: 10.5px; font-weight: 700; font-style: normal; white-space: nowrap; padding: 4px 8px; border-radius: 6px; display: none; z-index: 5; }
         .bib-hinfo.open .bib-hpop { display: block; }
         .bib-closed-note { font-size: 11px; color: var(--warn); font-weight: 600; background: var(--warn-soft); border-radius: 8px; padding: 8px 10px; margin-top: 10px; line-height: 1.45; }
@@ -2417,23 +2419,6 @@
             const _isToday = di === isoDate(new Date());
             const _hrs = BIB_HOURS[b.id] ? bibHoursFor(b.id, currentDate) : null;
             const _closedNow = _isToday && BIB_HOURS[b.id] && (!_hrs || nowMin() < _hrs[0] || nowMin() >= _hrs[1]);
-            if (_closedNow) {
-                const hc = document.createElement('span');
-                hc.className = 'bib-hours closed';
-                hc.textContent = !_hrs ? tr('st_closed_plain') : (nowMin() < _hrs[0] ? tr('st_closed_until', { t: fmtHM(_hrs[0]) }) : tr('st_closed', { t: fmtHM(_hrs[1]) }));
-                nm.appendChild(hc);
-            }
-            if (BIB_HOURS[b.id]) {
-                const hi = document.createElement('span');
-                hi.className = 'bib-hinfo';
-                hi.textContent = 'i';
-                const hp = document.createElement('span');
-                hp.className = 'bib-hpop';
-                hp.textContent = bibHoursTxt(b.id);
-                hi.appendChild(hp);
-                hi.onclick = (e) => { e.stopPropagation(); hi.classList.toggle('open'); haptic('light'); };
-                nm.appendChild(hi);
-            }
             top.appendChild(nm);
             if (ppl.length > 0 || (_isToday && bibPeopleLeft(di, b.id).length > 0)) {
                 const cnt = document.createElement('div');
@@ -2448,7 +2433,7 @@
                 if (_closedNow) { cnt.style.color = 'var(--warn)'; cnt.style.background = 'var(--warn-soft)'; }
                 else { cnt.style.color = b.color; cnt.style.background = bibHexA(b.color, 0.18); }
                 top.appendChild(cnt);
-            } else {
+            } else if (!_closedNow) {
                 const e = document.createElement('div');
                 e.className = 'bib-empty-txt';
                 e.textContent = tr('bib_empty_short');
@@ -3182,7 +3167,15 @@
         const lib = BIB_BY_ID[bibId];
         const di = isoDate(currentDate);
         const ppl = bibPeople(di, bibId);
-        document.getElementById('bib-detail-name').innerHTML = `${lib.emoji} ${lib.name}`;
+        let _nmD = `${lib.emoji} ${lib.name}`;
+        if (BIB_HOURS[bibId]) _nmD += `<span class="bib-hinfo">i<span class="bib-hpop">${bibHoursTxt(bibId)}</span></span>`;
+        const _hrsD = BIB_HOURS[bibId] ? bibHoursFor(bibId, currentDate) : null;
+        const _closedD = di === isoDate(new Date()) && BIB_HOURS[bibId] && (!_hrsD || nowMin() < _hrsD[0] || nowMin() >= _hrsD[1]);
+        if (_closedD) _nmD += `<span class="bib-hours closed">${!_hrsD ? tr('st_closed_plain') : (nowMin() < _hrsD[0] ? tr('st_closed_until', { t: fmtHM(_hrsD[0]) }) : tr('st_closed', { t: fmtHM(_hrsD[1]) }))}</span>`;
+        const _nameD = document.getElementById('bib-detail-name');
+        _nameD.innerHTML = _nmD;
+        const _hiD = _nameD.querySelector('.bib-hinfo');
+        if (_hiD) _hiD.onclick = (e) => { e.stopPropagation(); _hiD.classList.toggle('open'); haptic('light'); };
         document.getElementById('bib-detail-sub').textContent = ppl.length
             ? tr('n_today', {p: nPeople(ppl.length)})
             : tr('bib_empty_long');
