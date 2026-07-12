@@ -1194,15 +1194,15 @@
             st_note_bg_b:'В фоне не отслеживаем.', st_note_bg:'Координаты читаются, только когда апп открыт, и не сохраняются — храним лишь факт «был в радиусе библы: да/нет».',
             st_note_how_t:'Как подтверждается сессия', st_note_how:'Отмечаешь приход и уход как обычно. Гео тихо сверяет их с реальным присутствием. Расхождение в пределах допуска (1,5 ч) — сессия идёт в рейтинг. Больше — только в личную статистику.',
             st_sessions:'Мои сессии', st_marked:'Отмечено', st_geo_line:'Гео',
-            st_v_ok:'✓ Подтверждено · расхождение {d}', st_v_no:'⚠ Не подтверждено · расхождение {d} > 1,5 ч', st_v_nopings:'⚠ Не подтверждено · нет гео-точек', st_v_nocoords:'⚠ Для этой библиотеки гео пока не настроено', st_v_wait:'⏳ Нет времени ухода — не засчитано', st_v_live:'⏳ Сессия ещё идёт',
+            st_v_ok:'✓ Подтверждено', st_v_part:'✓ Частично подтверждено', st_v_no:'⚠ Не подтверждено · вне радиуса библиотеки', st_v_nopings:'⚠ Не подтверждено · нет гео-точек', st_v_nocoords:'⚠ Для этой библиотеки гео пока не настроено', st_v_wait:'⏳ Нет времени ухода — не засчитано', st_v_live:'⏳ Сессия ещё идёт',
             st_v_counts:'В Гео: {g} · В личное: {p}', st_empty:'Пока пусто — отметься в библиотеке, и здесь появится статистика',
             st_rank:'Hustle-рейтинг', st_rank_toggle:'Показывать меня в рейтинге', st_rank_toggle_sub:'В рейтинг идут только гео-подтверждённые часы',
             st_p_week:'Неделя', st_p_all:'Всё время', st_s_geo:'✓ по гео', st_s_claim:'по заявленным',
             st_r_in:'в {place}', st_r_nogeo:'гео выкл', st_rank_none:'Пока пусто — гео-часы появятся после подтверждённых сессий',
             st_dev:'👨‍🍳 Diyor is cooking…', st_p_today:'Сегодня', st_now_count:'{n} сейчас',
             st_closed:'закрыта · {t}', st_closed_until:'закрыта · до {t}', st_closed_plain:'закрыта',
-            st_here_t:'{place} закрывается в {t}', st_here_sub:'Ты ещё здесь? Отметься — вечер зачтётся в гео', st_here_btn:'Тут я', st_here_done:'✓ Отмечено',
-            st_closed_note:'🌙 Закрылась в {t} — не забудь отметить уход, иначе сессия не идёт в статистику',
+            st_here_t:'{place} закрывается в {t}', st_here_sub:'Ты ещё здесь? Отметься — вечер зачтётся в гео', st_here_btn:'Я тут', st_here_done:'✓ Отмечено', st_here_out:'Похоже, ты вне радиуса библиотеки',
+            st_closed_note:'🌙 Закрылась в {t} — незакрытая сессия зачтётся до {t}',
             st_mf:'Пн–Пт', st_sa:'Сб', st_su:'Вс', st_sasu:'Сб–Вс',
             st_u_claimed:'заявлено', st_u_geo:'по гео', st_u_hidden:'🔒 {h} · скрытые записи', st_u_none:'Нет сессий за этот период' },
         en: { soon:'Soon', menu_lang:'Language', menu_friends:'Friends', friends_title:'Friends', friends_sub:'entries visible only to mutual friends', fr_invite:'Invite', fr_qr:'QR code', fr_requests:'REQUESTS', fr_my:'MY FRIENDS', fr_empty:'Invite friends via link or QR', board_no_friends_title:'Add friends', board_no_friends:"Add friends to see who's at the canteen and library", fr_remove_confirm:'Remove {name} from friends?', fr_removed:'Removed from friends', fr_search:'Search friends…', fr_nofound:'Nobody found', fr_invite_text:'Be friends on Campus Meet 👋', fr_req_sent:'Request sent to {name}', fr_req_already:'You already sent a request to {name}', fr_already_friends:"You're already on Campus Meet", fr_req_declined:'Request declined', fr_link_copied:'Link copied', fr_qr_fail:"Couldn't show QR", fr_added:"You're now friends on Campus Meet 🎉", welcome_msg:"Welcome to Campus Meet 👋", fr_added_name:"You're now friends 🎉 with {name}", qr_title:'Invite a friend', qr_hint:'Friend scans the code to connect', qr_copy:'Copy link', today:'Today', tomorrow:'Tomorrow', yesterday:'Yesterday', week:'Week', add_group:'＋ Group',
@@ -1245,15 +1245,15 @@
             st_note_bg_b:'No background tracking.', st_note_bg:'Coordinates are read only while the app is open and never stored — we only keep the fact "was within the library radius: yes/no".',
             st_note_how_t:'How a session gets verified', st_note_how:'Mark arrival and leaving as usual. Geo quietly checks them against your real presence. A gap within the tolerance (1.5 h) — the session counts for the leaderboard. More — personal stats only.',
             st_sessions:'My sessions', st_marked:'Marked', st_geo_line:'Geo',
-            st_v_ok:'✓ Verified · gap {d}', st_v_no:'⚠ Not verified · gap {d} > 1.5 h', st_v_nopings:'⚠ Not verified · no geo points', st_v_nocoords:"⚠ Geo isn't set up for this library yet", st_v_wait:'⏳ No leave time — not counted', st_v_live:'⏳ Session still running',
+            st_v_ok:'✓ Verified', st_v_part:'✓ Partially verified', st_v_no:'⚠ Not verified · outside the library radius', st_v_nopings:'⚠ Not verified · no geo points', st_v_nocoords:"⚠ Geo isn't set up for this library yet", st_v_wait:'⏳ No leave time — not counted', st_v_live:'⏳ Session still running',
             st_v_counts:'Geo: {g} · Personal: {p}', st_empty:'Nothing yet — check in at a library and stats will appear',
             st_rank:'Hustle leaderboard', st_rank_toggle:'Show me on the leaderboard', st_rank_toggle_sub:'Only geo-verified hours count for the leaderboard',
             st_p_week:'Week', st_p_all:'All time', st_s_geo:'✓ by geo', st_s_claim:'by claimed',
             st_r_in:'at {place}', st_r_nogeo:'geo off', st_rank_none:'Empty so far — geo hours appear after verified sessions',
             st_dev:'👨‍🍳 Diyor is cooking…', st_p_today:'Today', st_now_count:'{n} now',
             st_closed:'closed · {t}', st_closed_until:'closed · until {t}', st_closed_plain:'closed',
-            st_here_t:'{place} closes at {t}', st_here_sub:'Still here? Check in — the evening counts for geo', st_here_btn:"I'm here", st_here_done:'✓ Checked in',
-            st_closed_note:"🌙 Closed at {t} — remember to mark leaving, otherwise the session won't count",
+            st_here_t:'{place} closes at {t}', st_here_sub:'Still here? Check in — the evening counts for geo', st_here_btn:"I'm here", st_here_done:'✓ Checked in', st_here_out:"Looks like you're outside the library radius",
+            st_closed_note:'🌙 Closed at {t} — an open session counts until {t}',
             st_mf:'Mon–Fri', st_sa:'Sat', st_su:'Sun', st_sasu:'Sat–Sun',
             st_u_claimed:'claimed', st_u_geo:'by geo', st_u_hidden:'🔒 {h} · hidden entries', st_u_none:'No sessions in this period' },
         de: { soon:'Bald', menu_lang:'Sprache', menu_friends:'Freunde', friends_title:'Freunde', friends_sub:'Einträge nur für gegenseitige Freunde', fr_invite:'Einladen', fr_qr:'QR-Code', fr_requests:'ANFRAGEN', fr_my:'MEINE FREUNDE', fr_empty:'Lade Freunde per Link oder QR ein', board_no_friends_title:'Freunde hinzufügen', board_no_friends:'Füge Freunde hinzu, um zu sehen, wer in Mensa und Bib ist', fr_remove_confirm:'{name} aus Freunden entfernen?', fr_removed:'Aus Freunden entfernt', fr_search:'Freunde suchen…', fr_nofound:'Niemand gefunden', fr_invite_text:'Befreundet sein bei Campus Meet 👋', fr_req_sent:'Anfrage an {name} gesendet', fr_req_already:'Anfrage an {name} läuft bereits', fr_already_friends:'Du bist schon bei Campus Meet', fr_req_declined:'Anfrage abgelehnt', fr_link_copied:'Link kopiert', fr_qr_fail:'QR fehlgeschlagen', fr_added:'Ihr seid jetzt Freunde bei Campus Meet 🎉', welcome_msg:'Willkommen bei Campus Meet 👋', fr_added_name:'Ihr seid jetzt Freunde 🎉 mit {name}', qr_title:'Freund einladen', qr_hint:'Freund scannt den Code', qr_copy:'Link kopieren', today:'Heute', tomorrow:'Morgen', yesterday:'Gestern', week:'Woche', add_group:'＋ Gruppe',
@@ -1296,15 +1296,15 @@
             st_note_bg_b:'Kein Tracking im Hintergrund.', st_note_bg:'Koordinaten werden nur gelesen, wenn die App offen ist, und nie gespeichert — wir merken uns nur „im Radius der Bib: ja/nein“.',
             st_note_how_t:'So wird eine Session bestätigt', st_note_how:'Kommen und Gehen wie gewohnt eintragen. Geo gleicht sie still mit deiner echten Anwesenheit ab. Abweichung innerhalb der Toleranz (1,5 Std.) — Session zählt fürs Ranking. Mehr — nur persönliche Statistik.',
             st_sessions:'Meine Sessions', st_marked:'Eingetragen', st_geo_line:'Geo',
-            st_v_ok:'✓ Bestätigt · Abweichung {d}', st_v_no:'⚠ Nicht bestätigt · Abweichung {d} > 1,5 Std.', st_v_nopings:'⚠ Nicht bestätigt · keine Geo-Punkte', st_v_nocoords:'⚠ Geo ist für diese Bibliothek noch nicht eingerichtet', st_v_wait:'⏳ Keine Gehzeit — nicht gezählt', st_v_live:'⏳ Session läuft noch',
+            st_v_ok:'✓ Bestätigt', st_v_part:'✓ Teilweise bestätigt', st_v_no:'⚠ Nicht bestätigt · außerhalb des Bibliotheks-Radius', st_v_nopings:'⚠ Nicht bestätigt · keine Geo-Punkte', st_v_nocoords:'⚠ Geo ist für diese Bibliothek noch nicht eingerichtet', st_v_wait:'⏳ Keine Gehzeit — nicht gezählt', st_v_live:'⏳ Session läuft noch',
             st_v_counts:'Geo: {g} · Persönlich: {p}', st_empty:'Noch leer — trag dich in einer Bib ein, dann erscheint hier Statistik',
             st_rank:'Hustle-Ranking', st_rank_toggle:'Mich im Ranking zeigen', st_rank_toggle_sub:'Fürs Ranking zählen nur geo-bestätigte Stunden',
             st_p_week:'Woche', st_p_all:'Gesamt', st_s_geo:'✓ nach Geo', st_s_claim:'nach Angabe',
             st_r_in:'in {place}', st_r_nogeo:'Geo aus', st_rank_none:'Noch leer — Geo-Stunden erscheinen nach bestätigten Sessions',
             st_dev:'👨‍🍳 Diyor is cooking…', st_p_today:'Heute', st_now_count:'{n} jetzt',
             st_closed:'geschlossen · {t}', st_closed_until:'geschlossen · bis {t}', st_closed_plain:'geschlossen',
-            st_here_t:'{place} schließt um {t}', st_here_sub:'Noch da? Melde dich — der Abend zählt für Geo', st_here_btn:'Bin hier', st_here_done:'✓ Vermerkt',
-            st_closed_note:'🌙 Um {t} geschlossen — vergiss nicht, dein Gehen einzutragen, sonst zählt die Session nicht',
+            st_here_t:'{place} schließt um {t}', st_here_sub:'Noch da? Melde dich — der Abend zählt für Geo', st_here_btn:'Bin hier', st_here_done:'✓ Vermerkt', st_here_out:'Du scheinst außerhalb des Bibliotheks-Radius zu sein',
+            st_closed_note:'🌙 Um {t} geschlossen — offene Sessions zählen bis {t}',
             st_mf:'Mo–Fr', st_sa:'Sa', st_su:'So', st_sasu:'Sa–So',
             st_u_claimed:'eingetragen', st_u_geo:'per Geo', st_u_hidden:'🔒 {h} · versteckte Einträge', st_u_none:'Keine Sessions in diesem Zeitraum' },
     };
@@ -1578,6 +1578,7 @@
             friendsReady = true;
             renderFriends();
             render();
+            if (!window._geoFirstPing) { window._geoFirstPing = true; geoPing(); }
         });
         // Subscribe: bib
         onValue(ref(fbDb, `rooms/${roomId}/bib`), (snap) => {
@@ -2326,7 +2327,7 @@
     const ALL_BIBS = [...BIBS, ...BIBS_MORE];
     const BIB_BY_ID = Object.fromEntries(ALL_BIBS.map(b => [b.id, b]));
     /* ===== Статистика: гео-конфиг (подбираемые числа) ===== */
-    const BIB_GEO_RADIUS_M = 150;   // радиус библы, м — indoor-GPS ±50–100 м, не жать узко
+    const BIB_GEO_RADIUS_M = 300;   // радиус библы, м — indoor-GPS ±50–100 м, не жать узко
     const BIB_GEO_TOL_MIN = 90;     // допуск (Abweichung), мин = 1.5 ч
     const STAT_DAY_CAP_MIN = 600;   // потолок засчитываемого времени: 10 ч/день (античит)
     const BIB_COORDS = {            // [lat, lon]; haw/hsba/chemie/biologie — TODO координаты (гео пока не работает для них)
@@ -2396,7 +2397,15 @@
                     bn.className = 'st-cbanner';
                     bn.innerHTML = `<span class="st-cb-em">🌙</span><div class="st-cb-m"><div class="st-cb-a">${tr('st_here_t', { place: esc(BIB_BY_ID[_mB.bib].name), t: fmtHM(_hB[1]) })}</div><div class="st-cb-b">${tr('st_here_sub')}</div></div><button class="st-btn-warn" id="bib-here-btn">${tr('st_here_btn')}</button>`;
                     list.appendChild(bn);
-                    bn.querySelector('#bib-here-btn').onclick = () => { haptic('medium'); geoPing(); bibCloseBannerDay = di; showToast(tr('st_here_done')); renderBibDay(); };
+                    bn.querySelector('#bib-here-btn').onclick = () => {
+                        haptic('medium');
+                        geoPing(null, (r) => {
+                            if (r === 'in') { bibCloseBannerDay = di; showToast(tr('st_here_done')); renderBibDay(); }
+                            else if (r === 'out') showToast(tr('st_here_out'));
+                            else if (r === 'denied') showToast(tr('st_state_denied'));
+                            else showToast(tr('toast_fail'));
+                        });
+                    };
                 }
             }
         }
@@ -2425,7 +2434,7 @@
                 cnt.className = 'bib-count';
                 if (_isToday) {
                     const _n2 = nowMin();
-                    const nowN = ppl.filter(p => bibTmin(p.from) <= _n2 && (!p.until || bibTmin(p.until) >= _n2)).length;
+                    const nowN = _closedNow ? 0 : ppl.filter(p => bibTmin(p.from) <= _n2 && (!p.until || bibTmin(p.until) >= _n2)).length;
                     cnt.textContent = tr('st_now_count', { n: nowN });
                 } else {
                     cnt.textContent = nPeople(ppl.length);
@@ -2433,7 +2442,12 @@
                 if (_closedNow) { cnt.style.color = 'var(--warn)'; cnt.style.background = 'var(--warn-soft)'; }
                 else { cnt.style.color = b.color; cnt.style.background = bibHexA(b.color, 0.18); }
                 top.appendChild(cnt);
-            } else if (!_closedNow) {
+            } else if (_closedNow) {
+                const hc = document.createElement('span');
+                hc.className = 'bib-hours closed';
+                hc.textContent = !_hrs ? tr('st_closed_plain') : (nowMin() < _hrs[0] ? tr('st_closed_until', { t: fmtHM(_hrs[0]) }) : tr('st_closed', { t: fmtHM(_hrs[1]) }));
+                top.appendChild(hc);
+            } else {
                 const e = document.createElement('div');
                 e.className = 'bib-empty-txt';
                 e.textContent = tr('bib_empty_short');
@@ -2692,7 +2706,7 @@
     }
     async function removeMyBib(dateIso, audience) {
         const oldE = bibFindMine(dateIso);
-        geoPing();
+        geoPing(oldE || null);
         const dayTxt = `${currentDate.getDate()} ${L_MONTHS_SHORT[lang][currentDate.getMonth()]}`;
         if (FIREBASE_READY && fbDb) {
             try {
@@ -2739,6 +2753,7 @@
         return pluralRu(n, ['день', 'дня', 'дней']) + ' подряд';
     }
     function nowMin() { const d = new Date(); return d.getHours() * 60 + d.getMinutes(); }
+    function statDateFromIso(di) { return new Date(+di.slice(0, 4), +di.slice(5, 7) - 1, +di.slice(8, 10)); }
     function statSessionsFor(dateIso, uid) {
         const e = (state.bib[dateIso] || {})[uid || currentUser.id];
         if (!e) return [];
@@ -2750,10 +2765,15 @@
     function statSesMinutes(dateIso, s) {
         const f = bibTmin(s.from);
         const today = dateIso === isoDate(new Date());
+        const hrs = BIB_HOURS[s.bib] ? bibHoursFor(s.bib, statDateFromIso(dateIso)) : null;
+        const close = hrs ? hrs[1] : null;
         let end;
-        if (s.until) end = today ? Math.min(nowMin(), bibTmin(s.until)) : bibTmin(s.until);
+        if (s.until) end = bibTmin(s.until);
         else if (s.open && today) end = nowMin();
+        else if (close !== null) end = close;
         else return 0;
+        if (close !== null) end = Math.min(end, close);
+        if (today) end = Math.min(end, nowMin());
         return Math.max(0, end - f);
     }
     function statDayMinutes(dateIso, uid) { let m = 0; statSessionsFor(dateIso, uid).forEach(x => { m += statSesMinutes(dateIso, x); }); return Math.min(STAT_DAY_CAP_MIN, m); }
@@ -2796,23 +2816,36 @@
     function pingMinOfDay(t) { const d = new Date(t); return d.getHours() * 60 + d.getMinutes(); }
     function statVerdict(dateIso, s, pingsMap) {
         const f = bibTmin(s.from);
-        if (!s.until) return { kind: (s.open && dateIso === isoDate(new Date())) ? 'live' : 'wait', geoMin: 0, geoEndMin: f, diffMin: 0 };
-        const u = bibTmin(s.until);
+        const today = dateIso === isoDate(new Date());
+        const hrs = BIB_HOURS[s.bib] ? bibHoursFor(s.bib, statDateFromIso(dateIso)) : null;
+        const close = hrs ? hrs[1] : null;
+        let u = s.until ? bibTmin(s.until) : null;
+        if (u === null && !(s.open && today && (close === null || nowMin() < close)) && close !== null) u = close;
+        if (u === null) return { kind: (s.open && today) ? 'live' : 'wait', geoMin: 0, geoEndMin: f, diffMin: 0 };
+        if (close !== null && u > close) u = close;
         if (!BIB_COORDS[s.bib]) return { kind: 'nocoords', geoMin: 0, geoEndMin: f, diffMin: Math.max(0, u - f) };
-        const pings = (((pingsMap || geoPingsCache) || {})[dateIso] || []).filter(p => p.in);
-        let goodEnd = f, has = false;
-        for (const p of pings) {
-            let pm = pingMinOfDay(p.t);
-            if (pm < f - BIB_GEO_TOL_MIN) continue;
-            if (pm < f) pm = f;
-            if (pm > u) pm = u;
-            if (pm - goodEnd <= BIB_GEO_TOL_MIN) { if (pm > goodEnd) goodEnd = pm; has = true; }
-            else break;
+        const pts = (((pingsMap || geoPingsCache) || {})[dateIso] || []).filter(p => { const pm = pingMinOfDay(p.t); return pm >= f - BIB_GEO_TOL_MIN && pm <= u; });
+        if (!pts.length) return { kind: 'nopings', geoMin: 0, geoEndMin: f, diffMin: Math.max(0, u - f) };
+        const segs = [];
+        let cur = null;
+        for (const p of pts) {
+            const pm = Math.min(u, Math.max(f, pingMinOfDay(p.t)));
+            if (!p.in) { if (cur) { segs.push(cur); cur = null; } continue; }
+            if (!cur) cur = { a: pm, b: pm };
+            else if (pm - cur.b <= BIB_GEO_TOL_MIN) cur.b = pm;
+            else { segs.push(cur); cur = { a: pm, b: pm }; }
         }
-        if (!has) return { kind: 'nopings', geoMin: 0, geoEndMin: f, diffMin: Math.max(0, u - f) };
-        const diff = Math.max(0, u - goodEnd);
-        if (diff <= BIB_GEO_TOL_MIN) return { kind: 'ok', geoMin: Math.max(0, u - f), geoEndMin: goodEnd, diffMin: diff };
-        return { kind: 'no', geoMin: 0, geoEndMin: goodEnd, diffMin: diff };
+        if (cur) segs.push(cur);
+        if (!segs.length) return { kind: 'no', geoMin: 0, geoEndMin: f, diffMin: Math.max(0, u - f) };
+        if (segs[0].a - f <= BIB_GEO_TOL_MIN) segs[0].a = f;
+        const last = segs[segs.length - 1];
+        if (u - last.b <= BIB_GEO_TOL_MIN) last.b = u;
+        let geoMin = 0;
+        segs.forEach(sg => { geoMin += Math.max(0, sg.b - sg.a); });
+        const full = Math.max(0, u - f);
+        geoMin = Math.min(geoMin, full);
+        const kind = geoMin >= full - 1 ? 'ok' : (geoMin > 0 ? 'part' : 'no');
+        return { kind, geoMin, geoEndMin: last.b, diffMin: Math.max(0, u - last.b) };
     }
     function statDayGeoMin(dateIso, uid, pingsMap) {
         let g = 0;
@@ -2826,14 +2859,15 @@
     }
     function geoOptedIn() { return !!(state.members && state.members[currentUser.id] && state.members[currentUser.id].geo === true); }
     function _geoLM() { return (tg && tg.LocationManager && tg.isVersionAtLeast && tg.isVersionAtLeast('8.0')) ? tg.LocationManager : null; }
-    function geoPing() {
-        if (!FIREBASE_READY || !fbDb || !geoOptedIn()) return;
+    function geoPing(sesOverride, onDone) {
+        const done = (r) => { if (onDone) onDone(r); };
+        if (!FIREBASE_READY || !fbDb || !geoOptedIn()) { done('na'); return; }
         const lm = _geoLM();
-        if (!lm) return;
+        if (!lm) { done('na'); return; }
         const run = () => {
-            if (!lm.isLocationAvailable) return;
+            if (!lm.isLocationAvailable) { done('na'); return; }
             lm.getLocation((loc) => {
-                if (!loc) { geoDenied = true; refreshGeoUI(); return; }
+                if (!loc) { geoDenied = true; refreshGeoUI(); done('denied'); return; }
                 geoDenied = false;
                 let best = null;
                 Object.keys(BIB_COORDS).forEach(id => {
@@ -2844,14 +2878,15 @@
                 geoLastNear = (best && best.d <= BIB_GEO_RADIUS_M) ? best : null;
                 refreshGeoUI();
                 const di = isoDate(new Date());
-                const e = (state.bib[di] || {})[currentUser.id];
-                if (!e || bibIsLeft(e) || !BIB_COORDS[e.bib]) return;
+                const e = sesOverride || (state.bib[di] || {})[currentUser.id];
+                if (!e || (!sesOverride && bibIsLeft(e)) || !BIB_COORDS[e.bib]) { done('na'); return; }
                 const c = BIB_COORDS[e.bib];
                 const inR = geoDistM(loc.latitude, loc.longitude, c[0], c[1]) <= BIB_GEO_RADIUS_M;
                 const t = Date.now();
                 set(ref(fbDb, `rooms/${roomId}/bib_geo/${currentUser.id}/${di}/${t}`), { t, in: inR }).then(() => {
                     if (geoPingsCache) (geoPingsCache[di] = geoPingsCache[di] || []).push({ t, in: inR });
-                }).catch((err) => console.error('geoPing write failed', err));
+                    done(inR ? 'in' : 'out');
+                }).catch((err) => { console.error('geoPing write failed', err); done('err'); });
             });
         };
         if (lm.isInited) run(); else lm.init(run);
@@ -2961,15 +2996,16 @@
             const saidTxt = u !== null ? `${it.x.from}–${it.x.until}` : `${it.x.from} → …`;
             const pTxt = fmtHM(statSesMinutes(it.di, it.x));
             let geoPct = 0;
-            if (u !== null && u > f) geoPct = Math.max(0, Math.min(100, Math.round((v.geoEndMin - f) / (u - f) * 100)));
+            if (u !== null && u > f) geoPct = Math.max(0, Math.min(100, Math.round(v.geoMin / (u - f) * 100)));
             let verdict;
-            if (v.kind === 'ok') verdict = `<div class="st-verdict ok">${tr('st_v_ok', { d: fmtDiff(v.diffMin) })}<span class="st-cnt">${tr('st_v_counts', { g: fmtHM(v.geoMin), p: pTxt })}</span></div>`;
-            else if (v.kind === 'no') verdict = `<div class="st-verdict no">${tr('st_v_no', { d: fmtDiff(v.diffMin) })}<span class="st-cnt">${tr('st_v_counts', { g: '0:00', p: pTxt })}</span></div>`;
+            if (v.kind === 'ok') verdict = `<div class="st-verdict ok">${tr('st_v_ok')}<span class="st-cnt">${tr('st_v_counts', { g: fmtHM(v.geoMin), p: pTxt })}</span></div>`;
+            else if (v.kind === 'part') verdict = `<div class="st-verdict ok">${tr('st_v_part')}<span class="st-cnt">${tr('st_v_counts', { g: fmtHM(v.geoMin), p: pTxt })}</span></div>`;
+            else if (v.kind === 'no') verdict = `<div class="st-verdict no">${tr('st_v_no')}<span class="st-cnt">${tr('st_v_counts', { g: '0:00', p: pTxt })}</span></div>`;
             else if (v.kind === 'nopings') verdict = `<div class="st-verdict no">${tr('st_v_nopings')}<span class="st-cnt">${tr('st_v_counts', { g: '0:00', p: pTxt })}</span></div>`;
             else if (v.kind === 'nocoords') verdict = `<div class="st-verdict no">${tr('st_v_nocoords')}<span class="st-cnt">${tr('st_v_counts', { g: '0:00', p: pTxt })}</span></div>`;
             else if (v.kind === 'live') verdict = `<div class="st-verdict no">${tr('st_v_live')}</div>`;
             else verdict = `<div class="st-verdict no">${tr('st_v_wait')}</div>`;
-            const geoLine = (u !== null && v.kind !== 'nocoords') ? `<div class="st-tl"><span class="st-lb">${tr('st_geo_line')}</span><span class="st-track"><span class="st-fill geo" style="left:0;width:${geoPct}%"></span></span><span class="st-vl">${geoPct > 0 ? (it.x.from + '–' + fmtHM(v.geoEndMin)) : '—'}</span></div>` : '';
+            const geoLine = (u !== null && v.kind !== 'nocoords') ? `<div class="st-tl"><span class="st-lb">${tr('st_geo_line')}</span><span class="st-track"><span class="st-fill geo" style="left:0;width:${geoPct}%"></span></span><span class="st-vl">${geoPct > 0 ? ('✓ ' + fmtHM(v.geoMin)) : '—'}</span></div>` : '';
             h += `<div class="st-ses"><div class="st-sh"><span class="st-sp">${lib.emoji} ${esc(lib.name)}</span><span class="st-sd">${dayTxt}</span></div><div class="st-tl"><span class="st-lb">${tr('st_marked')}</span><span class="st-track"><span class="st-fill said" style="left:0;width:100%"></span></span><span class="st-vl">${saidTxt}</span></div>${geoLine}${verdict}</div>`;
         });
         body.innerHTML = h;
@@ -3117,7 +3153,7 @@
             const v = statVerdict(it.di, it.x, pingsMap);
             const dayTxt = `${L_DAYS_SHORT[lang][it.d.getDay()]}, ${it.d.getDate()} ${L_MONTHS_SHORT[lang][it.d.getMonth()]}`;
             const iv = it.x.until ? `${it.x.from}–${it.x.until}` : `${it.x.from} → …`;
-            const okB = (geoOk && v.kind === 'ok') ? ` <span class="st-badge-ok">${tr('st_geo_badge')}</span>` : '';
+            const okB = (geoOk && (v.kind === 'ok' || v.kind === 'part')) ? ` <span class="st-badge-ok">${v.kind === 'ok' ? tr('st_geo_badge') : '✓ ' + fmtHM(v.geoMin)}</span>` : '';
             h += `<div class="st-ses"><div class="st-sh"><span class="st-sp">${lib.emoji} ${esc(lib.name)}</span><span class="st-sd">${dayTxt}</span></div><div class="st-tl"><span class="st-vl">${iv}</span>${okB}</div></div>`;
         });
         if (hiddenMin > 0) h += `<div class="st-empty">${tr('st_u_hidden', { h: fmtHM(hiddenMin) })}</div>`;
@@ -3945,7 +3981,9 @@
     applyI18n();
     render();
     /* ===== Kick off Firebase live sync ===== */
-    ensureAuth().finally(() => { startFirebaseSync(); firstRunOnboarding(); if (inviteToken) redeemInvite(inviteToken); setTimeout(geoPing, 4000); setInterval(geoPing, 10 * 60 * 1000); setInterval(() => { if (mode === 'bib' && view === 'day' && isoDate(currentDate) === isoDate(new Date())) renderBibDay(); }, 5 * 60 * 1000); });
+    ensureAuth().finally(() => { startFirebaseSync(); firstRunOnboarding(); if (inviteToken) redeemInvite(inviteToken); setInterval(geoPing, 10 * 60 * 1000); setInterval(() => { if (mode === 'bib' && view === 'day' && isoDate(currentDate) === isoDate(new Date())) renderBibDay(); }, 5 * 60 * 1000); });
+    if (tg && tg.onEvent) { try { tg.onEvent('activated', () => geoPing()); } catch (e) {} }
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) geoPing(); });
     </script>
 </body>
 </html>
