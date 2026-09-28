@@ -849,7 +849,7 @@
 </head>
 <body>
     <header class="app-header">
-        <h1 class="app-title" id="app-title"><span class="emoji" id="app-emoji">🍜</span> <span id="app-name">Mensa Crew</span> <span class="tri">▾</span><span class="dev-badge">DEV · 28.09-2</span></h1>
+        <h1 class="app-title" id="app-title"><span class="emoji" id="app-emoji">🍜</span> <span id="app-name">Mensa Crew</span> <span class="tri">▾</span><span class="dev-badge">DEV · 28.09-3</span></h1>
         <div style="display:flex; align-items:center; gap:8px;">
             <button class="lang-btn" id="menu-btn" title="Меню"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 19c0-3 2.6-5 5.5-5s5.5 2 5.5 5"/><path d="M16 5.4a3 3 0 0 1 0 5.2"/><path d="M17.5 14.3c2 .6 3.4 2.3 3.4 4.7"/></svg></button>
             <button class="bell-btn" id="bell-btn" title="Включить уведомления">🔔</button>
@@ -2788,25 +2788,63 @@
         const e = (state.bib[dateIso] || {})[uid || currentUser.id];
         if (!e) return [];
         const out = [];
-        (Array.isArray(e.prev) ? e.prev : []).forEach(p => { if (p && p.bib && p.from) out.push({ bib: p.bib, from: p.from, until: p.until || null, open: false }); });
-        out.push({ bib: e.bib, from: e.from, until: e.until || null, open: !bibIsLeft(e) && !e.until });
+        const _sUid = uid || currentUser.id;
+        (Array.isArray(e.prev) ? e.prev : []).forEach(p => { if (p && p.bib && p.from) out.push({ uid: _sUid, bib: p.bib, from: p.from, until: p.until || null, open: false }); });
+        out.push({ uid: _sUid, bib: e.bib, from: e.from, until: e.until || null, open: !bibIsLeft(e) && !e.until });
         return out;
     }
-    function statSesMinutes(dateIso, s) {
+    /* Медиана длительности завершённых сессий юзера — для оценки ухода без гео */
+    function statMedianDurMin(uid, bibId) {
+        const same = [], all = [];
+        Object.keys(state.bib || {}).forEach(di => {
+            const e = (state.bib[di] || {})[uid];
+            if (!e) return;
+            const list = (Array.isArray(e.prev) ? e.prev : []).concat([e]);
+            list.forEach(x => {
+                if (!x || !x.from || !x.until) return;
+                const m = bibTmin(x.until) - bibTmin(x.from);
+                if (m <= 0 || m > STAT_DAY_CAP_MIN) return;
+                all.push(m);
+                if (x.bib === bibId) same.push(m);
+            });
+        });
+        const arr = same.length >= 3 ? same : (all.length ? all : same);
+        if (!arr.length) return null;
+        arr.sort((a, b) => a - b);
+        const mid = Math.floor(arr.length / 2);
+        return arr.length % 2 ? arr[mid] : Math.round((arr[mid - 1] + arr[mid]) / 2);
+    }
+    /* Конец сессии: явный уход, иначе оценка — гео-точки → медиана → закрытие */
+    function statEndMin(dateIso, s, pingsMap) {
         const f = bibTmin(s.from);
         const today = dateIso === isoDate(new Date());
         const hrs = BIB_HOURS[s.bib] ? bibHoursFor(s.bib, statDateFromIso(dateIso)) : null;
         const close = hrs ? hrs[1] : null;
-        let end;
-        if (s.until) end = bibTmin(s.until);
-        else if (s.open && today) end = nowMin();
-        else if (close !== null) end = close;
-        else return 0;
-        if (close !== null) end = Math.min(end, close);
-        if (today) end = Math.min(end, nowMin());
-        return Math.max(0, end - f);
+        const lim = (v) => {
+            let x = v;
+            if (close !== null) x = Math.min(x, close);
+            if (today) x = Math.min(x, nowMin());
+            return Math.max(f, x);
+        };
+        if (s.until) return { end: lim(bibTmin(s.until)), est: false };
+        const pts = (((pingsMap || geoPingsCache) || {})[dateIso] || []).filter(p => pingMinOfDay(p.t) >= f - BIB_GEO_TOL_MIN);
+        let lastIn = null, firstOut = null;
+        pts.forEach(p => {
+            const pm = Math.max(f, pingMinOfDay(p.t));
+            if (p.in) { if (lastIn === null || pm > lastIn) { lastIn = pm; firstOut = null; } }
+            else if (lastIn !== null && firstOut === null && pm > lastIn) firstOut = pm;
+        });
+        if (lastIn !== null && firstOut !== null) return { end: lim(Math.round((lastIn + firstOut) / 10) * 5), est: true };
+        if (lastIn !== null) return { end: lim(lastIn), est: true };
+        const med = statMedianDurMin(s.uid || currentUser.id, s.bib);
+        if (med !== null) return { end: lim(f + med), est: true };
+        if (close !== null) return { end: lim(close), est: true };
+        return { end: today ? lim(nowMin()) : f, est: true };
     }
-    function statDayMinutes(dateIso, uid) { let m = 0; statSessionsFor(dateIso, uid).forEach(x => { m += statSesMinutes(dateIso, x); }); return Math.min(STAT_DAY_CAP_MIN, m); }
+    function statSesMinutes(dateIso, s, pingsMap) {
+        return Math.max(0, statEndMin(dateIso, s, pingsMap).end - bibTmin(s.from));
+    }
+    function statDayMinutes(dateIso, uid, pingsMap) { let m = 0; statSessionsFor(dateIso, uid).forEach(x => { m += statSesMinutes(dateIso, x, pingsMap); }); return Math.min(STAT_DAY_CAP_MIN, m); }
     function statTotals() {
         let totalMin = 0, daysActive = 0;
         const perBib = {};
@@ -2850,8 +2888,8 @@
         const hrs = BIB_HOURS[s.bib] ? bibHoursFor(s.bib, statDateFromIso(dateIso)) : null;
         const close = hrs ? hrs[1] : null;
         let u = s.until ? bibTmin(s.until) : null;
-        if (u === null && !(s.open && today && (close === null || nowMin() < close)) && close !== null) u = close;
-        if (u === null) return { kind: (s.open && today) ? 'live' : 'wait', geoMin: 0, geoEndMin: f, diffMin: 0 };
+        if (u === null && !(s.open && today && (close === null || nowMin() < close))) u = statEndMin(dateIso, s, pingsMap).end;
+        if (u === null || u <= f) return { kind: (s.open && today) ? 'live' : 'wait', geoMin: 0, geoEndMin: f, diffMin: 0 };
         if (close !== null && u > close) u = close;
         if (!BIB_COORDS[s.bib]) return { kind: 'nocoords', geoMin: 0, geoEndMin: f, diffMin: Math.max(0, u - f) };
         const pts = (((pingsMap || geoPingsCache) || {})[dateIso] || []).filter(p => { const pm = pingMinOfDay(p.t); return pm >= f - BIB_GEO_TOL_MIN && pm <= u; });
@@ -3073,7 +3111,7 @@
         const geoOk = !!(state.members && state.members[uid] && state.members[uid].geo === true);
         const pingsMap = (rankGeoCache || {})[uid] || null;
         dates.forEach(di => {
-            claim += statDayMinutes(di, uid);
+            claim += statDayMinutes(di, uid, pingsMap);
             if (geoOk && pingsMap) conf += statDayGeoMin(di, uid, pingsMap);
         });
         return { uid, claim, conf, nogeo: !geoOk };
@@ -3162,14 +3200,14 @@
         let claim = 0, conf = 0, hiddenMin = 0;
         const rows = [];
         dates.forEach(di => {
-            claim += statDayMinutes(di, uid);
+            claim += statDayMinutes(di, uid, pingsMap);
             if (geoOk && pingsMap) conf += statDayGeoMin(di, uid, pingsMap);
             const e = (state.bib[di] || {})[uid];
             if (!e) return;
             const vis = canSee(uid, e);
             const d = new Date(+di.slice(0, 4), +di.slice(5, 7) - 1, +di.slice(8, 10));
             statSessionsFor(di, uid).forEach(x => {
-                if (!vis) { hiddenMin += statSesMinutes(di, x); return; }
+                if (!vis) { hiddenMin += statSesMinutes(di, x, pingsMap); return; }
                 rows.push({ di, d, x });
             });
         });
