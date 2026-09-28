@@ -714,6 +714,10 @@
         .st-verdict.no { background: var(--warn-soft); color: var(--warn); }
         .st-verdict .st-cnt { display: block; color: var(--text); font-weight: 600; margin-top: 3px; opacity: 0.85; }
         .st-empty { font-size: 12.5px; color: var(--hint); text-align: center; padding: 18px 8px; }
+        .st-link { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 13px 14px; margin-top: 10px; cursor: pointer; display: flex; align-items: center; gap: 10px; }
+        .st-link .st-chev { color: var(--hint); font-size: 18px; flex: none; }
+        .st-ses.tap { cursor: pointer; }
+        .st-est { font-size: 10.5px; font-weight: 700; color: var(--hint); flex: none; }
         .st-segs { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; margin: 10px 0 2px; }
         .st-seg { display: inline-flex; background: var(--surface-alt); border-radius: 999px; padding: 3px; gap: 2px; }
         .st-seg span { font-size: 12px; font-weight: 700; color: var(--hint); padding: 6px 11px; border-radius: 999px; cursor: pointer; white-space: nowrap; }
@@ -849,7 +853,7 @@
 </head>
 <body>
     <header class="app-header">
-        <h1 class="app-title" id="app-title"><span class="emoji" id="app-emoji">🍜</span> <span id="app-name">Mensa Crew</span> <span class="tri">▾</span><span class="dev-badge">DEV · 28.09-3</span></h1>
+        <h1 class="app-title" id="app-title"><span class="emoji" id="app-emoji">🍜</span> <span id="app-name">Mensa Crew</span> <span class="tri">▾</span><span class="dev-badge">DEV · 28.09-4</span></h1>
         <div style="display:flex; align-items:center; gap:8px;">
             <button class="lang-btn" id="menu-btn" title="Меню"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 19c0-3 2.6-5 5.5-5s5.5 2 5.5 5"/><path d="M16 5.4a3 3 0 0 1 0 5.2"/><path d="M17.5 14.3c2 .6 3.4 2.3 3.4 4.7"/></svg></button>
             <button class="bell-btn" id="bell-btn" title="Включить уведомления">🔔</button>
@@ -1008,6 +1012,28 @@
         <div class="sheet-handle"></div>
         <div class="sheet-title">Геолокация</div>
         <div id="st-geo-body"></div>
+    </div>
+    <div class="sheet" id="sheet-stats-ses" hidden>
+        <div class="sheet-handle"></div>
+        <div class="sheet-title" id="st-ses-title">Мои сессии</div>
+        <div class="sheet-subtitle" id="st-ses-sub">Тапни по записи, чтобы поправить время</div>
+        <div id="st-ses-body"></div>
+    </div>
+    <div class="sheet" id="sheet-stats-edit" hidden>
+        <div class="sheet-handle"></div>
+        <div class="sheet-title" id="st-edit-title">Изменить запись</div>
+        <div class="sheet-subtitle" id="st-edit-sub">—</div>
+        <div class="custom-time-row">
+            <span class="custom-time-label" id="st-edit-from-lbl">Приход</span>
+            <input class="custom-time-input" id="st-edit-from" type="time" step="60">
+        </div>
+        <div class="custom-time-row">
+            <span class="custom-time-label" id="st-edit-until-lbl">Уход</span>
+            <input class="custom-time-input" id="st-edit-until" type="time" step="60">
+        </div>
+        <button class="now-row" id="st-edit-open">Ещё тут — без времени ухода</button>
+        <button class="sheet-action" id="st-edit-save">Сохранить</button>
+        <button class="sheet-action secondary" id="st-edit-del">Удалить запись</button>
     </div>
     <div class="sheet" id="sheet-stats-user" hidden>
         <div class="sheet-handle"></div>
@@ -1212,6 +1238,9 @@
             st_closed:'закрыта · {t}', st_closed_until:'закрыта · до {t}', st_closed_plain:'закрыта',
             st_here_t:'{place} закрывается в {t}', st_here_sub:'Ты ещё здесь? Отметься — вечер зачтётся в гео', st_here_btn:'Я тут', st_here_done:'✓ Отмечено', st_here_out:'Похоже, ты вне радиуса библиотеки',
             st_near_t:'Ты рядом с {place}', st_near_sub:'Записать сразу · время = сейчас', st_near_btn:'Записать',
+            st_ses_sub:'Тапни по записи, чтобы поправить время', st_est:'оценка', st_edit_title:'Изменить запись',
+            st_from_lbl:'Приход', st_until_lbl:'Уход', st_still_here:'Ещё тут — без времени ухода',
+            st_saved:'Сохранено', st_del_ses:'Удалить запись', st_del_confirm:'Удалить эту запись?', st_deleted:'Запись удалена',
             st_closed_note:'🌙 Закрылась в {t} — незакрытая сессия зачтётся до {t}',
             st_mf:'Пн–Пт', st_sa:'Сб', st_su:'Вс', st_sasu:'Сб–Вс',
             st_u_claimed:'заявлено', st_u_geo:'по гео', st_u_hidden:'🔒 {h} · скрытые записи', st_u_none:'Нет сессий за этот период' },
@@ -1264,6 +1293,9 @@
             st_closed:'closed · {t}', st_closed_until:'closed · until {t}', st_closed_plain:'closed',
             st_here_t:'{place} closes at {t}', st_here_sub:'Still here? Check in — the evening counts for geo', st_here_btn:"I'm here", st_here_done:'✓ Checked in', st_here_out:"Looks like you're outside the library radius",
             st_near_t:"You're near {place}", st_near_sub:'Check in now · time = now', st_near_btn:'Check in',
+            st_ses_sub:'Tap an entry to fix the time', st_est:'estimate', st_edit_title:'Edit entry',
+            st_from_lbl:'Arrived', st_until_lbl:'Left', st_still_here:'Still here — no leave time',
+            st_saved:'Saved', st_del_ses:'Delete entry', st_del_confirm:'Delete this entry?', st_deleted:'Entry deleted',
             st_closed_note:'🌙 Closed at {t} — an open session counts until {t}',
             st_mf:'Mon–Fri', st_sa:'Sat', st_su:'Sun', st_sasu:'Sat–Sun',
             st_u_claimed:'claimed', st_u_geo:'by geo', st_u_hidden:'🔒 {h} · hidden entries', st_u_none:'No sessions in this period' },
@@ -1316,6 +1348,9 @@
             st_closed:'geschlossen · {t}', st_closed_until:'geschlossen · bis {t}', st_closed_plain:'geschlossen',
             st_here_t:'{place} schließt um {t}', st_here_sub:'Noch da? Melde dich — der Abend zählt für Geo', st_here_btn:'Bin hier', st_here_done:'✓ Vermerkt', st_here_out:'Du scheinst außerhalb des Bibliotheks-Radius zu sein',
             st_near_t:'Du bist in der Nähe von {place}', st_near_sub:'Sofort eintragen · Zeit = jetzt', st_near_btn:'Eintragen',
+            st_ses_sub:'Tippe auf einen Eintrag, um die Zeit zu korrigieren', st_est:'geschätzt', st_edit_title:'Eintrag bearbeiten',
+            st_from_lbl:'Ankunft', st_until_lbl:'Gegangen', st_still_here:'Noch hier — ohne Gehzeit',
+            st_saved:'Gespeichert', st_del_ses:'Eintrag löschen', st_del_confirm:'Diesen Eintrag löschen?', st_deleted:'Eintrag gelöscht',
             st_closed_note:'🌙 Um {t} geschlossen — offene Sessions zählen bis {t}',
             st_mf:'Mo–Fr', st_sa:'Sa', st_su:'So', st_sasu:'Sa–So',
             st_u_claimed:'eingetragen', st_u_geo:'per Geo', st_u_hidden:'🔒 {h} · versteckte Einträge', st_u_none:'Keine Sessions in diesem Zeitraum' },
@@ -1367,6 +1402,7 @@
         if (!document.getElementById('sheet-stats').hidden) renderStats();
         if (!document.getElementById('sheet-stats-geo').hidden) renderStatsGeo();
         if (!document.getElementById('sheet-stats-user').hidden) renderStatsUser();
+        if (!document.getElementById('sheet-stats-ses').hidden) renderStatsSessions();
         setT('#friends-title', 'friends_title'); setT('#friends-sub', 'friends_sub');
         setT('#fr-invite-label', 'fr_invite'); setT('#fr-qr-label', 'fr_qr'); setP('#fr-search', 'fr_search');
         setT('#qr-title', 'qr_title'); setT('#qr-hint', 'qr_hint'); setT('#qr-close', 'btn_close');
@@ -2788,33 +2824,11 @@
         const e = (state.bib[dateIso] || {})[uid || currentUser.id];
         if (!e) return [];
         const out = [];
-        const _sUid = uid || currentUser.id;
-        (Array.isArray(e.prev) ? e.prev : []).forEach(p => { if (p && p.bib && p.from) out.push({ uid: _sUid, bib: p.bib, from: p.from, until: p.until || null, open: false }); });
-        out.push({ uid: _sUid, bib: e.bib, from: e.from, until: e.until || null, open: !bibIsLeft(e) && !e.until });
+        (Array.isArray(e.prev) ? e.prev : []).forEach(p => { if (p && p.bib && p.from) out.push({ bib: p.bib, from: p.from, until: p.until || null, open: false }); });
+        out.push({ bib: e.bib, from: e.from, until: e.until || null, open: !bibIsLeft(e) && !e.until });
         return out;
     }
-    /* Медиана длительности завершённых сессий юзера — для оценки ухода без гео */
-    function statMedianDurMin(uid, bibId) {
-        const same = [], all = [];
-        Object.keys(state.bib || {}).forEach(di => {
-            const e = (state.bib[di] || {})[uid];
-            if (!e) return;
-            const list = (Array.isArray(e.prev) ? e.prev : []).concat([e]);
-            list.forEach(x => {
-                if (!x || !x.from || !x.until) return;
-                const m = bibTmin(x.until) - bibTmin(x.from);
-                if (m <= 0 || m > STAT_DAY_CAP_MIN) return;
-                all.push(m);
-                if (x.bib === bibId) same.push(m);
-            });
-        });
-        const arr = same.length >= 3 ? same : (all.length ? all : same);
-        if (!arr.length) return null;
-        arr.sort((a, b) => a - b);
-        const mid = Math.floor(arr.length / 2);
-        return arr.length % 2 ? arr[mid] : Math.round((arr[mid - 1] + arr[mid]) / 2);
-    }
-    /* Конец сессии: явный уход, иначе оценка — гео-точки → медиана → закрытие */
+    /* Конец сессии: явный уход, иначе оценка — гео-точки, иначе до закрытия */
     function statEndMin(dateIso, s, pingsMap) {
         const f = bibTmin(s.from);
         const today = dateIso === isoDate(new Date());
@@ -2836,8 +2850,6 @@
         });
         if (lastIn !== null && firstOut !== null) return { end: lim(Math.round((lastIn + firstOut) / 10) * 5), est: true };
         if (lastIn !== null) return { end: lim(lastIn), est: true };
-        const med = statMedianDurMin(s.uid || currentUser.id, s.bib);
-        if (med !== null) return { end: lim(f + med), est: true };
         if (close !== null) return { end: lim(close), est: true };
         return { end: today ? lim(nowMin()) : f, est: true };
     }
@@ -2993,6 +3005,7 @@
         if (geoOn) h += `<div class="st-num flex" id="st-geo-card"><div class="st-cap">${tr('st_geo')}</div><div class="st-big">${fmtHM(statGeoTotalMin())} <span class="st-badge-ok">${tr('st_geo_badge')}</span></div><div class="st-sub">${tr('st_geo_sub_on')}</div></div>`;
         else h += `<div class="st-num off" id="st-geo-card"><div class="st-cap">${tr('st_geo')}</div><div class="st-big">—</div><div class="st-sub">${tr('st_geo_need')}</div></div>`;
         h += '</div>';
+        h += `<div class="st-link" id="st-ses-link"><div class="st-tx"><div class="st-t1">${tr('st_sessions')}</div><div class="st-t2">${tr('st_ses_sub')}</div></div><span class="st-chev">›</span></div>`;
         const days = [];
         for (let i = 6; i >= 0; i--) { const d = addDays(new Date(), -i); const di2 = isoDate(d); days.push({ d, min: statDayMinutes(di2), geo: statDayGeoMin(di2) }); }
         const mx = Math.max(60, ...days.map(x => x.min));
@@ -3027,6 +3040,8 @@
         body.innerHTML = h;
         const gc = document.getElementById('st-geo-card');
         if (gc) gc.onclick = () => openStatsGeo();
+        const sl = document.getElementById('st-ses-link');
+        if (sl) sl.onclick = () => openStatsSessions();
         const cb = document.getElementById('st-cta-btn');
         if (cb) cb.onclick = () => openStatsGeo();
         const fsw = document.getElementById('st-flex-sw');
@@ -3047,36 +3062,6 @@
         let h = `<div class="st-card"><div class="st-trow"><div class="st-tx"><div class="st-t1">${tr('st_geo_toggle')}</div><div class="st-t2">${tr('st_geo_toggle_sub')}</div></div><div class="st-sw${on ? ' on' : ''}" id="st-geo-sw"></div></div><div class="st-state ${stateCls}">${stateTxt}</div></div>`;
         h += `<div class="st-card" style="margin-top:10px"><div class="st-note"><b>${tr('st_note_bg_b')}</b> ${tr('st_note_bg')}</div></div>`;
         h += `<div class="st-sec">${tr('st_note_how_t')}</div><div class="st-card"><div class="st-note">${tr('st_note_how')}</div></div>`;
-        h += `<div class="st-sec">${tr('st_sessions')}</div>`;
-        const items = [];
-        for (let i = 0; i < 14; i++) {
-            const d = addDays(new Date(), -i);
-            const di = isoDate(d);
-            statSessionsFor(di).slice().reverse().forEach(x => items.push({ di, d, x }));
-        }
-        if (!items.length) h += `<div class="st-empty">${tr('st_empty')}</div>`;
-        items.slice(0, 20).forEach(it => {
-            const lib = BIB_BY_ID[it.x.bib];
-            if (!lib) return;
-            const v = statVerdict(it.di, it.x);
-            const f = bibTmin(it.x.from);
-            const u = it.x.until ? bibTmin(it.x.until) : null;
-            const dayTxt = `${L_DAYS_SHORT[lang][it.d.getDay()]}, ${it.d.getDate()} ${L_MONTHS_SHORT[lang][it.d.getMonth()]}`;
-            const saidTxt = u !== null ? `${it.x.from}–${it.x.until}` : `${it.x.from} → …`;
-            const pTxt = fmtHM(statSesMinutes(it.di, it.x));
-            let geoPct = 0;
-            if (u !== null && u > f) geoPct = Math.max(0, Math.min(100, Math.round(v.geoMin / (u - f) * 100)));
-            let verdict;
-            if (v.kind === 'ok') verdict = `<div class="st-verdict ok">${tr('st_v_ok')}<span class="st-cnt">${tr('st_v_counts', { g: fmtHM(v.geoMin), p: pTxt })}</span></div>`;
-            else if (v.kind === 'part') verdict = `<div class="st-verdict ok">${tr('st_v_part')}<span class="st-cnt">${tr('st_v_counts', { g: fmtHM(v.geoMin), p: pTxt })}</span></div>`;
-            else if (v.kind === 'no') verdict = `<div class="st-verdict no">${tr('st_v_no')}<span class="st-cnt">${tr('st_v_counts', { g: '0:00', p: pTxt })}</span></div>`;
-            else if (v.kind === 'nopings') verdict = `<div class="st-verdict no">${tr('st_v_nopings')}<span class="st-cnt">${tr('st_v_counts', { g: '0:00', p: pTxt })}</span></div>`;
-            else if (v.kind === 'nocoords') verdict = `<div class="st-verdict no">${tr('st_v_nocoords')}<span class="st-cnt">${tr('st_v_counts', { g: '0:00', p: pTxt })}</span></div>`;
-            else if (v.kind === 'live') verdict = `<div class="st-verdict no">${tr('st_v_live')}</div>`;
-            else verdict = `<div class="st-verdict no">${tr('st_v_wait')}</div>`;
-            const geoLine = (u !== null && v.kind !== 'nocoords') ? `<div class="st-tl"><span class="st-lb">${tr('st_geo_line')}</span><span class="st-track"><span class="st-fill geo" style="left:0;width:${geoPct}%"></span></span><span class="st-vl">${geoPct > 0 ? ('✓ ' + fmtHM(v.geoMin)) : '—'}</span></div>` : '';
-            h += `<div class="st-ses"><div class="st-sh"><span class="st-sp">${lib.emoji} ${esc(lib.name)}</span><span class="st-sd">${dayTxt}</span></div><div class="st-tl"><span class="st-lb">${tr('st_marked')}</span><span class="st-track"><span class="st-fill said" style="left:0;width:100%"></span></span><span class="st-vl">${saidTxt}</span></div>${geoLine}${verdict}</div>`;
-        });
         body.innerHTML = h;
         const sw = document.getElementById('st-geo-sw');
         if (sw) sw.onclick = () => geoSetOptIn(!geoOptedIn());
@@ -3163,6 +3148,168 @@
             h += `<div class="st-utr${me ? ' me' : ''}${r.nogeo ? ' nogeo' : ''}" data-uid="${esc(r.uid)}"><span class="st-rk">${i + 1}</span>${av}<div class="st-who"><div class="st-top"><span class="st-nm">${me ? tr('you') : esc(u.name || tr('guest'))} ${rankStatusHtml(r.uid, r.nogeo)}</span><span class="st-vals"><span class="cl">${fmtHM(r.claim)}</span> · <span class="cf">${cf}</span></span></div><div class="st-dual"><div class="claim" style="width:${Math.min(100, Math.round(r.claim / mx * 100))}%"></div><div class="conf" style="width:${Math.min(100, Math.round(r.conf / mx * 100))}%"></div></div></div></div>`;
         });
         return h;
+    }
+    /* ===== Личный кабинет: мои сессии + правка времени ===== */
+    let stEdit = null;
+    function _t2(t) { const p = String(t).split(':'); return String(+p[0]).padStart(2, '0') + ':' + String(+(p[1] || 0)).padStart(2, '0'); }
+    function _tClean(t) { const p = String(t).split(':'); return (+p[0]) + ':' + String(+(p[1] || 0)).padStart(2, '0'); }
+    function statMyItems(days) {
+        const items = [];
+        for (let i = 0; i < days; i++) {
+            const d = addDays(new Date(), -i);
+            const di = isoDate(d);
+            const e = (state.bib[di] || {})[currentUser.id];
+            if (!e || !e.from) continue;
+            const day = [];
+            (Array.isArray(e.prev) ? e.prev : []).forEach((p, idx) => { if (p && p.bib && p.from) day.push({ di, d, pi: idx, x: { bib: p.bib, from: p.from, until: p.until || null, open: false } }); });
+            day.push({ di, d, pi: -1, x: { bib: e.bib, from: e.from, until: e.until || null, open: !bibIsLeft(e) && !e.until } });
+            day.reverse().forEach(it => items.push(it));
+        }
+        return items;
+    }
+    function renderStatsSessions() {
+        document.querySelector('#sheet-stats-ses .sheet-title').textContent = tr('st_sessions');
+        document.getElementById('st-ses-sub').textContent = tr('st_ses_sub');
+        const body = document.getElementById('st-ses-body');
+        const items = statMyItems(30);
+        const todayIso = isoDate(new Date());
+        let h = '';
+        if (!items.length) h = `<div class="st-empty">${tr('st_empty')}</div>`;
+        items.slice(0, 40).forEach(it => {
+            const lib = BIB_BY_ID[it.x.bib];
+            if (!lib) return;
+            const v = statVerdict(it.di, it.x);
+            const r = statEndMin(it.di, it.x);
+            const f = bibTmin(it.x.from);
+            const u = it.x.until ? bibTmin(it.x.until) : null;
+            const running = it.x.open && it.di === todayIso;
+            const dayTxt = `${L_DAYS_SHORT[lang][it.d.getDay()]}, ${it.d.getDate()} ${L_MONTHS_SHORT[lang][it.d.getMonth()]}`;
+            const saidTxt = u !== null ? `${it.x.from}–${it.x.until}` : (running ? `${it.x.from} → …` : `${it.x.from}–≈${fmtHM(r.end)}`);
+            const estTag = (u === null && !running) ? `<span class="st-est">${tr('st_est')}</span>` : '';
+            const pTxt = fmtHM(statSesMinutes(it.di, it.x));
+            const endM = u !== null ? u : r.end;
+            let geoPct = 0;
+            if (endM > f) geoPct = Math.max(0, Math.min(100, Math.round(v.geoMin / (endM - f) * 100)));
+            let verdict;
+            if (v.kind === 'ok') verdict = `<div class="st-verdict ok">${tr('st_v_ok')}<span class="st-cnt">${tr('st_v_counts', { g: fmtHM(v.geoMin), p: pTxt })}</span></div>`;
+            else if (v.kind === 'part') verdict = `<div class="st-verdict ok">${tr('st_v_part')}<span class="st-cnt">${tr('st_v_counts', { g: fmtHM(v.geoMin), p: pTxt })}</span></div>`;
+            else if (v.kind === 'no') verdict = `<div class="st-verdict no">${tr('st_v_no')}<span class="st-cnt">${tr('st_v_counts', { g: '0:00', p: pTxt })}</span></div>`;
+            else if (v.kind === 'nopings') verdict = `<div class="st-verdict no">${tr('st_v_nopings')}<span class="st-cnt">${tr('st_v_counts', { g: '0:00', p: pTxt })}</span></div>`;
+            else if (v.kind === 'nocoords') verdict = `<div class="st-verdict no">${tr('st_v_nocoords')}<span class="st-cnt">${tr('st_v_counts', { g: '0:00', p: pTxt })}</span></div>`;
+            else if (v.kind === 'live') verdict = `<div class="st-verdict no">${tr('st_v_live')}</div>`;
+            else verdict = `<div class="st-verdict no">${tr('st_v_wait')}</div>`;
+            const geoLine = (v.kind !== 'nocoords' && !running) ? `<div class="st-tl"><span class="st-lb">${tr('st_geo_line')}</span><span class="st-track"><span class="st-fill geo" style="left:0;width:${geoPct}%"></span></span><span class="st-vl">${geoPct > 0 ? ('✓ ' + fmtHM(v.geoMin)) : '—'}</span></div>` : '';
+            h += `<div class="st-ses tap" data-di="${it.di}" data-pi="${it.pi}"><div class="st-sh"><span class="st-sp">${lib.emoji} ${esc(lib.name)}</span><span class="st-sd">${dayTxt}</span></div><div class="st-tl"><span class="st-lb">${tr('st_marked')}</span><span class="st-track"><span class="st-fill said" style="left:0;width:100%"></span></span><span class="st-vl">${saidTxt}</span>${estTag}</div>${geoLine}${verdict}</div>`;
+        });
+        body.innerHTML = h;
+        body.querySelectorAll('.st-ses.tap').forEach(el => { el.onclick = () => openStatsEdit(el.dataset.di, +el.dataset.pi); });
+    }
+    function openStatsSessions() {
+        const sh = document.getElementById('sheet-stats-ses');
+        _stAccent(sh);
+        renderStatsSessions();
+        sh.hidden = false;
+        document.getElementById('sheet-backdrop').classList.add('show');
+        requestAnimationFrame(() => sh.classList.add('show'));
+        attachBackButton('statsses', closeStatsSessions);
+        haptic('light');
+    }
+    function closeStatsSessions() {
+        const sh = document.getElementById('sheet-stats-ses');
+        if (!sh || sh.hidden) return;
+        sh.classList.remove('show');
+        setTimeout(() => { sh.hidden = true; }, 280);
+        if (!document.getElementById('sheet-stats').hidden) attachBackButton('stats', closeStats);
+        else {
+            document.getElementById('sheet-backdrop').classList.remove('show');
+            if (backButtonOwner === 'statsses') detachBackButton();
+        }
+    }
+    function openStatsEdit(di, pi) {
+        const e = (state.bib[di] || {})[currentUser.id];
+        if (!e) return;
+        const rec = pi >= 0 ? ((Array.isArray(e.prev) ? e.prev : [])[pi]) : e;
+        if (!rec || !rec.from) return;
+        stEdit = { di, pi };
+        const sh = document.getElementById('sheet-stats-edit');
+        _stAccent(sh);
+        const lib = BIB_BY_ID[rec.bib];
+        const d = statDateFromIso(di);
+        document.querySelector('#sheet-stats-edit .sheet-title').textContent = tr('st_edit_title');
+        document.getElementById('st-edit-sub').textContent = `${lib ? lib.name : rec.bib} · ${L_DAYS_SHORT[lang][d.getDay()]}, ${d.getDate()} ${L_MONTHS_SHORT[lang][d.getMonth()]}`;
+        document.getElementById('st-edit-from-lbl').textContent = tr('st_from_lbl');
+        document.getElementById('st-edit-until-lbl').textContent = tr('st_until_lbl');
+        document.getElementById('st-edit-open').textContent = tr('st_still_here');
+        document.getElementById('st-edit-save').textContent = tr('btn_save');
+        document.getElementById('st-edit-del').textContent = tr('st_del_ses');
+        document.getElementById('st-edit-from').value = _t2(rec.from);
+        document.getElementById('st-edit-until').value = rec.until ? _t2(rec.until) : '';
+        sh.hidden = false;
+        document.getElementById('sheet-backdrop').classList.add('show');
+        requestAnimationFrame(() => sh.classList.add('show'));
+        attachBackButton('statsedit', closeStatsEdit);
+        haptic('light');
+    }
+    function closeStatsEdit() {
+        const sh = document.getElementById('sheet-stats-edit');
+        if (!sh || sh.hidden) return;
+        sh.classList.remove('show');
+        setTimeout(() => { sh.hidden = true; }, 280);
+        stEdit = null;
+        if (!document.getElementById('sheet-stats-ses').hidden) attachBackButton('statsses', closeStatsSessions);
+        else {
+            document.getElementById('sheet-backdrop').classList.remove('show');
+            if (backButtonOwner === 'statsedit') detachBackButton();
+        }
+    }
+    function statsEditSave() {
+        if (!stEdit) return;
+        if (!FIREBASE_READY || !fbDb) { showToast(tr('toast_fail')); return; }
+        const di = stEdit.di, pi = stEdit.pi;
+        const e = (state.bib[di] || {})[currentUser.id];
+        if (!e) { closeStatsEdit(); return; }
+        const fv = document.getElementById('st-edit-from').value;
+        if (!fv) { showToast(tr('toast_fail')); return; }
+        const uv = document.getElementById('st-edit-until').value;
+        const from = _tClean(fv);
+        const until = uv ? _tClean(uv) : null;
+        if (until && bibTmin(until) <= bibTmin(from)) { showToast(tr('toast_until_before')); return; }
+        const path = `rooms/${roomId}/bib/${di}/${currentUser.id}`;
+        let payload;
+        if (pi >= 0) {
+            const prev = (Array.isArray(e.prev) ? e.prev : []).slice();
+            if (!prev[pi]) { closeStatsEdit(); return; }
+            prev[pi] = { bib: prev[pi].bib, from, until: until || null };
+            payload = { prev };
+        } else {
+            payload = { from, until: until || null, status: until ? 'left' : null };
+        }
+        update(ref(fbDb, path), payload).then(() => {
+            haptic('medium'); showToast(tr('st_saved')); closeStatsEdit();
+            if (!document.getElementById('sheet-stats-ses').hidden) renderStatsSessions();
+        }).catch((err) => { console.error('session edit failed', err); showToast(tr('toast_save_fail')); });
+    }
+    function statsEditDelete() {
+        if (!stEdit) return;
+        if (!FIREBASE_READY || !fbDb) { showToast(tr('toast_fail')); return; }
+        const di = stEdit.di, pi = stEdit.pi;
+        const e = (state.bib[di] || {})[currentUser.id];
+        if (!e) { closeStatsEdit(); return; }
+        const go = () => {
+            const path = `rooms/${roomId}/bib/${di}/${currentUser.id}`;
+            const prev = (Array.isArray(e.prev) ? e.prev : []).slice();
+            let p;
+            if (pi >= 0) { prev.splice(pi, 1); p = update(ref(fbDb, path), { prev: prev.length ? prev : null }); }
+            else if (prev.length) { const last = prev.pop(); p = update(ref(fbDb, path), { bib: last.bib, from: last.from, until: last.until || null, status: 'left', prev: prev.length ? prev : null }); }
+            else p = remove(ref(fbDb, path));
+            p.then(() => {
+                haptic('medium'); showToast(tr('st_deleted')); closeStatsEdit();
+                if (!document.getElementById('sheet-stats-ses').hidden) renderStatsSessions();
+            }).catch((err) => { console.error('session delete failed', err); showToast(tr('toast_fail')); });
+        };
+        const msg = tr('st_del_confirm');
+        if (tg?.showConfirm) tg.showConfirm(msg, (ok) => { if (ok) go(); });
+        else if (confirm(msg)) go();
     }
     let stUserId = null;
     function openStatsUser(uid) {
@@ -3469,7 +3616,7 @@
         if (!frIds.length) { const e = document.createElement('div'); e.className = 'fr-empty'; e.textContent = (f ? tr('fr_nofound') : tr('fr_empty')); list.appendChild(e); }
         else { frIds.forEach(id => list.appendChild(friendRow(id, 'friend'))); }
     }
-    function closeAllSheets() { closeCreateSheet(); closeDetailSheet(); closeBibCreate(); closeBibDetail(); closeAudience(); closeGroupModal(); closeFriends(); closeStatsUser(); closeStatsGeo(); closeStats(); }
+    function closeAllSheets() { closeCreateSheet(); closeDetailSheet(); closeBibCreate(); closeBibDetail(); closeAudience(); closeGroupModal(); closeFriends(); closeStatsEdit(); closeStatsSessions(); closeStatsUser(); closeStatsGeo(); closeStats(); }
     function makeSheetDraggable(sheet, closeFn) {
         if (!sheet) return;
         let startY = 0, dy = 0, dragging = false, armed = false;
@@ -3879,7 +4026,10 @@
         if (tg?.openLink) tg.openLink(u); else window.open(u, '_blank');
     };
     document.getElementById('sheet-backdrop').onclick = () => { closeAllSheets(); };
-    [['sheet-create', closeCreateSheet], ['sheet-detail', closeDetailSheet], ['sheet-bib-create', closeBibCreate], ['sheet-bib-detail', closeBibDetail], ['sheet-audience', closeAudience], ['sheet-friends', closeFriends], ['sheet-stats', closeStats], ['sheet-stats-geo', closeStatsGeo], ['sheet-stats-user', closeStatsUser]].forEach(([id, fn]) => makeSheetDraggable(document.getElementById(id), fn));
+    [['sheet-create', closeCreateSheet], ['sheet-detail', closeDetailSheet], ['sheet-bib-create', closeBibCreate], ['sheet-bib-detail', closeBibDetail], ['sheet-audience', closeAudience], ['sheet-friends', closeFriends], ['sheet-stats', closeStats], ['sheet-stats-geo', closeStatsGeo], ['sheet-stats-user', closeStatsUser], ['sheet-stats-ses', closeStatsSessions], ['sheet-stats-edit', closeStatsEdit]].forEach(([id, fn]) => makeSheetDraggable(document.getElementById(id), fn));
+    document.getElementById('st-edit-save').onclick = () => statsEditSave();
+    document.getElementById('st-edit-del').onclick = () => statsEditDelete();
+    document.getElementById('st-edit-open').onclick = () => { document.getElementById('st-edit-until').value = ''; haptic('light'); };
     document.getElementById('sheet-confirm').onclick = () => {
         if (selectedTime && selectedMensa) {
             if (isPastTimeToday(selectedTime)) { showToast(tr('toast_time_passed')); return; }
