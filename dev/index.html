@@ -754,6 +754,13 @@
         .bib-hpop { position: absolute; top: 135%; left: 50%; transform: translateX(-50%); background: var(--text); color: var(--bg); font-size: 10.5px; font-weight: 700; font-style: normal; white-space: nowrap; padding: 4px 8px; border-radius: 6px; display: none; z-index: 5; }
         .bib-hinfo.open .bib-hpop { display: block; }
         .bib-closed-note { font-size: 11px; color: var(--warn); font-weight: 600; background: var(--warn-soft); border-radius: 8px; padding: 8px 10px; margin-top: 10px; line-height: 1.45; }
+        .bib-near { background: var(--accent-soft); border: 1px solid var(--accent-soft); border-radius: var(--radius-md); padding: 11px 11px 11px 13px; display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+        .bib-near .bn-pin { font-size: 20px; flex: none; }
+        .bib-near .bn-tx { flex: 1; min-width: 0; }
+        .bib-near .bn-a { font-size: 13.5px; font-weight: 800; }
+        .bib-near .bn-b { font-size: 11px; color: var(--hint); margin-top: 1px; }
+        .bib-near .bn-btn { background: var(--accent); color: #fff; border: none; font-family: inherit; font-weight: 700; font-size: 12.5px; padding: 9px 13px; border-radius: 9px; cursor: pointer; flex: none; }
+        .bib-near .bn-x { color: var(--hint); font-size: 16px; padding: 2px 3px; cursor: pointer; flex: none; }
         #menu-stats .menu-ic { background: rgba(37,99,235,0.16); }
         .bib-card { padding: 15px 15px; }
         .bib-name { font-size: 16px; }
@@ -842,7 +849,7 @@
 </head>
 <body>
     <header class="app-header">
-        <h1 class="app-title" id="app-title"><span class="emoji" id="app-emoji">🍜</span> <span id="app-name">Mensa Crew</span> <span class="tri">▾</span><span class="dev-badge">DEV · 28.09</span></h1>
+        <h1 class="app-title" id="app-title"><span class="emoji" id="app-emoji">🍜</span> <span id="app-name">Mensa Crew</span> <span class="tri">▾</span><span class="dev-badge">DEV · 28.09-2</span></h1>
         <div style="display:flex; align-items:center; gap:8px;">
             <button class="lang-btn" id="menu-btn" title="Меню"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 19c0-3 2.6-5 5.5-5s5.5 2 5.5 5"/><path d="M16 5.4a3 3 0 0 1 0 5.2"/><path d="M17.5 14.3c2 .6 3.4 2.3 3.4 4.7"/></svg></button>
             <button class="bell-btn" id="bell-btn" title="Включить уведомления">🔔</button>
@@ -1204,6 +1211,7 @@
             st_dev:'👨‍🍳 Diyor is cooking…', st_p_today:'Сегодня', st_now_count:'{n} сейчас',
             st_closed:'закрыта · {t}', st_closed_until:'закрыта · до {t}', st_closed_plain:'закрыта',
             st_here_t:'{place} закрывается в {t}', st_here_sub:'Ты ещё здесь? Отметься — вечер зачтётся в гео', st_here_btn:'Я тут', st_here_done:'✓ Отмечено', st_here_out:'Похоже, ты вне радиуса библиотеки',
+            st_near_t:'Ты рядом с {place}', st_near_sub:'Записать сразу · время = сейчас', st_near_btn:'Записать',
             st_closed_note:'🌙 Закрылась в {t} — незакрытая сессия зачтётся до {t}',
             st_mf:'Пн–Пт', st_sa:'Сб', st_su:'Вс', st_sasu:'Сб–Вс',
             st_u_claimed:'заявлено', st_u_geo:'по гео', st_u_hidden:'🔒 {h} · скрытые записи', st_u_none:'Нет сессий за этот период' },
@@ -1255,6 +1263,7 @@
             st_dev:'👨‍🍳 Diyor is cooking…', st_p_today:'Today', st_now_count:'{n} now',
             st_closed:'closed · {t}', st_closed_until:'closed · until {t}', st_closed_plain:'closed',
             st_here_t:'{place} closes at {t}', st_here_sub:'Still here? Check in — the evening counts for geo', st_here_btn:"I'm here", st_here_done:'✓ Checked in', st_here_out:"Looks like you're outside the library radius",
+            st_near_t:"You're near {place}", st_near_sub:'Check in now · time = now', st_near_btn:'Check in',
             st_closed_note:'🌙 Closed at {t} — an open session counts until {t}',
             st_mf:'Mon–Fri', st_sa:'Sat', st_su:'Sun', st_sasu:'Sat–Sun',
             st_u_claimed:'claimed', st_u_geo:'by geo', st_u_hidden:'🔒 {h} · hidden entries', st_u_none:'No sessions in this period' },
@@ -1306,6 +1315,7 @@
             st_dev:'👨‍🍳 Diyor is cooking…', st_p_today:'Heute', st_now_count:'{n} jetzt',
             st_closed:'geschlossen · {t}', st_closed_until:'geschlossen · bis {t}', st_closed_plain:'geschlossen',
             st_here_t:'{place} schließt um {t}', st_here_sub:'Noch da? Melde dich — der Abend zählt für Geo', st_here_btn:'Bin hier', st_here_done:'✓ Vermerkt', st_here_out:'Du scheinst außerhalb des Bibliotheks-Radius zu sein',
+            st_near_t:'Du bist in der Nähe von {place}', st_near_sub:'Sofort eintragen · Zeit = jetzt', st_near_btn:'Eintragen',
             st_closed_note:'🌙 Um {t} geschlossen — offene Sessions zählen bis {t}',
             st_mf:'Mo–Fr', st_sa:'Sa', st_su:'So', st_sasu:'Sa–So',
             st_u_claimed:'eingetragen', st_u_geo:'per Geo', st_u_hidden:'🔒 {h} · versteckte Einträge', st_u_none:'Keine Sessions in diesem Zeitraum' },
@@ -2389,6 +2399,23 @@
         const list = document.getElementById('bib-list');
         list.innerHTML = '';
         if (friendsReady && !Object.keys(state.friends || {}).length) { list.appendChild(friendsHintEl()); }
+        if (di === isoDate(new Date()) && bibNearBannerDay !== di && geoLastNear && !bibFindMine(di)) {
+            const _nl = BIB_BY_ID[geoLastNear.bibId];
+            const _nh = _nl ? bibHoursFor(geoLastNear.bibId, new Date()) : null;
+            const _nn = nowMin();
+            if (_nl && _nh && _nn >= _nh[0] && _nn < _nh[1]) {
+                const nb = document.createElement('div');
+                nb.className = 'bib-near';
+                nb.innerHTML = `<span class="bn-pin">📍</span><div class="bn-tx"><div class="bn-a">${tr('st_near_t', { place: esc(_nl.name) })}</div><div class="bn-b">${tr('st_near_sub')}</div></div><button class="bn-btn" id="bib-near-btn">${tr('st_near_btn')}</button><span class="bn-x" id="bib-near-x">✕</span>`;
+                list.appendChild(nb);
+                nb.querySelector('#bib-near-btn').onclick = (e) => {
+                    e.stopPropagation(); haptic('medium');
+                    bibNearBannerDay = di;
+                    setMyBib(di, geoLastNear.bibId, bibNowHM(), null, { mode: 'all', ids: [] });
+                };
+                nb.querySelector('#bib-near-x').onclick = (e) => { e.stopPropagation(); haptic('light'); bibNearBannerDay = di; renderBibDay(); };
+            }
+        }
         if (di === isoDate(new Date()) && bibCloseBannerDay !== di) {
             const _mB = bibFindMine(di);
             const _hB = _mB ? bibHoursFor(_mB.bib, new Date()) : null;
@@ -2749,6 +2776,7 @@
         return (h.approx ? '≈ ' : '') + parts.join(' · ');
     }
     let bibCloseBannerDay = null;
+    let bibNearBannerDay = null;
     function nDaysRow(n) {
         if (lang === 'en') return n === 1 ? 'day in a row' : 'days in a row';
         if (lang === 'de') return n === 1 ? 'Tag in Folge' : 'Tage in Folge';
@@ -2910,6 +2938,7 @@
     function refreshGeoUI() {
         if (!document.getElementById('sheet-stats-geo').hidden) renderStatsGeo();
         else if (!document.getElementById('sheet-stats').hidden) renderStats();
+        if (mode === 'bib' && view === 'day' && isoDate(currentDate) === isoDate(new Date())) renderBibDay();
     }
     function _stAccent(sh) {
         sh.style.setProperty('--accent', '#2563eb');
