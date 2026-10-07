@@ -718,6 +718,26 @@
         .st-link .st-chev { color: var(--hint); font-size: 18px; flex: none; }
         .st-ses.tap { cursor: pointer; }
         .st-est { font-size: 10.5px; font-weight: 700; color: var(--hint); flex: none; }
+        #sheet-stats-detail { --c: #2563eb; }
+        .st-libfilter { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px; margin: 10px 0; }
+        .st-libfilter::-webkit-scrollbar { height: 0; }
+        .st-lchip { font-size: 12px; font-weight: 700; white-space: nowrap; padding: 6px 11px; border-radius: 999px; background: var(--surface-alt); color: var(--hint); cursor: pointer; border: 1px solid transparent; flex: none; }
+        .st-lchip.on { background: var(--c); color: #fff; border-color: var(--c); }
+        .st-dtotals { display: flex; gap: 8px; }
+        .st-dtot { flex: 1; background: var(--surface-alt); border-radius: var(--radius-sm); padding: 10px 8px; text-align: center; font-size: 11px; color: var(--hint); }
+        .st-dtot b { display: block; font-size: 16px; font-weight: 800; color: var(--c); margin-bottom: 2px; font-variant-numeric: tabular-nums; }
+        .st-linechart { width: 100%; height: 92px; display: block; }
+        .st-lc-area { fill: var(--c); opacity: 0.13; }
+        .st-lc-line { fill: none; stroke: var(--c); stroke-width: 2.5; }
+        .st-heat { display: grid; grid-template-rows: repeat(7, 11px); grid-auto-flow: column; grid-auto-columns: 11px; gap: 3px; overflow-x: auto; padding-bottom: 4px; }
+        .st-heat::-webkit-scrollbar { height: 0; }
+        .st-hc { width: 11px; height: 11px; border-radius: 2px; background: var(--surface-alt); }
+        .st-hc.l1 { background: var(--c); opacity: 0.28; }
+        .st-hc.l2 { background: var(--c); opacity: 0.5; }
+        .st-hc.l3 { background: var(--c); opacity: 0.72; }
+        .st-hc.l4 { background: var(--c); opacity: 1; }
+        .st-heat-legend { display: flex; align-items: center; gap: 4px; justify-content: flex-end; margin-top: 9px; font-size: 10.5px; color: var(--hint); }
+        .st-more { color: var(--accent); }
         .st-segs { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; margin: 10px 0 2px; }
         .st-seg { display: inline-flex; background: var(--surface-alt); border-radius: 999px; padding: 3px; gap: 2px; }
         .st-seg span { font-size: 12px; font-weight: 700; color: var(--hint); padding: 6px 11px; border-radius: 999px; cursor: pointer; white-space: nowrap; }
@@ -853,7 +873,7 @@
 </head>
 <body>
     <header class="app-header">
-        <h1 class="app-title" id="app-title"><span class="emoji" id="app-emoji">🍜</span> <span id="app-name">Mensa Crew</span> <span class="tri">▾</span><span class="dev-badge">DEV · 07.10-2</span></h1>
+        <h1 class="app-title" id="app-title"><span class="emoji" id="app-emoji">🍜</span> <span id="app-name">Mensa Crew</span> <span class="tri">▾</span><span class="dev-badge">DEV · 07.10-3</span></h1>
         <div style="display:flex; align-items:center; gap:8px;">
             <button class="lang-btn" id="menu-btn" title="Меню"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 19c0-3 2.6-5 5.5-5s5.5 2 5.5 5"/><path d="M16 5.4a3 3 0 0 1 0 5.2"/><path d="M17.5 14.3c2 .6 3.4 2.3 3.4 4.7"/></svg></button>
             <button class="bell-btn" id="bell-btn" title="Включить уведомления">🔔</button>
@@ -1012,6 +1032,11 @@
         <div class="sheet-handle"></div>
         <div class="sheet-title">Геолокация</div>
         <div id="st-geo-body"></div>
+    </div>
+    <div class="sheet" id="sheet-stats-detail" hidden>
+        <div class="sheet-handle"></div>
+        <div class="sheet-title" id="st-det-title">Подробная статистика</div>
+        <div id="st-det-body"></div>
     </div>
     <div class="sheet" id="sheet-stats-ses" hidden>
         <div class="sheet-handle"></div>
@@ -1232,6 +1257,9 @@
             st_v_ok:'✓ Подтверждено', st_v_part:'✓ Частично подтверждено', st_v_no:'⚠ Не подтверждено · вне радиуса библиотеки', st_v_nopings:'⚠ Не подтверждено · нет гео-точек', st_v_nocoords:'⚠ Для этой библиотеки гео пока не настроено', st_v_wait:'⏳ Нет времени ухода — не засчитано', st_v_live:'⏳ Сессия ещё идёт',
             st_v_counts:'В Гео: {g} · В личное: {p}', st_empty:'Пока пусто — отметься в библиотеке, и здесь появится статистика',
             st_rank:'Hustle-рейтинг', st_rank_toggle:'Показывать меня в рейтинге', st_rank_toggle_sub:'В рейтинг идут только гео-подтверждённые часы',
+            st_det_title:'Подробная статистика', st_p_month:'Месяц', st_p_year:'Год', st_all_libs:'Все',
+            st_t_week:'неделя', st_t_month:'месяц', st_t_all:'всего', st_dyn:'Динамика',
+            st_consist:'Постоянство · приходы по дням', st_less:'меньше', st_more:'больше', st_more_link:'подробнее →',
             st_p_week:'Неделя', st_p_all:'Всё время', st_s_geo:'✓ по гео', st_s_claim:'по заявленным',
             st_r_in:'в {place}', st_r_nogeo:'гео выкл', st_rank_none:'Пока пусто — гео-часы появятся после подтверждённых сессий',
             st_dev:'👨‍🍳 Diyor is cooking…', st_p_today:'Сегодня', st_now_count:'{n} сейчас',
@@ -1290,6 +1318,9 @@
             st_v_ok:'✓ Verified', st_v_part:'✓ Partially verified', st_v_no:'⚠ Not verified · outside the library radius', st_v_nopings:'⚠ Not verified · no geo points', st_v_nocoords:"⚠ Geo isn't set up for this library yet", st_v_wait:'⏳ No leave time — not counted', st_v_live:'⏳ Session still running',
             st_v_counts:'Geo: {g} · Personal: {p}', st_empty:'Nothing yet — check in at a library and stats will appear',
             st_rank:'Hustle leaderboard', st_rank_toggle:'Show me on the leaderboard', st_rank_toggle_sub:'Only geo-verified hours count for the leaderboard',
+            st_det_title:'Detailed stats', st_p_month:'Month', st_p_year:'Year', st_all_libs:'All',
+            st_t_week:'week', st_t_month:'month', st_t_all:'total', st_dyn:'Trend',
+            st_consist:'Consistency · days you showed up', st_less:'less', st_more:'more', st_more_link:'details →',
             st_p_week:'Week', st_p_all:'All time', st_s_geo:'✓ by geo', st_s_claim:'by claimed',
             st_r_in:'at {place}', st_r_nogeo:'geo off', st_rank_none:'Empty so far — geo hours appear after verified sessions',
             st_dev:'👨‍🍳 Diyor is cooking…', st_p_today:'Today', st_now_count:'{n} now',
@@ -1348,6 +1379,9 @@
             st_v_ok:'✓ Bestätigt', st_v_part:'✓ Teilweise bestätigt', st_v_no:'⚠ Nicht bestätigt · außerhalb des Bibliotheks-Radius', st_v_nopings:'⚠ Nicht bestätigt · keine Geo-Punkte', st_v_nocoords:'⚠ Geo ist für diese Bibliothek noch nicht eingerichtet', st_v_wait:'⏳ Keine Gehzeit — nicht gezählt', st_v_live:'⏳ Session läuft noch',
             st_v_counts:'Geo: {g} · Persönlich: {p}', st_empty:'Noch leer — trag dich in einer Bib ein, dann erscheint hier Statistik',
             st_rank:'Hustle-Ranking', st_rank_toggle:'Mich im Ranking zeigen', st_rank_toggle_sub:'Fürs Ranking zählen nur geo-bestätigte Stunden',
+            st_det_title:'Detaillierte Statistik', st_p_month:'Monat', st_p_year:'Jahr', st_all_libs:'Alle',
+            st_t_week:'Woche', st_t_month:'Monat', st_t_all:'gesamt', st_dyn:'Verlauf',
+            st_consist:'Konstanz · Tage mit Besuch', st_less:'weniger', st_more:'mehr', st_more_link:'Details →',
             st_p_week:'Woche', st_p_all:'Gesamt', st_s_geo:'✓ nach Geo', st_s_claim:'nach Angabe',
             st_r_in:'in {place}', st_r_nogeo:'Geo aus', st_rank_none:'Noch leer — Geo-Stunden erscheinen nach bestätigten Sessions',
             st_dev:'👨‍🍳 Diyor is cooking…', st_p_today:'Heute', st_now_count:'{n} jetzt',
@@ -1412,6 +1446,7 @@
         if (!document.getElementById('sheet-stats-geo').hidden) renderStatsGeo();
         if (!document.getElementById('sheet-stats-user').hidden) renderStatsUser();
         if (!document.getElementById('sheet-stats-ses').hidden) renderStatsSessions();
+        if (!document.getElementById('sheet-stats-detail').hidden) renderStatsDetail();
         setT('#friends-title', 'friends_title'); setT('#friends-sub', 'friends_sub');
         setT('#fr-invite-label', 'fr_invite'); setT('#fr-qr-label', 'fr_qr'); setP('#fr-search', 'fr_search');
         setT('#qr-title', 'qr_title'); setT('#qr-hint', 'qr_hint'); setT('#qr-close', 'btn_close');
@@ -3017,7 +3052,7 @@
         const days = [];
         for (let i = 6; i >= 0; i--) { const d = addDays(new Date(), -i); const di2 = isoDate(d); days.push({ d, min: statDayMinutes(di2), geo: statDayGeoMin(di2) }); }
         const mx = Math.max(60, ...days.map(x => x.min));
-        h += `<div class="st-sec">${tr('st_last7')}</div><div class="st-card"><div class="st-chart">`;
+        h += `<div class="st-sec">${tr('st_last7')} · <span class="st-more">${tr('st_more_link')}</span></div><div class="st-card" id="st-chart-card"><div class="st-chart">`;
         days.forEach((x, idx) => {
             const pct = x.min > 0 ? Math.max(8, Math.round(x.min / mx * 100)) : 6;
             const on = idx === 6 ? ' on' : '';
@@ -3050,6 +3085,8 @@
         if (gc) gc.onclick = () => openStatsGeo();
         const sl = document.getElementById('st-ses-link');
         if (sl) sl.onclick = () => openStatsSessions();
+        const cc = document.getElementById('st-chart-card');
+        if (cc) cc.onclick = () => openStatsDetail();
         const cb = document.getElementById('st-cta-btn');
         if (cb) cb.onclick = () => openStatsGeo();
         const fsw = document.getElementById('st-flex-sw');
@@ -3309,6 +3346,100 @@
         const msg = tr('st_del_confirm');
         if (tg?.showConfirm) tg.showConfirm(msg, (ok) => { if (ok) go(); });
         else if (confirm(msg)) go();
+    }
+    /* ===== Подробная статистика: период, фильтр библиотек, линия, heatmap ===== */
+    let statDetPeriod = 'm', statDetBib = null;
+    function statDayMinBib(di, bibId) {
+        let m = 0;
+        statSessionsFor(di).forEach(x => { if (!bibId || x.bib === bibId) m += statSesMinutes(di, x); });
+        return Math.min(STAT_DAY_CAP_MIN, m);
+    }
+    function statSumDays(days, bibId) {
+        let sum = 0;
+        for (let i = 0; i < days; i++) sum += statDayMinBib(isoDate(addDays(new Date(), -i)), bibId);
+        return sum;
+    }
+    function statSumAll(bibId) {
+        let sum = 0;
+        Object.keys(state.bib || {}).forEach(di => { sum += statDayMinBib(di, bibId); });
+        return sum;
+    }
+    function statLineVals(bibId) {
+        const out = [];
+        if (statDetPeriod === 'y') {
+            const base = new Date();
+            for (let i = 11; i >= 0; i--) {
+                const d = new Date(base.getFullYear(), base.getMonth() - i, 1);
+                const pref = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+                let m = 0;
+                Object.keys(state.bib || {}).forEach(di => { if (di.indexOf(pref) === 0) m += statDayMinBib(di, bibId); });
+                out.push({ v: m, lbl: L_MONTHS_SHORT[lang][d.getMonth()] });
+            }
+            return out;
+        }
+        const n = statDetPeriod === 'w' ? 7 : 30;
+        for (let i = n - 1; i >= 0; i--) {
+            const d = addDays(new Date(), -i);
+            out.push({ v: statDayMinBib(isoDate(d), bibId), lbl: `${d.getDate()}` });
+        }
+        return out;
+    }
+    function statLinePaths(vals, w, h) {
+        const mx = Math.max(1, ...vals);
+        const n = vals.length;
+        const pts = vals.map((v, i) => [n === 1 ? w / 2 : (i * w) / (n - 1), h - 3 - (v / mx) * (h - 10)]);
+        const line = pts.map((p, i) => (i ? 'L' : 'M') + p[0].toFixed(1) + ',' + p[1].toFixed(1)).join(' ');
+        return { line, area: `${line} L${w},${h} L0,${h} Z` };
+    }
+    function renderStatsDetail() {
+        const sh = document.getElementById('sheet-stats-detail');
+        const lib = statDetBib ? BIB_BY_ID[statDetBib] : null;
+        sh.style.setProperty('--c', lib ? lib.color : '#2563eb');
+        document.querySelector('#sheet-stats-detail .sheet-title').textContent = tr('st_det_title');
+        const body = document.getElementById('st-det-body');
+        let h = `<div class="st-segs"><div class="st-seg" id="st-det-period"><span data-z="w"${statDetPeriod === 'w' ? ' class="on"' : ''}>${tr('st_p_week')}</span><span data-z="m"${statDetPeriod === 'm' ? ' class="on"' : ''}>${tr('st_p_month')}</span><span data-z="y"${statDetPeriod === 'y' ? ' class="on"' : ''}>${tr('st_p_year')}</span></div></div>`;
+        const used = ALL_BIBS.filter(b => statSumAll(b.id) > 0);
+        h += `<div class="st-libfilter" id="st-det-libs"><span class="st-lchip${statDetBib ? '' : ' on'}" data-b="">${tr('st_all_libs')}</span>`;
+        used.forEach(b => { h += `<span class="st-lchip${statDetBib === b.id ? ' on' : ''}" data-b="${b.id}">${b.emoji} ${esc(b.name)}</span>`; });
+        h += '</div>';
+        h += `<div class="st-dtotals"><div class="st-dtot"><b>${fmtHM(statSumDays(7, statDetBib))}</b>${tr('st_t_week')}</div><div class="st-dtot"><b>${fmtHM(statSumDays(30, statDetBib))}</b>${tr('st_t_month')}</div><div class="st-dtot"><b>${fmtHM(statSumAll(statDetBib))}</b>${tr('st_t_all')}</div></div>`;
+        const vals = statLineVals(statDetBib);
+        const p = statLinePaths(vals.map(x => x.v), 300, 92);
+        h += `<div class="st-sec">${tr('st_dyn')}</div><div class="st-card"><svg class="st-linechart" viewBox="0 0 300 92" preserveAspectRatio="none"><path class="st-lc-area" d="${p.area}"/><path class="st-lc-line" d="${p.line}"/></svg><div class="st-tl" style="margin-top:4px"><span class="st-lb">${vals[0].lbl}</span><span style="flex:1"></span><span class="st-vl">${vals[vals.length - 1].lbl}</span></div></div>`;
+        const weeks = 18;
+        const start = startOfWeek(addDays(new Date(), -(weeks - 1) * 7));
+        let cells = '';
+        for (let i = 0; i < weeks * 7; i++) {
+            const d = addDays(start, i);
+            const m = d > new Date() ? 0 : statDayMinBib(isoDate(d), statDetBib);
+            const lv = m <= 0 ? 0 : (m < 120 ? 1 : (m < 240 ? 2 : (m < 360 ? 3 : 4)));
+            cells += `<span class="st-hc${lv ? ' l' + lv : ''}"></span>`;
+        }
+        h += `<div class="st-sec">${tr('st_consist')}</div><div class="st-card"><div class="st-heat">${cells}</div><div class="st-heat-legend">${tr('st_less')} <span class="st-hc l1"></span><span class="st-hc l2"></span><span class="st-hc l3"></span><span class="st-hc l4"></span> ${tr('st_more')}</div></div>`;
+        body.innerHTML = h;
+        document.querySelectorAll('#st-det-period span').forEach(el => { el.onclick = () => { statDetPeriod = el.dataset.z; haptic('light'); renderStatsDetail(); }; });
+        document.querySelectorAll('#st-det-libs .st-lchip').forEach(el => { el.onclick = () => { statDetBib = el.dataset.b || null; haptic('light'); renderStatsDetail(); }; });
+    }
+    function openStatsDetail() {
+        const sh = document.getElementById('sheet-stats-detail');
+        _stAccent(sh);
+        renderStatsDetail();
+        sh.hidden = false;
+        document.getElementById('sheet-backdrop').classList.add('show');
+        requestAnimationFrame(() => sh.classList.add('show'));
+        attachBackButton('statsdet', closeStatsDetail);
+        haptic('light');
+    }
+    function closeStatsDetail() {
+        const sh = document.getElementById('sheet-stats-detail');
+        if (!sh || sh.hidden) return;
+        sh.classList.remove('show');
+        setTimeout(() => { sh.hidden = true; }, 280);
+        if (!document.getElementById('sheet-stats').hidden) attachBackButton('stats', closeStats);
+        else {
+            document.getElementById('sheet-backdrop').classList.remove('show');
+            if (backButtonOwner === 'statsdet') detachBackButton();
+        }
     }
     let stUserId = null;
     function openStatsUser(uid) {
@@ -3616,7 +3747,7 @@
         if (!frIds.length) { const e = document.createElement('div'); e.className = 'fr-empty'; e.textContent = (f ? tr('fr_nofound') : tr('fr_empty')); list.appendChild(e); }
         else { frIds.forEach(id => list.appendChild(friendRow(id, 'friend'))); }
     }
-    function closeAllSheets() { closeCreateSheet(); closeDetailSheet(); closeBibCreate(); closeBibDetail(); closeAudience(); closeGroupModal(); closeFriends(); closeStatsEdit(); closeStatsSessions(); closeStatsUser(); closeStatsGeo(); closeStats(); }
+    function closeAllSheets() { closeCreateSheet(); closeDetailSheet(); closeBibCreate(); closeBibDetail(); closeAudience(); closeGroupModal(); closeFriends(); closeStatsEdit(); closeStatsSessions(); closeStatsDetail(); closeStatsUser(); closeStatsGeo(); closeStats(); }
     function makeSheetDraggable(sheet, closeFn) {
         if (!sheet) return;
         let startY = 0, dy = 0, dragging = false, armed = false;
@@ -4026,7 +4157,7 @@
         if (tg?.openLink) tg.openLink(u); else window.open(u, '_blank');
     };
     document.getElementById('sheet-backdrop').onclick = () => { closeAllSheets(); };
-    [['sheet-create', closeCreateSheet], ['sheet-detail', closeDetailSheet], ['sheet-bib-create', closeBibCreate], ['sheet-bib-detail', closeBibDetail], ['sheet-audience', closeAudience], ['sheet-friends', closeFriends], ['sheet-stats', closeStats], ['sheet-stats-geo', closeStatsGeo], ['sheet-stats-user', closeStatsUser], ['sheet-stats-ses', closeStatsSessions], ['sheet-stats-edit', closeStatsEdit]].forEach(([id, fn]) => makeSheetDraggable(document.getElementById(id), fn));
+    [['sheet-create', closeCreateSheet], ['sheet-detail', closeDetailSheet], ['sheet-bib-create', closeBibCreate], ['sheet-bib-detail', closeBibDetail], ['sheet-audience', closeAudience], ['sheet-friends', closeFriends], ['sheet-stats', closeStats], ['sheet-stats-geo', closeStatsGeo], ['sheet-stats-user', closeStatsUser], ['sheet-stats-ses', closeStatsSessions], ['sheet-stats-edit', closeStatsEdit], ['sheet-stats-detail', closeStatsDetail]].forEach(([id, fn]) => makeSheetDraggable(document.getElementById(id), fn));
     document.getElementById('st-edit-save').onclick = () => statsEditSave();
     document.getElementById('st-edit-del').onclick = () => statsEditDelete();
     document.getElementById('st-edit-open').onclick = () => { document.getElementById('st-edit-until').value = ''; haptic('light'); };
