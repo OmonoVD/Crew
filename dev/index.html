@@ -673,7 +673,7 @@
         .st-bar-col { width: 100%; flex: 1; display: flex; align-items: flex-end; }
         .st-bar { width: 100%; background: var(--accent-soft); border-radius: 6px 6px 3px 3px; position: relative; }
         .st-bar.on { box-shadow: inset 0 0 0 1.5px var(--accent); }
-        .st-bar-geo { position: absolute; left: 0; right: 0; bottom: 0; background: var(--accent); border-radius: 2px 2px 3px 3px; }
+        .st-bar-geo { position: absolute; left: 0; right: 0; bottom: 0; background: var(--good); border-radius: 2px 2px 3px 3px; }
         .st-bar .st-h { position: absolute; top: -15px; left: 0; right: 0; text-align: center; font-size: 9px; font-weight: 700; color: var(--hint); }
         .st-bar-day { font-size: 10.5px; font-weight: 600; color: var(--hint); }
         .st-bar-day.on { color: var(--accent); }
@@ -735,10 +735,10 @@
         .st-dotm.dgr { background: var(--hint); }
         .st-vals { font-size: 11px; font-weight: 700; white-space: nowrap; flex: none; }
         .st-vals .cl { color: var(--hint); }
-        .st-vals .cf { color: var(--accent); }
+        .st-vals .cf { color: var(--good); }
         .st-dual { position: relative; height: 12px; border-radius: 6px; background: var(--surface-alt); overflow: hidden; }
         .st-dual .claim { position: absolute; left: 0; top: 0; bottom: 0; background: var(--accent-soft); border-radius: 6px; }
-        .st-dual .conf { position: absolute; left: 0; top: 0; bottom: 0; background: var(--accent); border-radius: 6px; }
+        .st-dual .conf { position: absolute; left: 0; top: 0; bottom: 0; background: var(--good); border-radius: 6px; }
         .st-utr.me { background: var(--accent-softer); border-radius: var(--radius-sm); margin: 0 -4px; padding: 11px 6px; }
         .st-utr.me .st-nm { color: var(--accent); }
         .st-utr.nogeo .conf { display: none; }
@@ -853,7 +853,7 @@
 </head>
 <body>
     <header class="app-header">
-        <h1 class="app-title" id="app-title"><span class="emoji" id="app-emoji">🍜</span> <span id="app-name">Mensa Crew</span> <span class="tri">▾</span><span class="dev-badge">DEV · 28.09-4</span></h1>
+        <h1 class="app-title" id="app-title"><span class="emoji" id="app-emoji">🍜</span> <span id="app-name">Mensa Crew</span> <span class="tri">▾</span><span class="dev-badge">DEV · 07.10</span></h1>
         <div style="display:flex; align-items:center; gap:8px;">
             <button class="lang-btn" id="menu-btn" title="Меню"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 19c0-3 2.6-5 5.5-5s5.5 2 5.5 5"/><path d="M16 5.4a3 3 0 0 1 0 5.2"/><path d="M17.5 14.3c2 .6 3.4 2.3 3.4 4.7"/></svg></button>
             <button class="bell-btn" id="bell-btn" title="Включить уведомления">🔔</button>
@@ -1220,7 +1220,7 @@
             n_b_change:'меняет — {place} с {from}{until} ({day})', n_b_new:'идёт в {place} с {from}{until} ({day})', n_b_leave:'уходит из {place} ({day})',
             n_self_moved:'✏️ Вы перенесли — {old} → {new} · {place} ({day})', n_self_booked:'✅ Вы записаны — {start} · {place} ({day})',
             n_self_left_m:'❌ Вы вышли — {old} · {place} ({day})', n_self_bib:'✅ Вы в {place} с {from}{until} ({day})', n_self_left_b:'❌ Вы ушли из {place} ({day})',
-            menu_stats:'Статистика', st_title:'📊 Статистика', st_personal:'🔒 Личное', st_personal_sub:'всё твоё время · видишь только ты',
+            menu_stats:'Статистика', st_title:'📊 Статистика', st_personal:'🔒 Личное', st_personal_sub:'всё твоё время, включая неподтверждённое',
             st_geo:'📍 Гео', st_geo_badge:'✓ гео', st_geo_sub_on:'подтверждено · идёт в рейтинг', st_geo_need:'🔒 нужна геолокация',
             st_last7:'Последние 7 дней', st_fav:'любимая', st_avg:'в среднем', st_h:'ч', st_min:'мин',
             st_cta_title:'Включи геолокацию — и флексь часами', st_cta_sub:'Личная статистика уже работает. Для рейтинга нужны гео-подтверждённые часы.', st_cta_btn:'Включить геолокацию',
@@ -1238,6 +1238,9 @@
             st_closed:'закрыта · {t}', st_closed_until:'закрыта · до {t}', st_closed_plain:'закрыта',
             st_here_t:'{place} закрывается в {t}', st_here_sub:'Ты ещё здесь? Отметься — вечер зачтётся в гео', st_here_btn:'Я тут', st_here_done:'✓ Отмечено', st_here_out:'Похоже, ты вне радиуса библиотеки',
             st_near_t:'Ты рядом с {place}', st_near_sub:'Записать сразу · время = сейчас', st_near_btn:'Записать',
+            st_here_now:'Ты в {place} с {t}', st_leave_sub:'Отметить уход одним нажатием', st_leave_btn:'Ухожу',
+            st_left_q:'Похоже, ты ушёл из {place}', st_left_q_sub:'Отметить уход в {t}?', st_left_q_btn:'Да',
+            st_v_there:'✓ Был на месте', st_v_notthere:'○ Присутствие не подтверждено',
             st_ses_sub:'Тапни по записи, чтобы поправить время', st_est:'оценка', st_edit_title:'Изменить запись',
             st_from_lbl:'Приход', st_until_lbl:'Уход', st_still_here:'Ещё тут — без времени ухода',
             st_saved:'Сохранено', st_del_ses:'Удалить запись', st_del_confirm:'Удалить эту запись?', st_deleted:'Запись удалена',
@@ -1275,7 +1278,7 @@
             n_b_change:'changes — {place} from {from}{until} ({day})', n_b_new:'is going to {place} from {from}{until} ({day})', n_b_leave:'is leaving {place} ({day})',
             n_self_moved:'✏️ You moved — {old} → {new} · {place} ({day})', n_self_booked:"✅ You're booked — {start} · {place} ({day})",
             n_self_left_m:'❌ You left — {old} · {place} ({day})', n_self_bib:"✅ You're at {place} from {from}{until} ({day})", n_self_left_b:'❌ You left {place} ({day})',
-            menu_stats:'Statistics', st_title:'📊 Statistics', st_personal:'🔒 Personal', st_personal_sub:'all your time · visible only to you',
+            menu_stats:'Statistics', st_title:'📊 Statistics', st_personal:'🔒 Personal', st_personal_sub:'all your time, confirmed or not',
             st_geo:'📍 Geo', st_geo_badge:'✓ geo', st_geo_sub_on:'verified · counts for the leaderboard', st_geo_need:'🔒 location needed',
             st_last7:'Last 7 days', st_fav:'favorite', st_avg:'on average', st_h:'h', st_min:'min',
             st_cta_title:'Turn on location — and flex your hours', st_cta_sub:'Personal stats already work. The Hustle leaderboard counts only geo-verified hours.', st_cta_btn:'Enable location',
@@ -1293,6 +1296,9 @@
             st_closed:'closed · {t}', st_closed_until:'closed · until {t}', st_closed_plain:'closed',
             st_here_t:'{place} closes at {t}', st_here_sub:'Still here? Check in — the evening counts for geo', st_here_btn:"I'm here", st_here_done:'✓ Checked in', st_here_out:"Looks like you're outside the library radius",
             st_near_t:"You're near {place}", st_near_sub:'Check in now · time = now', st_near_btn:'Check in',
+            st_here_now:"You're at {place} since {t}", st_leave_sub:'Mark your leave in one tap', st_leave_btn:'Leaving',
+            st_left_q:'Looks like you left {place}', st_left_q_sub:'Mark leaving at {t}?', st_left_q_btn:'Yes',
+            st_v_there:'✓ Was there', st_v_notthere:'○ Presence not confirmed',
             st_ses_sub:'Tap an entry to fix the time', st_est:'estimate', st_edit_title:'Edit entry',
             st_from_lbl:'Arrived', st_until_lbl:'Left', st_still_here:'Still here — no leave time',
             st_saved:'Saved', st_del_ses:'Delete entry', st_del_confirm:'Delete this entry?', st_deleted:'Entry deleted',
@@ -1330,7 +1336,7 @@
             n_b_change:'ändert — {place} ab {from}{until} ({day})', n_b_new:'geht in {place} ab {from}{until} ({day})', n_b_leave:'verlässt {place} ({day})',
             n_self_moved:'✏️ Du hast verschoben — {old} → {new} · {place} ({day})', n_self_booked:'✅ Du bist eingetragen — {start} · {place} ({day})',
             n_self_left_m:'❌ Du hast dich ausgetragen — {old} · {place} ({day})', n_self_bib:'✅ Du bist in {place} ab {from}{until} ({day})', n_self_left_b:'❌ Du hast {place} verlassen ({day})',
-            menu_stats:'Statistik', st_title:'📊 Statistik', st_personal:'🔒 Persönlich', st_personal_sub:'deine gesamte Zeit · nur für dich sichtbar',
+            menu_stats:'Statistik', st_title:'📊 Statistik', st_personal:'🔒 Persönlich', st_personal_sub:'deine gesamte Zeit, auch unbestätigt',
             st_geo:'📍 Geo', st_geo_badge:'✓ Geo', st_geo_sub_on:'bestätigt · zählt fürs Ranking', st_geo_need:'🔒 Standort nötig',
             st_last7:'Letzte 7 Tage', st_fav:'Favoritin', st_avg:'im Schnitt', st_h:'Std.', st_min:'Min.',
             st_cta_title:'Standort aktivieren — und mit Stunden flexen', st_cta_sub:'Persönliche Statistik läuft schon. Fürs Hustle-Ranking zählen nur geo-bestätigte Stunden.', st_cta_btn:'Standort aktivieren',
@@ -1348,6 +1354,9 @@
             st_closed:'geschlossen · {t}', st_closed_until:'geschlossen · bis {t}', st_closed_plain:'geschlossen',
             st_here_t:'{place} schließt um {t}', st_here_sub:'Noch da? Melde dich — der Abend zählt für Geo', st_here_btn:'Bin hier', st_here_done:'✓ Vermerkt', st_here_out:'Du scheinst außerhalb des Bibliotheks-Radius zu sein',
             st_near_t:'Du bist in der Nähe von {place}', st_near_sub:'Sofort eintragen · Zeit = jetzt', st_near_btn:'Eintragen',
+            st_here_now:'Du bist in {place} seit {t}', st_leave_sub:'Gehen mit einem Tipp eintragen', st_leave_btn:'Ich gehe',
+            st_left_q:'Du hast {place} wohl verlassen', st_left_q_sub:'Gehen um {t} eintragen?', st_left_q_btn:'Ja',
+            st_v_there:'✓ War vor Ort', st_v_notthere:'○ Anwesenheit nicht bestätigt',
             st_ses_sub:'Tippe auf einen Eintrag, um die Zeit zu korrigieren', st_est:'geschätzt', st_edit_title:'Eintrag bearbeiten',
             st_from_lbl:'Ankunft', st_until_lbl:'Gegangen', st_still_here:'Noch hier — ohne Gehzeit',
             st_saved:'Gespeichert', st_del_ses:'Eintrag löschen', st_del_confirm:'Diesen Eintrag löschen?', st_deleted:'Eintrag gelöscht',
@@ -2452,6 +2461,25 @@
                 nb.querySelector('#bib-near-x').onclick = (e) => { e.stopPropagation(); haptic('light'); bibNearBannerDay = di; renderBibDay(); };
             }
         }
+        if (di === isoDate(new Date()) && bibLeaveBannerDay !== di) {
+            const _mL = bibFindMine(di);
+            if (_mL && !_mL.until && BIB_BY_ID[_mL.bib] && bibTmin(bibNowHM()) >= bibTmin(_mL.from)) {
+                const _hint = statLeaveHint(di, _mL);
+                const _nmL = esc(BIB_BY_ID[_mL.bib].name);
+                const lb = document.createElement('div');
+                lb.className = 'bib-near';
+                lb.innerHTML = (_hint !== null)
+                    ? `<span class="bn-pin">🚪</span><div class="bn-tx"><div class="bn-a">${tr('st_left_q', { place: _nmL })}</div><div class="bn-b">${tr('st_left_q_sub', { t: fmtHM(_hint) })}</div></div><button class="bn-btn" id="bib-leave-btn">${tr('st_left_q_btn')}</button><span class="bn-x" id="bib-leave-x">✕</span>`
+                    : `<span class="bn-pin">📚</span><div class="bn-tx"><div class="bn-a">${tr('st_here_now', { place: _nmL, t: _mL.from })}</div><div class="bn-b">${tr('st_leave_sub')}</div></div><button class="bn-btn" id="bib-leave-btn">${tr('st_leave_btn')}</button><span class="bn-x" id="bib-leave-x">✕</span>`;
+                list.appendChild(lb);
+                lb.querySelector('#bib-leave-btn').onclick = (e) => {
+                    e.stopPropagation(); haptic('medium');
+                    bibLeaveBannerDay = di;
+                    removeMyBib(di, _mL.audience || { mode: 'all', ids: [] }, _hint !== null ? fmtHM(_hint) : null);
+                };
+                lb.querySelector('#bib-leave-x').onclick = (e) => { e.stopPropagation(); haptic('light'); bibLeaveBannerDay = di; renderBibDay(); };
+            }
+        }
         if (di === isoDate(new Date()) && bibCloseBannerDay !== di) {
             const _mB = bibFindMine(di);
             const _hB = _mB ? bibHoursFor(_mB.bib, new Date()) : null;
@@ -2769,14 +2797,14 @@
         state.bib[dateIso][currentUser.id] = { bib, from, until: until || null, audience: audience || { mode: 'all', ids: [] }, ...(_prevL.length ? { prev: _prevL } : {}) };
         saveLocalState(); haptic('medium'); showToast(`${lib.name} · ${from}`); render();
     }
-    async function removeMyBib(dateIso, audience) {
+    async function removeMyBib(dateIso, audience, untilOverride) {
         const oldE = bibFindMine(dateIso);
         geoPing(oldE || null);
         const dayTxt = `${currentDate.getDate()} ${L_MONTHS_SHORT[lang][currentDate.getMonth()]}`;
         if (FIREBASE_READY && fbDb) {
             try {
                 const _started = oldE && dateIso === isoDate(new Date()) && bibTmin(bibNowHM()) >= bibTmin(oldE.from);
-                if (_started) await update(ref(fbDb, `rooms/${roomId}/bib/${dateIso}/${currentUser.id}`), { until: bibNowHM(), status: 'left', updatedAt: serverTimestamp() });
+                if (_started) await update(ref(fbDb, `rooms/${roomId}/bib/${dateIso}/${currentUser.id}`), { until: untilOverride || bibNowHM(), status: 'left', updatedAt: serverTimestamp() });
                 else if (oldE) await remove(ref(fbDb, `rooms/${roomId}/bib/${dateIso}/${currentUser.id}`));
                 haptic('medium'); showToast(tr('toast_left_bib'));
                 if (oldE) {
@@ -2791,7 +2819,7 @@
         const day = state.bib[dateIso] || {};
         const _e = day[currentUser.id];
         const _started = _e && !bibIsLeft(_e) && dateIso === isoDate(new Date()) && bibTmin(bibNowHM()) >= bibTmin(_e.from);
-        if (_started) { _e.until = bibNowHM(); _e.status = 'left'; state.bib[dateIso] = day; }
+        if (_started) { _e.until = untilOverride || bibNowHM(); _e.status = 'left'; state.bib[dateIso] = day; }
         else { delete day[currentUser.id]; if (Object.keys(day).length === 0) delete state.bib[dateIso]; else state.bib[dateIso] = day; }
         saveLocalState(); haptic('medium'); showToast(tr('toast_left_bib')); render();
     }
@@ -2813,6 +2841,7 @@
     }
     let bibCloseBannerDay = null;
     let bibNearBannerDay = null;
+    let bibLeaveBannerDay = null;
     function nDaysRow(n) {
         if (lang === 'en') return n === 1 ? 'day in a row' : 'days in a row';
         if (lang === 'de') return n === 1 ? 'Tag in Folge' : 'Tage in Folge';
@@ -2828,30 +2857,42 @@
         out.push({ bib: e.bib, from: e.from, until: e.until || null, open: !bibIsLeft(e) && !e.until });
         return out;
     }
-    /* Конец сессии: явный уход, иначе оценка — гео-точки, иначе до закрытия */
-    function statEndMin(dateIso, s, pingsMap) {
+    /* Длительность — только по отметкам юзера. Без времени ухода сессия не считается. */
+    function statEndMin(dateIso, s) {
+        const f = bibTmin(s.from);
+        if (!s.until) return { end: f, est: false };
+        const hrs = BIB_HOURS[s.bib] ? bibHoursFor(s.bib, statDateFromIso(dateIso)) : null;
+        let end = bibTmin(s.until);
+        if (hrs) end = Math.min(end, hrs[1]);
+        if (dateIso === isoDate(new Date())) end = Math.min(end, nowMin());
+        return { end: Math.max(f, end), est: false };
+    }
+    /* Гео — бинарная отметка «был на месте»: достаточно одной точки внутри радиуса */
+    function statGeoOk(dateIso, s, pingsMap) {
+        if (!BIB_COORDS[s.bib]) return false;
         const f = bibTmin(s.from);
         const today = dateIso === isoDate(new Date());
-        const hrs = BIB_HOURS[s.bib] ? bibHoursFor(s.bib, statDateFromIso(dateIso)) : null;
-        const close = hrs ? hrs[1] : null;
-        const lim = (v) => {
-            let x = v;
-            if (close !== null) x = Math.min(x, close);
-            if (today) x = Math.min(x, nowMin());
-            return Math.max(f, x);
-        };
-        if (s.until) return { end: lim(bibTmin(s.until)), est: false };
-        const pts = (((pingsMap || geoPingsCache) || {})[dateIso] || []).filter(p => pingMinOfDay(p.t) >= f - BIB_GEO_TOL_MIN);
+        const endRaw = s.until ? bibTmin(s.until) : (today ? nowMin() : f);
+        const lo = f - 60, hi = endRaw + 60;
+        return (((pingsMap || geoPingsCache) || {})[dateIso] || []).some(p => {
+            if (!p.in) return false;
+            const pm = pingMinOfDay(p.t);
+            return pm >= lo && pm <= hi;
+        });
+    }
+    /* Подсказка для шортката ухода: последняя точка внутри → первая снаружи */
+    function statLeaveHint(dateIso, s) {
+        if (!BIB_COORDS[s.bib]) return null;
+        const f = bibTmin(s.from);
         let lastIn = null, firstOut = null;
-        pts.forEach(p => {
-            const pm = Math.max(f, pingMinOfDay(p.t));
+        ((geoPingsCache || {})[dateIso] || []).forEach(p => {
+            const pm = pingMinOfDay(p.t);
+            if (pm < f) return;
             if (p.in) { if (lastIn === null || pm > lastIn) { lastIn = pm; firstOut = null; } }
             else if (lastIn !== null && firstOut === null && pm > lastIn) firstOut = pm;
         });
-        if (lastIn !== null && firstOut !== null) return { end: lim(Math.round((lastIn + firstOut) / 10) * 5), est: true };
-        if (lastIn !== null) return { end: lim(lastIn), est: true };
-        if (close !== null) return { end: lim(close), est: true };
-        return { end: today ? lim(nowMin()) : f, est: true };
+        if (lastIn === null || firstOut === null) return null;
+        return Math.min(nowMin(), Math.round((lastIn + firstOut) / 10) * 5);
     }
     function statSesMinutes(dateIso, s, pingsMap) {
         return Math.max(0, statEndMin(dateIso, s, pingsMap).end - bibTmin(s.from));
@@ -2894,42 +2935,9 @@
         return geoPingsCache;
     }
     function pingMinOfDay(t) { const d = new Date(t); return d.getHours() * 60 + d.getMinutes(); }
-    function statVerdict(dateIso, s, pingsMap) {
-        const f = bibTmin(s.from);
-        const today = dateIso === isoDate(new Date());
-        const hrs = BIB_HOURS[s.bib] ? bibHoursFor(s.bib, statDateFromIso(dateIso)) : null;
-        const close = hrs ? hrs[1] : null;
-        let u = s.until ? bibTmin(s.until) : null;
-        if (u === null && !(s.open && today && (close === null || nowMin() < close))) u = statEndMin(dateIso, s, pingsMap).end;
-        if (u === null || u <= f) return { kind: (s.open && today) ? 'live' : 'wait', geoMin: 0, geoEndMin: f, diffMin: 0 };
-        if (close !== null && u > close) u = close;
-        if (!BIB_COORDS[s.bib]) return { kind: 'nocoords', geoMin: 0, geoEndMin: f, diffMin: Math.max(0, u - f) };
-        const pts = (((pingsMap || geoPingsCache) || {})[dateIso] || []).filter(p => { const pm = pingMinOfDay(p.t); return pm >= f - BIB_GEO_TOL_MIN && pm <= u; });
-        if (!pts.length) return { kind: 'nopings', geoMin: 0, geoEndMin: f, diffMin: Math.max(0, u - f) };
-        const segs = [];
-        let cur = null;
-        for (const p of pts) {
-            const pm = Math.min(u, Math.max(f, pingMinOfDay(p.t)));
-            if (!p.in) { if (cur) { segs.push(cur); cur = null; } continue; }
-            if (!cur) cur = { a: pm, b: pm };
-            else if (pm - cur.b <= BIB_GEO_TOL_MIN) cur.b = pm;
-            else { segs.push(cur); cur = { a: pm, b: pm }; }
-        }
-        if (cur) segs.push(cur);
-        if (!segs.length) return { kind: 'no', geoMin: 0, geoEndMin: f, diffMin: Math.max(0, u - f) };
-        if (segs[0].a - f <= BIB_GEO_TOL_MIN) segs[0].a = f;
-        const last = segs[segs.length - 1];
-        if (u - last.b <= BIB_GEO_TOL_MIN) last.b = u;
-        let geoMin = 0;
-        segs.forEach(sg => { geoMin += Math.max(0, sg.b - sg.a); });
-        const full = Math.max(0, u - f);
-        geoMin = Math.min(geoMin, full);
-        const kind = geoMin >= full - 1 ? 'ok' : (geoMin > 0 ? 'part' : 'no');
-        return { kind, geoMin, geoEndMin: last.b, diffMin: Math.max(0, u - last.b) };
-    }
     function statDayGeoMin(dateIso, uid, pingsMap) {
         let g = 0;
-        statSessionsFor(dateIso, uid).forEach(x => { g += statVerdict(dateIso, x, pingsMap).geoMin; });
+        statSessionsFor(dateIso, uid).forEach(x => { if (statGeoOk(dateIso, x, pingsMap)) g += statSesMinutes(dateIso, x); });
         return Math.min(STAT_DAY_CAP_MIN, g);
     }
     function statGeoTotalMin() {
@@ -3178,27 +3186,18 @@
         items.slice(0, 40).forEach(it => {
             const lib = BIB_BY_ID[it.x.bib];
             if (!lib) return;
-            const v = statVerdict(it.di, it.x);
-            const r = statEndMin(it.di, it.x);
-            const f = bibTmin(it.x.from);
             const u = it.x.until ? bibTmin(it.x.until) : null;
             const running = it.x.open && it.di === todayIso;
             const dayTxt = `${L_DAYS_SHORT[lang][it.d.getDay()]}, ${it.d.getDate()} ${L_MONTHS_SHORT[lang][it.d.getMonth()]}`;
-            const saidTxt = u !== null ? `${it.x.from}–${it.x.until}` : (running ? `${it.x.from} → …` : `${it.x.from}–≈${fmtHM(r.end)}`);
-            const estTag = (u === null && !running) ? `<span class="st-est">${tr('st_est')}</span>` : '';
+            const saidTxt = u !== null ? `${it.x.from}–${it.x.until}` : `${it.x.from} → …`;
+            const estTag = '';
             const pTxt = fmtHM(statSesMinutes(it.di, it.x));
-            const endM = u !== null ? u : r.end;
-            let geoPct = 0;
-            if (endM > f) geoPct = Math.max(0, Math.min(100, Math.round(v.geoMin / (endM - f) * 100)));
+            const geoLine = '';
             let verdict;
-            if (v.kind === 'ok') verdict = `<div class="st-verdict ok">${tr('st_v_ok')}<span class="st-cnt">${tr('st_v_counts', { g: fmtHM(v.geoMin), p: pTxt })}</span></div>`;
-            else if (v.kind === 'part') verdict = `<div class="st-verdict ok">${tr('st_v_part')}<span class="st-cnt">${tr('st_v_counts', { g: fmtHM(v.geoMin), p: pTxt })}</span></div>`;
-            else if (v.kind === 'no') verdict = `<div class="st-verdict no">${tr('st_v_no')}<span class="st-cnt">${tr('st_v_counts', { g: '0:00', p: pTxt })}</span></div>`;
-            else if (v.kind === 'nopings') verdict = `<div class="st-verdict no">${tr('st_v_nopings')}<span class="st-cnt">${tr('st_v_counts', { g: '0:00', p: pTxt })}</span></div>`;
-            else if (v.kind === 'nocoords') verdict = `<div class="st-verdict no">${tr('st_v_nocoords')}<span class="st-cnt">${tr('st_v_counts', { g: '0:00', p: pTxt })}</span></div>`;
-            else if (v.kind === 'live') verdict = `<div class="st-verdict no">${tr('st_v_live')}</div>`;
-            else verdict = `<div class="st-verdict no">${tr('st_v_wait')}</div>`;
-            const geoLine = (v.kind !== 'nocoords' && !running) ? `<div class="st-tl"><span class="st-lb">${tr('st_geo_line')}</span><span class="st-track"><span class="st-fill geo" style="left:0;width:${geoPct}%"></span></span><span class="st-vl">${geoPct > 0 ? ('✓ ' + fmtHM(v.geoMin)) : '—'}</span></div>` : '';
+            if (running) verdict = `<div class="st-verdict no">${tr('st_v_live')}</div>`;
+            else if (u === null) verdict = `<div class="st-verdict no">${tr('st_v_wait')}</div>`;
+            else if (statGeoOk(it.di, it.x)) verdict = `<div class="st-verdict ok">${tr('st_v_there')}<span class="st-cnt">${pTxt}</span></div>`;
+            else verdict = `<div class="st-verdict no">${tr('st_v_notthere')}<span class="st-cnt">${pTxt}</span></div>`;
             h += `<div class="st-ses tap" data-di="${it.di}" data-pi="${it.pi}"><div class="st-sh"><span class="st-sp">${lib.emoji} ${esc(lib.name)}</span><span class="st-sd">${dayTxt}</span></div><div class="st-tl"><span class="st-lb">${tr('st_marked')}</span><span class="st-track"><span class="st-fill said" style="left:0;width:100%"></span></span><span class="st-vl">${saidTxt}</span>${estTag}</div>${geoLine}${verdict}</div>`;
         });
         body.innerHTML = h;
@@ -3366,10 +3365,10 @@
         rows.slice(0, 30).forEach(it => {
             const lib = BIB_BY_ID[it.x.bib];
             if (!lib) return;
-            const v = statVerdict(it.di, it.x, pingsMap);
+            const gOk = statGeoOk(it.di, it.x, pingsMap);
             const dayTxt = `${L_DAYS_SHORT[lang][it.d.getDay()]}, ${it.d.getDate()} ${L_MONTHS_SHORT[lang][it.d.getMonth()]}`;
             const iv = it.x.until ? `${it.x.from}–${it.x.until}` : `${it.x.from} → …`;
-            const okB = (geoOk && (v.kind === 'ok' || v.kind === 'part')) ? ` <span class="st-badge-ok">${v.kind === 'ok' ? tr('st_geo_badge') : '✓ ' + fmtHM(v.geoMin)}</span>` : '';
+            const okB = (geoOk && gOk) ? ` <span class="st-badge-ok">${tr('st_geo_badge')}</span>` : '';
             h += `<div class="st-ses"><div class="st-sh"><span class="st-sp">${lib.emoji} ${esc(lib.name)}</span><span class="st-sd">${dayTxt}</span></div><div class="st-tl"><span class="st-vl">${iv}</span>${okB}</div></div>`;
         });
         if (hiddenMin > 0) h += `<div class="st-empty">${tr('st_u_hidden', { h: fmtHM(hiddenMin) })}</div>`;
