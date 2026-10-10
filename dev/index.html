@@ -740,7 +740,29 @@
         .st-more { color: var(--accent); }
         #sheet-stats, #sheet-stats-ses { --c: #2563eb; }
         .st-semrow { margin: 2px 0 10px; }
-        .st-oldrules { font-size: 11px; color: var(--warn); background: var(--warn-soft); border-radius: 8px; padding: 6px 9px; margin-bottom: 10px; }
+        .st-oldrules { font-size: 11.5px; color: var(--text); background: var(--warn-soft); border-radius: var(--radius-sm); padding: 9px 11px; margin-bottom: 10px; line-height: 1.5; }
+        .st-oldrules b { color: var(--warn); }
+        .st-iinfo { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 50%; background: var(--warn-soft); color: var(--warn); font-size: 11px; font-weight: 800; cursor: pointer; flex: none; }
+        .st-iinfo.on { background: var(--warn); color: #fff; }
+        .st-titlerow { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+        .st-titlerow .sheet-title { flex: 1; }
+        .st-hinfo { width: 26px; height: 26px; border-radius: 50%; background: var(--surface-alt); color: var(--hint); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; cursor: pointer; flex: none; }
+        .st-hinfo.on { background: var(--accent); color: #fff; }
+        .st-howcard { margin-bottom: 10px; }
+        .st-verdict.old { background: var(--surface-alt); color: var(--hint); }
+        .st-bar-num { display: block; font-size: 9.5px; font-weight: 700; opacity: 0.75; }
+        .st-bar-wrap { cursor: pointer; }
+        .st-bar-wrap.sel .st-bar { outline: 2px solid var(--accent); outline-offset: 1px; }
+        .st-pick { font-size: 11.5px; color: var(--hint); margin-top: 10px; display: flex; align-items: center; gap: 5px; flex-wrap: wrap; min-height: 17px; }
+        .st-pick b { color: var(--text); font-variant-numeric: tabular-nums; }
+        .st-pick-go { color: var(--accent); font-weight: 700; cursor: pointer; }
+        .st-lcwrap { position: relative; }
+        .st-lczones { position: absolute; inset: 0; display: flex; }
+        .st-lczones span { flex: 1; cursor: pointer; }
+        .st-lczones span.sel { background: linear-gradient(var(--c), var(--c)) center / 2px 100% no-repeat; opacity: 0.45; }
+        .st-hc { cursor: pointer; }
+        .st-hc.sel { outline: 2px solid var(--c); outline-offset: 1px; }
+        .st-daychip { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 700; background: var(--accent-soft); color: var(--accent); border-radius: 999px; padding: 5px 11px; margin-bottom: 10px; cursor: pointer; }
         .st-segs { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; margin: 10px 0 2px; }
         .st-seg { display: inline-flex; background: var(--surface-alt); border-radius: 999px; padding: 3px; gap: 2px; }
         .st-seg span { font-size: 12px; font-weight: 700; color: var(--hint); padding: 6px 11px; border-radius: 999px; cursor: pointer; white-space: nowrap; }
@@ -876,7 +898,7 @@
 </head>
 <body>
     <header class="app-header">
-        <h1 class="app-title" id="app-title"><span class="emoji" id="app-emoji">🍜</span> <span id="app-name">Mensa Crew</span> <span class="tri">▾</span><span class="dev-badge">DEV · 09.10</span></h1>
+        <h1 class="app-title" id="app-title"><span class="emoji" id="app-emoji">🍜</span> <span id="app-name">Mensa Crew</span> <span class="tri">▾</span><span class="dev-badge">DEV · 11.10</span></h1>
         <div style="display:flex; align-items:center; gap:8px;">
             <button class="lang-btn" id="menu-btn" title="Меню"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 19c0-3 2.6-5 5.5-5s5.5 2 5.5 5"/><path d="M16 5.4a3 3 0 0 1 0 5.2"/><path d="M17.5 14.3c2 .6 3.4 2.3 3.4 4.7"/></svg></button>
             <button class="bell-btn" id="bell-btn" title="Включить уведомления">🔔</button>
@@ -1028,7 +1050,7 @@
     <!-- Sheet: friends -->
     <div class="sheet" id="sheet-stats" hidden>
         <div class="sheet-handle"></div>
-        <div class="sheet-title">Статистика</div>
+        <div class="st-titlerow"><div class="sheet-title">Статистика</div><span class="st-hinfo" id="st-how-btn">i</span></div>
         <div id="st-body"></div>
     </div>
     <div class="sheet" id="sheet-stats-geo" hidden>
@@ -1261,7 +1283,9 @@
             st_v_counts:'В Гео: {g} · В личное: {p}', st_empty:'Пока пусто — отметься в библиотеке, и здесь появится статистика',
             st_rank:'Hustle-рейтинг', st_rank_toggle:'Показывать меня в рейтинге', st_rank_toggle_sub:'В рейтинг идут только гео-подтверждённые часы',
             st_det_title:'Подробная статистика', st_p_month:'Месяц', st_p_year:'Год', st_all_libs:'Все',
-            st_sem:'Семестр', st_t_sem:'семестр', st_sem_old:'Архив · считается по старым правилам',
+            st_sem:'Семестр', st_t_sem:'семестр', st_sem_old:'Архив.',
+            st_sem_old_full:'Это прошлый семестр. Тогда время считалось от прихода до закрытия библиотеки — даже если ты не отметил уход. Цифры заморожены и не пересчитываются по новым правилам.',
+            st_v_old:'Засчитано по старым правилам', st_show_ses:'показать сессии', st_pick_hint:'Тапни по графику — покажу день',
             st_t_week:'неделя', st_t_month:'месяц', st_t_all:'всего', st_dyn:'Динамика',
             st_consist:'Постоянство · приходы по дням', st_less:'меньше', st_more:'больше', st_more_link:'подробнее →',
             st_p_week:'Неделя', st_p_all:'Всё время', st_s_geo:'✓ по гео', st_s_claim:'по заявленным',
@@ -1323,7 +1347,9 @@
             st_v_counts:'Geo: {g} · Personal: {p}', st_empty:'Nothing yet — check in at a library and stats will appear',
             st_rank:'Hustle leaderboard', st_rank_toggle:'Show me on the leaderboard', st_rank_toggle_sub:'Only geo-verified hours count for the leaderboard',
             st_det_title:'Detailed stats', st_p_month:'Month', st_p_year:'Year', st_all_libs:'All',
-            st_sem:'Semester', st_t_sem:'semester', st_sem_old:'Archive · counted by the old rules',
+            st_sem:'Semester', st_t_sem:'semester', st_sem_old:'Archive.',
+            st_sem_old_full:'This is a past semester. Back then time counted from arrival until the library closed — even without a leave mark. These numbers are frozen and never recalculated.',
+            st_v_old:'Counted by the old rules', st_show_ses:'show sessions', st_pick_hint:'Tap the chart to see a day',
             st_t_week:'week', st_t_month:'month', st_t_all:'total', st_dyn:'Trend',
             st_consist:'Consistency · days you showed up', st_less:'less', st_more:'more', st_more_link:'details →',
             st_p_week:'Week', st_p_all:'All time', st_s_geo:'✓ by geo', st_s_claim:'by claimed',
@@ -1385,7 +1411,9 @@
             st_v_counts:'Geo: {g} · Persönlich: {p}', st_empty:'Noch leer — trag dich in einer Bib ein, dann erscheint hier Statistik',
             st_rank:'Hustle-Ranking', st_rank_toggle:'Mich im Ranking zeigen', st_rank_toggle_sub:'Fürs Ranking zählen nur geo-bestätigte Stunden',
             st_det_title:'Detaillierte Statistik', st_p_month:'Monat', st_p_year:'Jahr', st_all_libs:'Alle',
-            st_sem:'Semester', st_t_sem:'Semester', st_sem_old:'Archiv · nach alten Regeln gezählt',
+            st_sem:'Semester', st_t_sem:'Semester', st_sem_old:'Archiv.',
+            st_sem_old_full:'Das ist ein vergangenes Semester. Damals zählte die Zeit vom Kommen bis zur Schließung der Bib — auch ohne Gehzeit. Diese Zahlen sind eingefroren.',
+            st_v_old:'Nach alten Regeln gezählt', st_show_ses:'Sessions zeigen', st_pick_hint:'Tippe aufs Diagramm für einen Tag',
             st_t_week:'Woche', st_t_month:'Monat', st_t_all:'gesamt', st_dyn:'Verlauf',
             st_consist:'Konstanz · Tage mit Besuch', st_less:'weniger', st_more:'mehr', st_more_link:'Details →',
             st_p_week:'Woche', st_p_all:'Gesamt', st_s_geo:'✓ nach Geo', st_s_claim:'nach Angabe',
@@ -3134,17 +3162,40 @@
         sh.style.setProperty('--accent-soft', 'rgba(37,99,235,0.12)');
         sh.style.setProperty('--accent-softer', 'rgba(37,99,235,0.06)');
     }
+    let statInfoOpen = null, statPickDi = null, statPickMo = null;
+    function statPickHtml(di, bibId, monthPref) {
+        if (monthPref) {
+            const mm = +monthPref.slice(5, 7) - 1;
+            let m = 0;
+            semDates(statSem()).forEach(d2 => { if (d2.indexOf(monthPref) === 0) m += statDayMinBib(d2, bibId); });
+            return `<span>${L_MONTHS_SHORT[lang][mm]} ${monthPref.slice(0, 4)}</span> · <b>${fmtHM(m)}</b>`;
+        }
+        if (!di) return `<span>${tr('st_pick_hint')}</span>`;
+        const d = statDateFromIso(di);
+        const m = statDayMinBib(di, bibId);
+        const dayTxt = `${L_DAYS_SHORT[lang][d.getDay()]}, ${d.getDate()} ${L_MONTHS_SHORT[lang][d.getMonth()]}`;
+        return `<span>${dayTxt}</span> · <b>${fmtHM(m)}</b>` + (m > 0 ? ` · <span class="st-pick-go" data-day="${di}">${tr('st_show_ses')} →</span>` : '');
+    }
+    function statPickBind(root) {
+        (root || document).querySelectorAll('.st-pick-go').forEach(el => {
+            el.onclick = (e) => { e.stopPropagation(); openStatsSessions(el.dataset.day); };
+        });
+    }
     function statSemChips() {
         const list = semList(), cur = statSem();
         let h = '<div class="st-libfilter st-semrow">';
         list.forEach(sm => { h += `<span class="st-lchip${sm.id === cur.id ? ' on' : ''}" data-sem="${sm.id}">${esc(sm.name)}</span>`; });
         h += '</div>';
-        if (cur.algo === 1) h += `<div class="st-oldrules">${tr('st_sem_old')}</div>`;
+        if (cur.algo === 1) h = h.replace('</div>', `<span class="st-iinfo${statInfoOpen === 'old' ? ' on' : ''}" data-info="old">i</span></div>`);
+        if (cur.algo === 1 && statInfoOpen === 'old') h += `<div class="st-oldrules"><b>${tr('st_sem_old')}</b> ${tr('st_sem_old_full')}</div>`;
         return h;
     }
     function statSemBind(root, rerender) {
         (root || document).querySelectorAll('.st-semrow .st-lchip').forEach(el => {
-            el.onclick = () => { statSemId = el.dataset.sem; haptic('light'); rerender(); };
+            el.onclick = () => { statSemId = el.dataset.sem; statInfoOpen = null; haptic('light'); rerender(); };
+        });
+        (root || document).querySelectorAll('.st-semrow .st-iinfo').forEach(el => {
+            el.onclick = () => { statInfoOpen = statInfoOpen === 'old' ? null : 'old'; haptic('light'); rerender(); };
         });
     }
     function renderStats() {
@@ -3152,7 +3203,9 @@
         const body = document.getElementById('st-body');
         const totals = statTotals();
         const geoOn = geoOptedIn();
-        let h = statSemChips();
+        let h = '';
+        if (statInfoOpen === 'how') h += `<div class="st-card st-howcard"><div class="st-note"><b>${tr('st_note_how_t')}</b><br>${tr('st_note_how')}</div></div>`;
+        h += statSemChips();
         h += '<div class="st-nums">';
         h += `<div class="st-num"><div class="st-cap">${tr('st_personal')}</div><div class="st-big">${fmtHM(totals.totalMin)}</div><div class="st-sub">${tr('st_personal_sub')}</div></div>`;
         if (geoOn) h += `<div class="st-num flex" id="st-geo-card"><div class="st-cap">${tr('st_geo')}</div><div class="st-big">${fmtHM(statGeoTotalMin())} <span class="st-badge-ok">${tr('st_geo_badge')}</span></div><div class="st-sub">${tr('st_geo_sub_on')}</div></div>`;
@@ -3168,9 +3221,11 @@
             const pct = x.min > 0 ? Math.max(8, Math.round(x.min / mx * 100)) : 6;
             const on = (idx === 6 && isoDate(x.d) === isoDate(new Date())) ? ' on' : '';
             const gPct = (x.min > 0 && x.geo > 0) ? Math.min(100, Math.round(x.geo / x.min * 100)) : 0;
-            h += `<div class="st-bar-wrap"><div class="st-bar-col"><div class="st-bar${on}" style="height:${pct}%">${x.min > 0 ? `<span class="st-h">${fmtHM(x.min)}</span>` : ''}${gPct > 0 ? `<div class="st-bar-geo" style="height:${gPct}%"></div>` : ''}</div></div><span class="st-bar-day${on}">${L_DAYS_SHORT[lang][x.d.getDay()]}</span></div>`;
+            const _bdi = isoDate(x.d);
+            h += `<div class="st-bar-wrap${statPickDi === _bdi ? ' sel' : ''}" data-di="${_bdi}"><div class="st-bar-col"><div class="st-bar${on}" style="height:${pct}%">${x.min > 0 ? `<span class="st-h">${fmtHM(x.min)}</span>` : ''}${gPct > 0 ? `<div class="st-bar-geo" style="height:${gPct}%"></div>` : ''}</div></div><span class="st-bar-day${on}">${L_DAYS_SHORT[lang][x.d.getDay()]}<span class="st-bar-num">${x.d.getDate()}</span></span></div>`;
         });
         h += '</div>';
+        h += `<div class="st-pick" id="st-pick">${statPickHtml(statPickDi, null)}</div>`;
         const favB = totals.favBib ? BIB_BY_ID[totals.favBib] : null;
         h += '<div class="st-facts">';
         h += `<div class="st-fact"><b>🔥 ${totals.streak}</b>${nDaysRow(totals.streak)}</div>`;
@@ -3197,9 +3252,15 @@
         const gc = document.getElementById('st-geo-card');
         if (gc) gc.onclick = () => openStatsGeo();
         const sl = document.getElementById('st-ses-link');
-        if (sl) sl.onclick = () => openStatsSessions();
-        const cc = document.getElementById('st-chart-card');
-        if (cc) cc.onclick = () => openStatsDetail();
+        if (sl) sl.onclick = () => openStatsSessions(null);
+        const hb = document.getElementById('st-how-btn');
+        if (hb) { hb.classList.toggle('on', statInfoOpen === 'how'); hb.onclick = () => { statInfoOpen = statInfoOpen === 'how' ? null : 'how'; haptic('light'); renderStats(); }; }
+        const ml = body.querySelector('.st-more');
+        if (ml) ml.onclick = (e) => { e.stopPropagation(); openStatsDetail(); };
+        body.querySelectorAll('#st-chart-card .st-bar-wrap').forEach(el => {
+            el.onclick = (e) => { e.stopPropagation(); statPickDi = (statPickDi === el.dataset.di) ? null : el.dataset.di; haptic('light'); renderStats(); };
+        });
+        statPickBind(body);
         statSemBind(body, renderStats);
         const cb = document.getElementById('st-cta-btn');
         if (cb) cb.onclick = () => openStatsGeo();
@@ -3220,7 +3281,6 @@
         else { stateTxt = tr('st_state_on'); stateCls = 'ok'; }
         let h = `<div class="st-card"><div class="st-trow"><div class="st-tx"><div class="st-t1">${tr('st_geo_toggle')}</div><div class="st-t2">${tr('st_geo_toggle_sub')}</div></div><div class="st-sw${on ? ' on' : ''}" id="st-geo-sw"></div></div><div class="st-state ${stateCls}">${stateTxt}</div></div>`;
         h += `<div class="st-card" style="margin-top:10px"><div class="st-note"><b>${tr('st_note_bg_b')}</b> ${tr('st_note_bg')}</div></div>`;
-        h += `<div class="st-sec">${tr('st_note_how_t')}</div><div class="st-card"><div class="st-note">${tr('st_note_how')}</div></div>`;
         body.innerHTML = h;
         const sw = document.getElementById('st-geo-sw');
         if (sw) sw.onclick = () => geoSetOptIn(!geoOptedIn());
@@ -3334,8 +3394,13 @@
         document.querySelector('#sheet-stats-ses .sheet-title').textContent = tr('st_sessions');
         document.getElementById('st-ses-sub').textContent = tr('st_ses_sub');
         const body = document.getElementById('st-ses-body');
-        const items = statMyItems(220);
-        const semHtml = statSemChips();
+        let items = statMyItems(220);
+        if (statSesDay) items = items.filter(it => it.di === statSesDay);
+        let semHtml = statSemChips();
+        if (statSesDay) {
+            const _dd = statDateFromIso(statSesDay);
+            semHtml += `<div class="st-daychip" id="st-day-clear">${L_DAYS_SHORT[lang][_dd.getDay()]}, ${_dd.getDate()} ${L_MONTHS_SHORT[lang][_dd.getMonth()]} ✕</div>`;
+        }
         const todayIso = isoDate(new Date());
         let h = '';
         if (!items.length) h = `<div class="st-empty">${tr('st_empty')}</div>`;
@@ -3346,12 +3411,16 @@
             const u = it.x.until ? bibTmin(it.x.until) : null;
             const running = it.x.open && it.di === todayIso;
             const dayTxt = `${L_DAYS_SHORT[lang][it.d.getDay()]}, ${it.d.getDate()} ${L_MONTHS_SHORT[lang][it.d.getMonth()]}`;
-            const saidTxt = u !== null ? `${it.x.from}–${it.x.until}` : `${it.x.from} → …`;
+            const _v1 = semOf(it.di).algo === 1;
+            const pMin = statSesMinutes(it.di, it.x);
+            const saidTxt = u !== null ? `${it.x.from}–${it.x.until}`
+                : (running ? `${it.x.from} → …` : (_v1 && pMin > 0 ? `${it.x.from}–${fmtHM(bibTmin(it.x.from) + pMin)}` : `${it.x.from} → …`));
             const estTag = '';
-            const pTxt = fmtHM(statSesMinutes(it.di, it.x));
+            const pTxt = fmtHM(pMin);
             const geoLine = '';
             let verdict;
             if (running) verdict = `<div class="st-verdict no">${tr('st_v_live')}</div>`;
+            else if (_v1) verdict = `<div class="st-verdict old">${tr('st_v_old')}<span class="st-cnt">${pTxt}</span></div>`;
             else if (u === null) verdict = `<div class="st-verdict no">${tr('st_v_wait')}</div>`;
             else if (statGeoOk(it.di, it.x)) verdict = `<div class="st-verdict ok">${tr('st_v_there')}<span class="st-cnt">${pTxt}</span></div>`;
             else verdict = `<div class="st-verdict no">${tr('st_v_notthere')}<span class="st-cnt">${pTxt}</span></div>`;
@@ -3360,10 +3429,15 @@
         body.innerHTML = h;
         body.querySelectorAll('.st-ses.tap').forEach(el => { el.onclick = () => openStatsEdit(el.dataset.di, +el.dataset.pi); });
         statSemBind(body, renderStatsSessions);
+        const _dc = document.getElementById('st-day-clear');
+        if (_dc) _dc.onclick = () => { statSesDay = null; haptic('light'); renderStatsSessions(); };
     }
-    function openStatsSessions() {
+    let statSesDay = null;
+    function openStatsSessions(day) {
+        statSesDay = day || null;
         const sh = document.getElementById('sheet-stats-ses');
         _stAccent(sh);
+        if (day) { const _s = semOf(day); if (_s) statSemId = _s.id; }
         renderStatsSessions();
         sh.hidden = false;
         document.getElementById('sheet-backdrop').classList.add('show');
@@ -3495,14 +3569,14 @@
         if (statDetPeriod === 's') {
             const seen = {};
             semDates(sem).forEach(di => { const pref = di.slice(0, 7); seen[pref] = (seen[pref] || 0) + statDayMinBib(di, bibId); });
-            Object.keys(seen).sort().forEach(pref => out.push({ v: seen[pref], lbl: L_MONTHS_SHORT[lang][+pref.slice(5, 7) - 1] }));
+            Object.keys(seen).sort().forEach(pref => out.push({ v: seen[pref], lbl: L_MONTHS_SHORT[lang][+pref.slice(5, 7) - 1], pref }));
             if (!out.length) out.push({ v: 0, lbl: '—' });
             return out;
         }
         const n = statDetPeriod === 'w' ? 7 : 30;
         for (let i = n - 1; i >= 0; i--) {
             const d = addDays(end, -i);
-            out.push({ v: semHasDate(sem, isoDate(d)) ? statDayMinBib(isoDate(d), bibId) : 0, lbl: `${d.getDate()}` });
+            out.push({ v: semHasDate(sem, isoDate(d)) ? statDayMinBib(isoDate(d), bibId) : 0, lbl: `${d.getDate()}`, di: isoDate(d) });
         }
         return out;
     }
@@ -3527,7 +3601,8 @@
         h += `<div class="st-dtotals"><div class="st-dtot"><b>${fmtHM(statSumDays(7, statDetBib))}</b>${tr('st_t_week')}</div><div class="st-dtot"><b>${fmtHM(statSumDays(30, statDetBib))}</b>${tr('st_t_month')}</div><div class="st-dtot"><b>${fmtHM(statSumAll(statDetBib))}</b>${tr('st_t_sem')}</div></div>`;
         const vals = statLineVals(statDetBib);
         const p = statLinePaths(vals.map(x => x.v), 300, 92);
-        h += `<div class="st-sec">${tr('st_dyn')}</div><div class="st-card"><svg class="st-linechart" viewBox="0 0 300 92" preserveAspectRatio="none"><path class="st-lc-area" d="${p.area}"/><path class="st-lc-line" d="${p.line}"/></svg><div class="st-tl" style="margin-top:4px"><span class="st-lb">${vals[0].lbl}</span><span style="flex:1"></span><span class="st-vl">${vals[vals.length - 1].lbl}</span></div></div>`;
+        const _zones = vals.map((v, i) => `<span data-i="${i}"${(v.di && v.di === statPickDi) || (v.pref && v.pref === statPickMo) ? ' class="sel"' : ''}></span>`).join('');
+        h += `<div class="st-sec">${tr('st_dyn')}</div><div class="st-card"><div class="st-lcwrap"><svg class="st-linechart" viewBox="0 0 300 92" preserveAspectRatio="none"><path class="st-lc-area" d="${p.area}"/><path class="st-lc-line" d="${p.line}"/></svg><div class="st-lczones" id="st-lc-zones">${_zones}</div></div><div class="st-tl" style="margin-top:4px"><span class="st-lb">${vals[0].lbl}</span><span style="flex:1"></span><span class="st-vl">${vals[vals.length - 1].lbl}</span></div><div class="st-pick" id="st-det-pick">${statPickHtml(statPickDi, statDetBib, statPickMo)}</div></div>`;
         const _hSem = statSem();
         const _hEnd = statDateFromIso(semLastDay(_hSem));
         const _hFrom = _hSem.from ? statDateFromIso(_hSem.from) : addDays(_hEnd, -125);
@@ -3538,12 +3613,25 @@
             const d = addDays(start, i);
             const m = (d > _hEnd || !semHasDate(_hSem, isoDate(d))) ? 0 : statDayMinBib(isoDate(d), statDetBib);
             const lv = m <= 0 ? 0 : (m < 120 ? 1 : (m < 240 ? 2 : (m < 360 ? 3 : 4)));
-            cells += `<span class="st-hc${lv ? ' l' + lv : ''}"></span>`;
+            const _cdi = isoDate(d);
+            cells += `<span class="st-hc${lv ? ' l' + lv : ''}${_cdi === statPickDi ? ' sel' : ''}" data-di="${_cdi}"></span>`;
         }
-        h += `<div class="st-sec">${tr('st_consist')}</div><div class="st-card"><div class="st-heat">${cells}</div><div class="st-heat-legend">${tr('st_less')} <span class="st-hc l1"></span><span class="st-hc l2"></span><span class="st-hc l3"></span><span class="st-hc l4"></span> ${tr('st_more')}</div></div>`;
+        h += `<div class="st-sec">${tr('st_consist')}</div><div class="st-card"><div class="st-heat" id="st-heat">${cells}</div><div class="st-heat-legend">${tr('st_less')} <span class="st-hc l1"></span><span class="st-hc l2"></span><span class="st-hc l3"></span><span class="st-hc l4"></span> ${tr('st_more')}</div><div class="st-pick" id="st-heat-pick">${statPickHtml(statPickDi, statDetBib)}</div></div>`;
         body.innerHTML = h;
         document.querySelectorAll('#st-det-period span').forEach(el => { el.onclick = () => { statDetPeriod = el.dataset.z; haptic('light'); renderStatsDetail(); }; });
         document.querySelectorAll('#st-det-libs .st-lchip').forEach(el => { el.onclick = () => { statDetBib = el.dataset.b || null; haptic('light'); renderStatsDetail(); }; });
+        document.querySelectorAll('#st-lc-zones span').forEach(el => {
+            el.onclick = () => {
+                const v = vals[+el.dataset.i];
+                if (v.pref) { statPickMo = (statPickMo === v.pref) ? null : v.pref; statPickDi = null; }
+                else { statPickDi = (statPickDi === v.di) ? null : v.di; statPickMo = null; }
+                haptic('light'); renderStatsDetail();
+            };
+        });
+        document.querySelectorAll('#st-heat .st-hc').forEach(el => {
+            el.onclick = () => { statPickDi = (statPickDi === el.dataset.di) ? null : el.dataset.di; statPickMo = null; haptic('light'); renderStatsDetail(); };
+        });
+        statPickBind(body);
     }
     function openStatsDetail() {
         const sh = document.getElementById('sheet-stats-detail');
