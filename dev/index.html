@@ -898,7 +898,7 @@
 </head>
 <body>
     <header class="app-header">
-        <h1 class="app-title" id="app-title"><span class="emoji" id="app-emoji">🍜</span> <span id="app-name">Mensa Crew</span> <span class="tri">▾</span><span class="dev-badge">DEV · 11.10</span></h1>
+        <h1 class="app-title" id="app-title"><span class="emoji" id="app-emoji">🍜</span> <span id="app-name">Mensa Crew</span> <span class="tri">▾</span><span class="dev-badge">DEV · 12.10</span></h1>
         <div style="display:flex; align-items:center; gap:8px;">
             <button class="lang-btn" id="menu-btn" title="Меню"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 19c0-3 2.6-5 5.5-5s5.5 2 5.5 5"/><path d="M16 5.4a3 3 0 0 1 0 5.2"/><path d="M17.5 14.3c2 .6 3.4 2.3 3.4 4.7"/></svg></button>
             <button class="bell-btn" id="bell-btn" title="Включить уведомления">🔔</button>
@@ -2524,8 +2524,7 @@
                 list.appendChild(nb);
                 nb.querySelector('#bib-near-btn').onclick = (e) => {
                     e.stopPropagation(); haptic('medium');
-                    bibNearBannerDay = di;
-                    setMyBib(di, geoLastNear.bibId, bibNowHM(), null, { mode: 'all', ids: [] });
+                    requestAudience({ type: 'bib', dateIso: di, bib: geoLastNear.bibId, from: bibNowHM(), until: null });
                 };
                 nb.querySelector('#bib-near-x').onclick = (e) => { e.stopPropagation(); haptic('light'); bibNearBannerDay = di; renderBibDay(); };
             }
@@ -2543,8 +2542,8 @@
                 list.appendChild(lb);
                 lb.querySelector('#bib-leave-btn').onclick = (e) => {
                     e.stopPropagation(); haptic('medium');
-                    bibLeaveBannerDay = di;
-                    removeMyBib(di, { mode: 'only', ids: bibPeople(di, _mL.bib).map(p => p.uid).filter(u => u !== currentUser.id) }, _hint !== null ? fmtHM(_hint) : null);
+                    const _slotL = bibPeople(di, _mL.bib).map(p => p.uid).filter(u => u !== currentUser.id);
+                    requestAudience({ type: 'leave-bib', dateIso: di, bib: _mL.bib, presetMode: 'only', presetIds: _slotL, untilOverride: _hint !== null ? fmtHM(_hint) : null });
                 };
                 lb.querySelector('#bib-leave-x').onclick = (e) => { e.stopPropagation(); haptic('light'); bibLeaveBannerDay = di; renderBibDay(); };
             }
@@ -4313,7 +4312,7 @@
         if (p.type === 'mensa') setMyEntry(p.dateIso, p.start, p.mensa, audience, p.until || null);
         else if (p.type === 'bib') setMyBib(p.dateIso, p.bib, p.from, p.until, audience);
         else if (p.type === 'leave-mensa') removeMy(p.dateIso, audience);
-        else if (p.type === 'leave-bib') removeMyBib(p.dateIso, audience);
+        else if (p.type === 'leave-bib') removeMyBib(p.dateIso, audience, p.untilOverride || null);
     }
     /* ===== Events ===== */
     document.querySelectorAll('.tab').forEach(t => t.onclick = () => switchView(t.dataset.view));

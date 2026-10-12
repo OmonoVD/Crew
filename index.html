@@ -2522,8 +2522,7 @@
                 list.appendChild(nb);
                 nb.querySelector('#bib-near-btn').onclick = (e) => {
                     e.stopPropagation(); haptic('medium');
-                    bibNearBannerDay = di;
-                    setMyBib(di, geoLastNear.bibId, bibNowHM(), null, { mode: 'all', ids: [] });
+                    requestAudience({ type: 'bib', dateIso: di, bib: geoLastNear.bibId, from: bibNowHM(), until: null });
                 };
                 nb.querySelector('#bib-near-x').onclick = (e) => { e.stopPropagation(); haptic('light'); bibNearBannerDay = di; renderBibDay(); };
             }
@@ -2541,8 +2540,8 @@
                 list.appendChild(lb);
                 lb.querySelector('#bib-leave-btn').onclick = (e) => {
                     e.stopPropagation(); haptic('medium');
-                    bibLeaveBannerDay = di;
-                    removeMyBib(di, { mode: 'only', ids: bibPeople(di, _mL.bib).map(p => p.uid).filter(u => u !== currentUser.id) }, _hint !== null ? fmtHM(_hint) : null);
+                    const _slotL = bibPeople(di, _mL.bib).map(p => p.uid).filter(u => u !== currentUser.id);
+                    requestAudience({ type: 'leave-bib', dateIso: di, bib: _mL.bib, presetMode: 'only', presetIds: _slotL, untilOverride: _hint !== null ? fmtHM(_hint) : null });
                 };
                 lb.querySelector('#bib-leave-x').onclick = (e) => { e.stopPropagation(); haptic('light'); bibLeaveBannerDay = di; renderBibDay(); };
             }
@@ -4311,7 +4310,7 @@
         if (p.type === 'mensa') setMyEntry(p.dateIso, p.start, p.mensa, audience, p.until || null);
         else if (p.type === 'bib') setMyBib(p.dateIso, p.bib, p.from, p.until, audience);
         else if (p.type === 'leave-mensa') removeMy(p.dateIso, audience);
-        else if (p.type === 'leave-bib') removeMyBib(p.dateIso, audience);
+        else if (p.type === 'leave-bib') removeMyBib(p.dateIso, audience, p.untilOverride || null);
     }
     /* ===== Events ===== */
     document.querySelectorAll('.tab').forEach(t => t.onclick = () => switchView(t.dataset.view));
