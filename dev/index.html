@@ -798,7 +798,23 @@
         .st-dotm.dg { background: var(--good); }
         .st-dotm.dgr { background: var(--hint); }
         .st-vals { font-size: 11px; font-weight: 700; white-space: nowrap; flex: none; }
-        .st-vals .cl { color: var(--hint); }
+        .st-vals .cl { color: var(--text); font-weight: 800; }
+        .st-vals .cf.zero { color: var(--hint); }
+        .st-hero { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 14px; }
+        .st-hero-lab { font-size: 12px; font-weight: 700; color: var(--hint); }
+        .st-hero-num { font-size: 36px; font-weight: 800; letter-spacing: -0.02em; margin: 4px 0 2px; font-variant-numeric: tabular-nums; }
+        .st-hero-sub { font-size: 12.5px; color: var(--hint); }
+        .st-geobar { height: 8px; border-radius: 4px; background: var(--surface-alt); overflow: hidden; margin-top: 14px; }
+        .st-geobar span { display: block; height: 100%; background: var(--good); border-radius: 4px; }
+        .st-hero-cap { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-top: 7px; font-size: 12px; cursor: pointer; }
+        .st-hero-cap .ok { color: var(--good); font-weight: 700; }
+        .st-hero-cap .mut { color: var(--hint); }
+        .st-hero-cap .go { color: var(--accent); font-weight: 700; }
+        .st-hero-cap .set { color: var(--hint); font-size: 14px; }
+        .st-rank-leg { display: flex; gap: 14px; font-size: 11px; color: var(--hint); margin-top: 8px; }
+        .st-rank-leg .lg { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 5px; vertical-align: -1px; }
+        .st-rank-leg .lg.a { background: var(--accent-soft); }
+        .st-rank-leg .lg.g { background: var(--good); }
         .st-vals .cf { color: var(--good); }
         .st-dual { position: relative; height: 12px; border-radius: 6px; background: var(--surface-alt); overflow: hidden; }
         .st-dual .claim { position: absolute; left: 0; top: 0; bottom: 0; background: var(--accent-soft); border-radius: 6px; }
@@ -917,7 +933,7 @@
 </head>
 <body>
     <header class="app-header">
-        <h1 class="app-title" id="app-title"><span class="emoji" id="app-emoji">🍜</span> <span id="app-name">Mensa Crew</span> <span class="tri">▾</span><span class="dev-badge">DEV · 13.10-2</span></h1>
+        <h1 class="app-title" id="app-title"><span class="emoji" id="app-emoji">🍜</span> <span id="app-name">Mensa Crew</span> <span class="tri">▾</span><span class="dev-badge">DEV · 14.10</span></h1>
         <div style="display:flex; align-items:center; gap:8px;">
             <button class="lang-btn" id="menu-btn" title="Меню"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 19c0-3 2.6-5 5.5-5s5.5 2 5.5 5"/><path d="M16 5.4a3 3 0 0 1 0 5.2"/><path d="M17.5 14.3c2 .6 3.4 2.3 3.4 4.7"/></svg></button>
             <button class="bell-btn" id="bell-btn" title="Включить уведомления">🔔</button>
@@ -1300,7 +1316,7 @@
             st_sessions:'Мои сессии', st_marked:'Отмечено', st_geo_line:'Гео',
             st_v_ok:'✓ Подтверждено', st_v_part:'✓ Частично подтверждено', st_v_no:'⚠ Не подтверждено · вне радиуса библиотеки', st_v_nopings:'⚠ Не подтверждено · нет гео-точек', st_v_nocoords:'⚠ Для этой библиотеки гео пока не настроено', st_v_wait:'⏳ Нет времени ухода — не засчитано', st_v_live:'⏳ Сессия ещё идёт',
             st_v_counts:'В Гео: {g} · В личное: {p}', st_empty:'Пока пусто — отметься в библиотеке, и здесь появится статистика',
-            st_rank:'Hustle-рейтинг', st_rank_toggle:'Показывать меня в рейтинге', st_rank_toggle_sub:'В рейтинг идут только гео-подтверждённые часы',
+            st_rank:'Hustle-рейтинг', st_rank_toggle:'Показывать меня в рейтинге', st_rank_toggle_sub:'Участвуют все с приходом и уходом. Гео — по желанию',
             st_det_title:'Подробная статистика', st_p_month:'Месяц', st_p_year:'Год', st_all_libs:'Все',
             st_sem:'Семестр', st_t_sem:'семестр', st_sem_old:'Архив.',
             st_sem_old_full:'Это прошлый семестр. Тогда время считалось от прихода до закрытия библиотеки — даже если ты не отметил уход.',
@@ -1309,7 +1325,8 @@
             st_t_week:'7 дней', st_t_month:'30 дней', st_lc_avg_mo:'Ø в месяц', st_t_all:'всего', st_dyn:'Динамика',
             st_consist:'Постоянство · приходы по дням', st_less:'меньше', st_more:'больше', st_more_link:'подробнее →',
             st_p_week:'Неделя', st_p_all:'Всё время', st_s_geo:'✓ по гео', st_s_claim:'по заявленным',
-            st_r_in:'в {place}', st_r_nogeo:'гео выкл', st_rank_none:'Пока пусто — гео-часы появятся после подтверждённых сессий',
+            st_r_in:'в {place}', st_r_nogeo:'гео выкл', st_rank_none:'Пока пусто — отметь приход и уход, и попадёшь в рейтинг',
+            st_hero_lab:'В библиотеке за {sem}', st_geo_share:'✓ Сессий с гео: {c} из {s}', st_geo_enable:'Включить гео', st_avg_day:'Ø {t} в день', st_leg_all:'всё время', st_leg_geo:'из них с гео',
             st_dev:'👨‍🍳 Diyor is cooking…', st_p_today:'Сегодня', st_now_count:'{n} сейчас',
             st_closed:'закрыта · {t}', st_closed_until:'закрыта · до {t}', st_closed_plain:'закрыта',
             st_here_t:'{place} закрывается в {t}', st_here_sub:'Ты ещё здесь? Отметься — вечер зачтётся в гео', st_here_btn:'Я тут', st_here_done:'✓ Отмечено', st_here_out:'Похоже, ты вне радиуса библиотеки',
@@ -1365,7 +1382,7 @@
             st_sessions:'My sessions', st_marked:'Marked', st_geo_line:'Geo',
             st_v_ok:'✓ Verified', st_v_part:'✓ Partially verified', st_v_no:'⚠ Not verified · outside the library radius', st_v_nopings:'⚠ Not verified · no geo points', st_v_nocoords:"⚠ Geo isn't set up for this library yet", st_v_wait:'⏳ No leave time — not counted', st_v_live:'⏳ Session still running',
             st_v_counts:'Geo: {g} · Personal: {p}', st_empty:'Nothing yet — check in at a library and stats will appear',
-            st_rank:'Hustle leaderboard', st_rank_toggle:'Show me on the leaderboard', st_rank_toggle_sub:'Only geo-verified hours count for the leaderboard',
+            st_rank:'Hustle leaderboard', st_rank_toggle:'Show me on the leaderboard', st_rank_toggle_sub:'Everyone with arrival and leave counts. Geo is optional',
             st_det_title:'Detailed stats', st_p_month:'Month', st_p_year:'Year', st_all_libs:'All',
             st_sem:'Semester', st_t_sem:'semester', st_sem_old:'Archive.',
             st_sem_old_full:'This is a past semester. Back then time counted from arrival until the library closed — even without a leave mark.',
@@ -1374,7 +1391,8 @@
             st_t_week:'7 days', st_t_month:'30 days', st_lc_avg_mo:'Ø per month', st_t_all:'total', st_dyn:'Trend',
             st_consist:'Consistency · days you showed up', st_less:'less', st_more:'more', st_more_link:'details →',
             st_p_week:'Week', st_p_all:'All time', st_s_geo:'✓ by geo', st_s_claim:'by claimed',
-            st_r_in:'at {place}', st_r_nogeo:'geo off', st_rank_none:'Empty so far — geo hours appear after verified sessions',
+            st_r_in:'at {place}', st_r_nogeo:'geo off', st_rank_none:'Empty so far — mark arrival and leave to get ranked',
+            st_hero_lab:'In the library in {sem}', st_geo_share:'✓ Sessions with geo: {c} of {s}', st_geo_enable:'Enable geo', st_avg_day:'Ø {t} per day', st_leg_all:'total time', st_leg_geo:'of it with geo',
             st_dev:'👨‍🍳 Diyor is cooking…', st_p_today:'Today', st_now_count:'{n} now',
             st_closed:'closed · {t}', st_closed_until:'closed · until {t}', st_closed_plain:'closed',
             st_here_t:'{place} closes at {t}', st_here_sub:'Still here? Check in — the evening counts for geo', st_here_btn:"I'm here", st_here_done:'✓ Checked in', st_here_out:"Looks like you're outside the library radius",
@@ -1430,7 +1448,7 @@
             st_sessions:'Meine Sessions', st_marked:'Eingetragen', st_geo_line:'Geo',
             st_v_ok:'✓ Bestätigt', st_v_part:'✓ Teilweise bestätigt', st_v_no:'⚠ Nicht bestätigt · außerhalb des Bibliotheks-Radius', st_v_nopings:'⚠ Nicht bestätigt · keine Geo-Punkte', st_v_nocoords:'⚠ Geo ist für diese Bibliothek noch nicht eingerichtet', st_v_wait:'⏳ Keine Gehzeit — nicht gezählt', st_v_live:'⏳ Session läuft noch',
             st_v_counts:'Geo: {g} · Persönlich: {p}', st_empty:'Noch leer — trag dich in einer Bib ein, dann erscheint hier Statistik',
-            st_rank:'Hustle-Ranking', st_rank_toggle:'Mich im Ranking zeigen', st_rank_toggle_sub:'Fürs Ranking zählen nur geo-bestätigte Stunden',
+            st_rank:'Hustle-Ranking', st_rank_toggle:'Mich im Ranking zeigen', st_rank_toggle_sub:'Alle mit Kommen und Gehen zählen. Geo ist freiwillig',
             st_det_title:'Detaillierte Statistik', st_p_month:'Monat', st_p_year:'Jahr', st_all_libs:'Alle',
             st_sem:'Semester', st_t_sem:'Semester', st_sem_old:'Archiv.',
             st_sem_old_full:'Das ist ein vergangenes Semester. Damals zählte die Zeit vom Kommen bis zur Schließung der Bib — auch ohne Gehzeit.',
@@ -1439,7 +1457,8 @@
             st_t_week:'7 Tage', st_t_month:'30 Tage', st_lc_avg_mo:'Ø pro Monat', st_t_all:'gesamt', st_dyn:'Verlauf',
             st_consist:'Konstanz · Tage mit Besuch', st_less:'weniger', st_more:'mehr', st_more_link:'Details →',
             st_p_week:'Woche', st_p_all:'Gesamt', st_s_geo:'✓ nach Geo', st_s_claim:'nach Angabe',
-            st_r_in:'in {place}', st_r_nogeo:'Geo aus', st_rank_none:'Noch leer — Geo-Stunden erscheinen nach bestätigten Sessions',
+            st_r_in:'in {place}', st_r_nogeo:'Geo aus', st_rank_none:'Noch leer — trag Kommen und Gehen ein, dann bist du im Ranking',
+            st_hero_lab:'In der Bib im {sem}', st_geo_share:'✓ Sessions mit Geo: {c} von {s}', st_geo_enable:'Geo aktivieren', st_avg_day:'Ø {t} pro Tag', st_leg_all:'Gesamtzeit', st_leg_geo:'davon mit Geo',
             st_dev:'👨‍🍳 Diyor is cooking…', st_p_today:'Heute', st_now_count:'{n} jetzt',
             st_closed:'geschlossen · {t}', st_closed_until:'geschlossen · bis {t}', st_closed_plain:'geschlossen',
             st_here_t:'{place} schließt um {t}', st_here_sub:'Noch da? Melde dich — der Abend zählt für Geo', st_here_btn:'Bin hier', st_here_done:'✓ Vermerkt', st_here_out:'Du scheinst außerhalb des Bibliotheks-Radius zu sein',
@@ -2998,39 +3017,6 @@
         if (today) end = Math.min(end, nowMin());
         return Math.max(0, end - f);
     }
-    function statVerdictV1(dateIso, s, pingsMap) {
-        const f = bibTmin(s.from);
-        const today = dateIso === isoDate(new Date());
-        const hrs = BIB_HOURS[s.bib] ? bibHoursFor(s.bib, statDateFromIso(dateIso)) : null;
-        const close = hrs ? hrs[1] : null;
-        let u = s.until ? bibTmin(s.until) : null;
-        if (u === null && !(s.open && today && (close === null || nowMin() < close)) && close !== null) u = close;
-        if (u === null) return { kind: (s.open && today) ? 'live' : 'wait', geoMin: 0, geoEndMin: f, diffMin: 0 };
-        if (close !== null && u > close) u = close;
-        if (!BIB_COORDS[s.bib]) return { kind: 'nocoords', geoMin: 0, geoEndMin: f, diffMin: Math.max(0, u - f) };
-        const pts = (((pingsMap || geoPingsCache) || {})[dateIso] || []).filter(p => { const pm = pingMinOfDay(p.t); return pm >= f - BIB_GEO_TOL_MIN && pm <= u; });
-        if (!pts.length) return { kind: 'nopings', geoMin: 0, geoEndMin: f, diffMin: Math.max(0, u - f) };
-        const segs = [];
-        let cur = null;
-        for (const p of pts) {
-            const pm = Math.min(u, Math.max(f, pingMinOfDay(p.t)));
-            if (!p.in) { if (cur) { segs.push(cur); cur = null; } continue; }
-            if (!cur) cur = { a: pm, b: pm };
-            else if (pm - cur.b <= BIB_GEO_TOL_MIN) cur.b = pm;
-            else { segs.push(cur); cur = { a: pm, b: pm }; }
-        }
-        if (cur) segs.push(cur);
-        if (!segs.length) return { kind: 'no', geoMin: 0, geoEndMin: f, diffMin: Math.max(0, u - f) };
-        if (segs[0].a - f <= BIB_GEO_TOL_MIN) segs[0].a = f;
-        const last = segs[segs.length - 1];
-        if (u - last.b <= BIB_GEO_TOL_MIN) last.b = u;
-        let geoMin = 0;
-        segs.forEach(sg => { geoMin += Math.max(0, sg.b - sg.a); });
-        const full = Math.max(0, u - f);
-        geoMin = Math.min(geoMin, full);
-        const kind = geoMin >= full - 1 ? 'ok' : (geoMin > 0 ? 'part' : 'no');
-        return { kind, geoMin, geoEndMin: last.b, diffMin: Math.max(0, u - last.b) };
-    }
     /* Длительность — только по отметкам юзера. Без времени ухода сессия не считается. */
     function statEndMin(dateIso, s) {
         const f = bibTmin(s.from);
@@ -3115,18 +3101,10 @@
     }
     function pingMinOfDay(t) { const d = new Date(t); return d.getHours() * 60 + d.getMinutes(); }
     function statDayGeoMin(dateIso, uid, pingsMap) {
+        if (semOf(dateIso).algo === 1) return 0;
         let g = 0;
-        const v1 = semOf(dateIso).algo === 1;
-        statSessionsFor(dateIso, uid).forEach(x => {
-            if (v1) g += statVerdictV1(dateIso, x, pingsMap).geoMin;
-            else if (statGeoOk(dateIso, x, pingsMap)) g += statSesMinutes(dateIso, x, pingsMap);
-        });
+        statSessionsFor(dateIso, uid).forEach(x => { if (statGeoOk(dateIso, x, pingsMap)) g += statSesMinutes(dateIso, x, pingsMap); });
         return Math.min(STAT_DAY_CAP_MIN, g);
-    }
-    function statGeoTotalMin() {
-        let sum = 0;
-        semDates(statSem()).forEach(di => { sum += statDayGeoMin(di); });
-        return sum;
     }
     function geoOptedIn() { return !!(state.members && state.members[currentUser.id] && state.members[currentUser.id].geo === true); }
     function _geoLM() { return (tg && tg.LocationManager && tg.isVersionAtLeast && tg.isVersionAtLeast('8.0')) ? tg.LocationManager : null; }
@@ -3205,6 +3183,13 @@
             el.onclick = (e) => { e.stopPropagation(); openStatsSessions(el.dataset.day); };
         });
     }
+    function nUnit(n, kind) {
+        const F = kind === 'ses' ? { ru: ['сессия', 'сессии', 'сессий'], en: ['session', 'sessions'], de: ['Session', 'Sessions'] }
+                                 : { ru: ['день', 'дня', 'дней'], en: ['day', 'days'], de: ['Tag', 'Tage'] };
+        if (lang === 'en') return n + ' ' + (n === 1 ? F.en[0] : F.en[1]);
+        if (lang === 'de') return n + ' ' + (n === 1 ? F.de[0] : F.de[1]);
+        return n + ' ' + pluralRu(n, F.ru);
+    }
     function statSemChips() {
         const list = semList(), cur = statSem();
         let h = '<div class="st-libfilter st-semrow">';
@@ -3230,10 +3215,16 @@
         let h = '';
         if (statInfoOpen === 'how') h += `<div class="st-card st-howcard"><div class="st-note"><b>${tr('st_note_how_t')}</b><br>${tr('st_note_how')}</div></div>`;
         h += statSemChips();
-        h += '<div class="st-nums">';
-        h += `<div class="st-num"><div class="st-cap">${tr('st_personal')}</div><div class="st-big">${fmtHM(totals.totalMin)}</div><div class="st-sub">${tr('st_personal_sub')}</div></div>`;
-        if (geoOn) h += `<div class="st-num flex" id="st-geo-card"><div class="st-cap">${tr('st_geo')}</div><div class="st-big">${fmtHM(statGeoTotalMin())} <span class="st-badge-ok">${tr('st_geo_badge')}</span></div><div class="st-sub">${tr('st_geo_sub_on')}</div></div>`;
-        else h += `<div class="st-num off" id="st-geo-card"><div class="st-cap">${tr('st_geo')}</div><div class="st-big">—</div><div class="st-sub">${tr('st_geo_need')}</div></div>`;
+        const _semH = statSem(), _v2H = _semH.algo !== 1;
+        let _sH = 0, _cH = 0;
+        if (_v2H) semDates(_semH).forEach(di => statSessionsFor(di).forEach(x => { if (x.until) { _sH++; if (statGeoOk(di, x)) _cH++; } }));
+        const _avgH = totals.daysActive ? Math.round(totals.totalMin / totals.daysActive) : 0;
+        h += `<div class="st-hero"><div class="st-hero-lab">${tr('st_hero_lab', { sem: esc(_semH.name) })}</div><div class="st-hero-num">${fmtHM(totals.totalMin)}</div>`;
+        h += `<div class="st-hero-sub">${_v2H ? `${nUnit(_sH, 'ses')} · ${nUnit(totals.daysActive, 'day')}` : `${nUnit(totals.daysActive, 'day')} · ${tr('st_avg_day', { t: fmtHM(_avgH) })}`}</div>`;
+        if (_v2H) {
+            if (_sH > 0) h += `<div class="st-geobar"><span style="width:${Math.round(_cH / _sH * 100)}%"></span></div>`;
+            h += `<div class="st-hero-cap" id="st-geo-card">${_sH > 0 ? `<span class="${_cH ? 'ok' : 'mut'}">${tr('st_geo_share', { c: _cH, s: _sH })}</span>` : '<span></span>'}${geoOn ? '<span class="set">⚙︎</span>' : `<span class="go">${tr('st_geo_enable')}</span>`}</div>`;
+        }
         h += '</div>';
         h += `<div class="st-link" id="st-ses-link"><span class="st-link-ic">🗂</span><div class="st-tx"><div class="st-t1">${tr('st_sessions')}</div><div class="st-t2">${tr('st_ses_sub')}</div></div><span class="st-chev">›</span></div>`;
         const days = [];
@@ -3257,16 +3248,15 @@
         h += `<div class="st-fact"><b>${totals.avgH} ${tr('st_h')}</b>${tr('st_avg')}</div>`;
         h += '</div></div>';
         h += `<div class="st-sec">${tr('st_rank')}</div>`;
-        if (!geoOn) {
-            h += `<div class="st-cta"><div class="st-em">🏆</div><div class="st-ct">${tr('st_cta_title')}</div><div class="st-cs">${tr('st_cta_sub')}</div><button class="st-btn" id="st-cta-btn">${tr('st_cta_btn')}</button></div>`;
-        } else {
+        {
             const flexOn = flexOptedIn(currentUser.id);
             h += `<div class="st-card"><div class="st-trow"><div class="st-tx"><div class="st-t1">${tr('st_rank_toggle')}</div><div class="st-t2">${tr('st_rank_toggle_sub')}</div></div><div class="st-sw${flexOn ? ' on' : ''}" id="st-flex-sw"></div></div>`;
             if (flexOn) {
                 const _curSem = statSem().id === semCurrent().id;
                 if (!_curSem && (rankPeriod === 'day' || rankPeriod === 'week')) rankPeriod = 'sem';
-                h += `<div class="st-segs"><div class="st-seg" id="st-seg-period">${_curSem ? `<span data-p="day"${rankPeriod === 'day' ? ' class="on"' : ''}>${tr('st_p_today')}</span><span data-p="week"${rankPeriod === 'week' ? ' class="on"' : ''}>${tr('st_p_week')}</span>` : ''}<span data-p="sem"${rankPeriod === 'sem' ? ' class="on"' : ''}>${tr('st_sem')}</span><span data-p="all"${rankPeriod === 'all' ? ' class="on"' : ''}>${tr('st_p_all')}</span></div><div class="st-seg" id="st-seg-sort"><span data-k="conf"${rankSort === 'conf' ? ' class="on"' : ''}>${tr('st_s_geo')}</span><span data-k="claim"${rankSort === 'claim' ? ' class="on"' : ''}>${tr('st_s_claim')}</span></div></div>`;
+                h += `<div class="st-segs"><div class="st-seg" id="st-seg-period">${_curSem ? `<span data-p="day"${rankPeriod === 'day' ? ' class="on"' : ''}>${tr('st_p_today')}</span><span data-p="week"${rankPeriod === 'week' ? ' class="on"' : ''}>${tr('st_p_week')}</span>` : ''}<span data-p="sem"${rankPeriod === 'sem' ? ' class="on"' : ''}>${tr('st_sem')}</span><span data-p="all"${rankPeriod === 'all' ? ' class="on"' : ''}>${tr('st_p_all')}</span></div></div>`;
                 h += `<div id="st-rank-list">${rankListHtml()}</div>`;
+                if (statSem().algo !== 1) h += `<div class="st-rank-leg"><span><i class="lg a"></i>${tr('st_leg_all')}</span><span><i class="lg g"></i>${tr('st_leg_geo')}</span></div>`;
             }
             h += '</div>';
         }
@@ -3291,7 +3281,6 @@
         const fsw = document.getElementById('st-flex-sw');
         if (fsw) fsw.onclick = () => flexSetOptIn(!flexOptedIn(currentUser.id));
         document.querySelectorAll('#st-seg-period span').forEach(sp => { sp.onclick = () => { rankPeriod = sp.dataset.p; haptic('light'); renderStats(); }; });
-        document.querySelectorAll('#st-seg-sort span').forEach(sp => { sp.onclick = () => { rankSort = sp.dataset.k; haptic('light'); renderStats(); }; });
         document.querySelectorAll('#st-rank-list .st-utr').forEach(el => { el.onclick = () => openStatsUser(el.dataset.uid); });
     }
     function renderStatsGeo() {
@@ -3311,7 +3300,7 @@
     }
     /* ===== Hustle-рейтинг (шаг 4) ===== */
     let rankGeoCache = null, rankGeoLoading = false;
-    let rankPeriod = 'day', rankSort = 'conf';
+    let rankPeriod = 'day';
     function flexOptedIn(uid) { const m = state.members && state.members[uid]; return !(m && m.flex === false); }
     function flexSetOptIn(next) {
         if (!FIREBASE_READY || !fbDb) { showToast(tr('toast_fail')); return; }
@@ -3336,14 +3325,15 @@
         return ids;
     }
     function rankRowData(uid, dates) {
-        let claim = 0, conf = 0;
+        let claim = 0, conf = 0, ns = 0, nc = 0;
         const geoOk = !!(state.members && state.members[uid] && state.members[uid].geo === true);
         const pingsMap = (rankGeoCache || {})[uid] || null;
         dates.forEach(di => {
             claim += statDayMinutes(di, uid, pingsMap);
             if (geoOk && pingsMap) conf += statDayGeoMin(di, uid, pingsMap);
+            if (semOf(di).algo !== 1) statSessionsFor(di, uid).forEach(x => { if (x.until) { ns++; if (geoOk && pingsMap && statGeoOk(di, x, pingsMap)) nc++; } });
         });
-        return { uid, claim, conf, nogeo: !geoOk };
+        return { uid, claim, conf, ns, nc };
     }
     async function loadRankGeo() {
         if (rankGeoLoading || !FIREBASE_READY || !fbDb) return;
@@ -3371,14 +3361,13 @@
             if (bibIsLeft(e)) return `<span class="st-st"><span class="st-dotm dgr"></span>${tr('bib_left_tag')}${e.until ? ' ' + esc(e.until) : ''}</span>`;
             return `<span class="st-st"><span class="st-dotm dg"></span>${tr('st_r_in', { place: esc(BIB_BY_ID[e.bib].name) })}</span>`;
         }
-        return nogeo ? `<span class="st-st">${tr('st_r_nogeo')}</span>` : '';
+        return '';
     }
     function rankListHtml() {
-        if (!rankGeoCache) return `<div class="st-empty">…</div>`;
         const dates = rankDates();
-        const rows = rankParticipants().map(uid => rankRowData(uid, dates));
-        const key = rankSort === 'claim' ? 'claim' : 'conf';
-        rows.sort((a, b) => (b[key] - a[key]) || (b.claim - a.claim));
+        const showGeo = statSem().algo !== 1;
+        const rows = rankParticipants().map(uid => rankRowData(uid, dates)).filter(r => r.claim > 0);
+        rows.sort((a, b) => (b.claim - a.claim) || (b.conf - a.conf));
         if (!rows.length) return `<div class="st-empty">${tr('st_rank_none')}</div>`;
         const mx = Math.max(60, ...rows.map(r => r.claim));
         let h = '';
@@ -3388,8 +3377,8 @@
             const av = u.photo_url
                 ? `<span class="st-av" style="background-image:url(${esc(u.photo_url)})"></span>`
                 : `<span class="st-av"${me ? '' : ` style="background-color:${colorFor(r.uid)};color:#fff"`}>${esc(userInitials(u))}</span>`;
-            const cf = r.nogeo ? '✓—' : ('✓' + fmtHM(r.conf));
-            h += `<div class="st-utr${me ? ' me' : ''}${r.nogeo ? ' nogeo' : ''}" data-uid="${esc(r.uid)}"><span class="st-rk">${i + 1}</span>${av}<div class="st-who"><div class="st-top"><span class="st-nm">${me ? tr('you') : esc(u.name || tr('guest'))} ${rankStatusHtml(r.uid, r.nogeo)}</span><span class="st-vals"><span class="cl">${fmtHM(r.claim)}</span> · <span class="cf">${cf}</span></span></div><div class="st-dual"><div class="claim" style="width:${Math.min(100, Math.round(r.claim / mx * 100))}%"></div><div class="conf" style="width:${Math.min(100, Math.round(r.conf / mx * 100))}%"></div></div></div></div>`;
+            const cf = showGeo ? ` · <span class="cf${r.nc ? '' : ' zero'}">✓ ${r.nc}/${r.ns}</span>` : '';
+            h += `<div class="st-utr${me ? ' me' : ''}" data-uid="${esc(r.uid)}"><span class="st-rk">${i + 1}</span>${av}<div class="st-who"><div class="st-top"><span class="st-nm">${me ? tr('you') : esc(u.name || tr('guest'))} ${rankStatusHtml(r.uid)}</span><span class="st-vals"><span class="cl">${fmtHM(r.claim)}</span>${cf}</span></div><div class="st-dual"><div class="claim" style="width:${Math.min(100, Math.round(r.claim / mx * 100))}%"></div>${showGeo ? `<div class="conf" style="width:${Math.min(100, Math.round(r.conf / mx * 100))}%"></div>` : ''}</div></div></div>`;
         });
         return h;
     }
@@ -3813,12 +3802,12 @@
         rows.reverse();
         const periodKey = rankPeriod === 'day' ? 'st_p_today' : (rankPeriod === 'week' ? 'st_p_week' : (rankPeriod === 'sem' ? 'st_sem' : 'st_p_all'));
         let h = `<div class="st-sec">${tr(periodKey)}</div>`;
-        h += `<div class="st-card"><div class="st-note"><b>${fmtHM(claim)}</b> ${tr('st_u_claimed')} · <b>✓ ${geoOk ? fmtHM(conf) : '—'}</b> ${tr('st_u_geo')}</div></div>`;
+        h += `<div class="st-card"><div class="st-note"><b>${fmtHM(claim)}</b> ${tr('st_u_claimed')}${statSem().algo === 1 ? '' : ` · <b>✓ ${geoOk ? fmtHM(conf) : '—'}</b> ${tr('st_u_geo')}`}</div></div>`;
         if (!rows.length && hiddenMin === 0) h += `<div class="st-empty">${tr('st_u_none')}</div>`;
         rows.slice(0, 30).forEach(it => {
             const lib = BIB_BY_ID[it.x.bib];
             if (!lib) return;
-            const gOk = statGeoOk(it.di, it.x, pingsMap);
+            const gOk = semOf(it.di).algo !== 1 && statGeoOk(it.di, it.x, pingsMap);
             const dayTxt = `${L_DAYS_SHORT[lang][it.d.getDay()]}, ${it.d.getDate()} ${L_MONTHS_SHORT[lang][it.d.getMonth()]}`;
             const iv = `${it.x.from}–${it.x.until}`;
             const okB = (geoOk && gOk) ? ` <span class="st-badge-ok">${tr('st_geo_badge')}</span>` : '';
