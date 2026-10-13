@@ -917,7 +917,7 @@
 </head>
 <body>
     <header class="app-header">
-        <h1 class="app-title" id="app-title"><span class="emoji" id="app-emoji">🍜</span> <span id="app-name">Mensa Crew</span> <span class="tri">▾</span><span class="dev-badge">DEV · 13.10</span></h1>
+        <h1 class="app-title" id="app-title"><span class="emoji" id="app-emoji">🍜</span> <span id="app-name">Mensa Crew</span> <span class="tri">▾</span><span class="dev-badge">DEV · 13.10-2</span></h1>
         <div style="display:flex; align-items:center; gap:8px;">
             <button class="lang-btn" id="menu-btn" title="Меню"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3.5 19c0-3 2.6-5 5.5-5s5.5 2 5.5 5"/><path d="M16 5.4a3 3 0 0 1 0 5.2"/><path d="M17.5 14.3c2 .6 3.4 2.3 3.4 4.7"/></svg></button>
             <button class="bell-btn" id="bell-btn" title="Включить уведомления">🔔</button>
@@ -1306,7 +1306,7 @@
             st_sem_old_full:'Это прошлый семестр. Тогда время считалось от прихода до закрытия библиотеки — даже если ты не отметил уход.',
             st_v_old:'Засчитано по старым правилам', st_frozen:'Архив прошлого семестра — изменить нельзя', st_ses_sub_ro:'Архив — только просмотр',
             st_m_avg:'Ø в день', st_m_days:'дней в библиотеке', st_m_rec:'рекорд дня', st_lc_max:'макс.', st_show_ses:'показать сессии', st_pick_hint:'Тапни по графику — покажу день',
-            st_t_week:'неделя', st_t_month:'месяц', st_t_all:'всего', st_dyn:'Динамика',
+            st_t_week:'7 дней', st_t_month:'30 дней', st_lc_avg_mo:'Ø в месяц', st_t_all:'всего', st_dyn:'Динамика',
             st_consist:'Постоянство · приходы по дням', st_less:'меньше', st_more:'больше', st_more_link:'подробнее →',
             st_p_week:'Неделя', st_p_all:'Всё время', st_s_geo:'✓ по гео', st_s_claim:'по заявленным',
             st_r_in:'в {place}', st_r_nogeo:'гео выкл', st_rank_none:'Пока пусто — гео-часы появятся после подтверждённых сессий',
@@ -1371,7 +1371,7 @@
             st_sem_old_full:'This is a past semester. Back then time counted from arrival until the library closed — even without a leave mark.',
             st_v_old:'Counted by the old rules', st_frozen:'Past semester archive — read only', st_ses_sub_ro:'Archive — view only',
             st_m_avg:'Ø per day', st_m_days:'days in library', st_m_rec:'best day', st_lc_max:'max', st_show_ses:'show sessions', st_pick_hint:'Tap the chart to see a day',
-            st_t_week:'week', st_t_month:'month', st_t_all:'total', st_dyn:'Trend',
+            st_t_week:'7 days', st_t_month:'30 days', st_lc_avg_mo:'Ø per month', st_t_all:'total', st_dyn:'Trend',
             st_consist:'Consistency · days you showed up', st_less:'less', st_more:'more', st_more_link:'details →',
             st_p_week:'Week', st_p_all:'All time', st_s_geo:'✓ by geo', st_s_claim:'by claimed',
             st_r_in:'at {place}', st_r_nogeo:'geo off', st_rank_none:'Empty so far — geo hours appear after verified sessions',
@@ -1436,7 +1436,7 @@
             st_sem_old_full:'Das ist ein vergangenes Semester. Damals zählte die Zeit vom Kommen bis zur Schließung der Bib — auch ohne Gehzeit.',
             st_v_old:'Nach alten Regeln gezählt', st_frozen:'Archiv des letzten Semesters — nicht änderbar', st_ses_sub_ro:'Archiv — nur ansehen',
             st_m_avg:'Ø pro Tag', st_m_days:'Tage in der Bib', st_m_rec:'Rekordtag', st_lc_max:'max.', st_show_ses:'Sessions zeigen', st_pick_hint:'Tippe aufs Diagramm für einen Tag',
-            st_t_week:'Woche', st_t_month:'Monat', st_t_all:'gesamt', st_dyn:'Verlauf',
+            st_t_week:'7 Tage', st_t_month:'30 Tage', st_lc_avg_mo:'Ø pro Monat', st_t_all:'gesamt', st_dyn:'Verlauf',
             st_consist:'Konstanz · Tage mit Besuch', st_less:'weniger', st_more:'mehr', st_more_link:'Details →',
             st_p_week:'Woche', st_p_all:'Gesamt', st_s_geo:'✓ nach Geo', st_s_claim:'nach Angabe',
             st_r_in:'in {place}', st_r_nogeo:'Geo aus', st_rank_none:'Noch leer — Geo-Stunden erscheinen nach bestätigten Sessions',
@@ -3687,12 +3687,14 @@
         sh.style.setProperty('--c', lib ? lib.color : '#2563eb');
         document.querySelector('#sheet-stats-detail .sheet-title').textContent = tr('st_det_title');
         const body = document.getElementById('st-det-body');
-        let h = `<div class="st-segs"><div class="st-seg" id="st-det-period"><span data-z="w"${statDetPeriod === 'w' ? ' class="on"' : ''}>${tr('st_p_week')}</span><span data-z="m"${statDetPeriod === 'm' ? ' class="on"' : ''}>${tr('st_p_month')}</span><span data-z="s"${statDetPeriod === 's' ? ' class="on"' : ''}>${tr('st_sem')}</span></div></div>`;
+        const _isCurSem = statSem().id === semCurrent().id;
+        if (!_isCurSem) statDetPeriod = 's';
+        let h = `<div class="st-segs"><div class="st-seg" id="st-det-period">${_isCurSem ? `<span data-z="w"${statDetPeriod === 'w' ? ' class="on"' : ''}>${tr('st_p_week')}</span><span data-z="m"${statDetPeriod === 'm' ? ' class="on"' : ''}>${tr('st_p_month')}</span>` : ''}<span data-z="s"${statDetPeriod === 's' ? ' class="on"' : ''}>${tr('st_sem')}</span></div></div>`;
         const used = ALL_BIBS.filter(b => statSumAll(b.id) > 0);
         h += `<div class="st-libfilter" id="st-det-libs"><span class="st-lchip${statDetBib ? '' : ' on'}" data-b="">${tr('st_all_libs')}</span>`;
         used.forEach(b => { h += `<span class="st-lchip${statDetBib === b.id ? ' on' : ''}" data-b="${b.id}">${b.emoji} ${esc(b.name)}</span>`; });
         h += '</div>';
-        h += `<div class="st-dtotals"><div class="st-dtot"><b>${fmtHM(statSumDays(7, statDetBib))}</b>${tr('st_t_week')}</div><div class="st-dtot"><b>${fmtHM(statSumDays(30, statDetBib))}</b>${tr('st_t_month')}</div><div class="st-dtot"><b>${fmtHM(statSumAll(statDetBib))}</b>${tr('st_t_sem')}</div></div>`;
+        h += `<div class="st-dtotals">${_isCurSem ? `<div class="st-dtot"><b>${fmtHM(statSumDays(7, statDetBib))}</b>${tr('st_t_week')}</div><div class="st-dtot"><b>${fmtHM(statSumDays(30, statDetBib))}</b>${tr('st_t_month')}</div>` : ''}<div class="st-dtot"><b>${fmtHM(statSumAll(statDetBib))}</b>${tr('st_t_sem')}</div></div>`;
         const _pd = statPeriodDates();
         const _vis = _pd.map(di => statDayMinBib(di, statDetBib)).filter(m => m > 0);
         const _avgDay = _vis.length ? Math.round(_vis.reduce((a, b) => a + b, 0) / _vis.length) : 0;
@@ -3706,7 +3708,7 @@
         const _avgY = _mx > 0 ? (LH - 3 - (_avg / _mx) * (LH - 10)) : LH;
         statLc = { vals, pts: p.pts, h: LH };
         const _selI = vals.findIndex(v => (v.di && v.di === statPickDi) || (v.pref && v.pref === statPickMo));
-        h += `<div class="st-sec">${tr('st_dyn')}</div><div class="st-card"><div class="st-lc-axis"><span>${tr('st_lc_max')} ${fmtHM(_mx)}</span>${_avg ? `<span>Ø ${fmtHM(_avg)}</span>` : ''}</div><div class="st-lcwrap" id="st-lcwrap"><svg class="st-linechart" viewBox="0 0 300 ${LH}" preserveAspectRatio="none">${_avg ? `<line class="st-lc-avg" vector-effect="non-scaling-stroke" x1="0" x2="300" y1="${_avgY.toFixed(1)}" y2="${_avgY.toFixed(1)}"/>` : ''}<path class="st-lc-area" d="${p.area}"/><path class="st-lc-line" vector-effect="non-scaling-stroke" d="${p.line}"/></svg><div class="st-lc-guide" id="st-lc-guide" hidden></div><div class="st-lc-dot" id="st-lc-dot" hidden></div><div class="st-lc-tip" id="st-lc-tip" hidden></div></div><div class="st-tl" style="margin-top:6px"><span class="st-lb">${vals[0].lbl}</span><span style="flex:1"></span><span class="st-vl">${vals[vals.length - 1].lbl}</span></div><div class="st-pick" id="st-det-pick">${statPickHtml(statPickDi, statDetBib, statPickMo)}</div></div>`;
+        h += `<div class="st-sec">${tr('st_dyn')}</div><div class="st-card"><div class="st-lc-axis"><span>${tr('st_lc_max')} ${fmtHM(_mx)}</span>${_avg ? `<span>${statDetPeriod === 's' ? tr('st_lc_avg_mo') : 'Ø'} ${fmtHM(_avg)}</span>` : ''}</div><div class="st-lcwrap" id="st-lcwrap"><svg class="st-linechart" viewBox="0 0 300 ${LH}" preserveAspectRatio="none">${_avg ? `<line class="st-lc-avg" vector-effect="non-scaling-stroke" x1="0" x2="300" y1="${_avgY.toFixed(1)}" y2="${_avgY.toFixed(1)}"/>` : ''}<path class="st-lc-area" d="${p.area}"/><path class="st-lc-line" vector-effect="non-scaling-stroke" d="${p.line}"/></svg><div class="st-lc-guide" id="st-lc-guide" hidden></div><div class="st-lc-dot" id="st-lc-dot" hidden></div><div class="st-lc-tip" id="st-lc-tip" hidden></div></div><div class="st-tl" style="margin-top:6px"><span class="st-lb">${vals[0].lbl}</span><span style="flex:1"></span><span class="st-vl">${vals[vals.length - 1].lbl}</span></div><div class="st-pick" id="st-det-pick">${statPickHtml(statPickDi, statDetBib, statPickMo)}</div></div>`;
         const _hSem = statSem();
         const _hEnd = statDateFromIso(semLastDay(_hSem));
         const _hFrom = _hSem.from ? statDateFromIso(_hSem.from) : addDays(_hEnd, -125);
